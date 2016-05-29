@@ -1,5 +1,5 @@
 if (isServer) then {
   _handle = execVM "scripts\server\gameManager.sqf";
 } else {
-  hint "Welcome Client!";
+  hint "Welcome Client! How are you?";
 };
