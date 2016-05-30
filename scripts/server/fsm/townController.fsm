@@ -1,45 +1,50 @@
 /*%FSM<COMPILE "C:\Program Files (x86)\Steam\steamapps\common\Arma 3 Tools\FSMEditor\scriptedFSM.cfg, townController">*/
 /*%FSM<HEAD>*/
 /*
-item0[] = {"init",0,250,107.170639,-267.146729,197.170654,-217.146774,0.000000,"init"};
-item1[] = {"_",8,218,336.041351,-268.111420,426.041351,-218.111465,0.000000,""};
-item2[] = {"Not_occupied_",2,250,335.433380,-182.993439,425.433411,-132.993423,0.000000,"Not occupied" \n ""};
-item3[] = {"_",4,218,424.325439,-104.626320,514.325439,-54.626320,0.000000,""};
-item4[] = {"Occupied_",2,250,332.578644,-18.863373,422.578674,31.136627,0.000000,"Occupied" \n ""};
-item5[] = {"__1",4,218,215.052139,-105.779221,305.052124,-55.779221,0.000000,""};
-item6[] = {"_",4,4314,168.399414,40.046921,258.399414,90.046921,0.000000,""};
+item0[] = {"Init",0,250,270.024994,-258.702393,360.024994,-208.702469,0.000000,"Init"};
+item1[] = {"true",8,218,268.105530,-177.425842,358.105530,-127.425842,0.000000,"true"};
+item2[] = {"Idle",2,250,273.422852,-95.178650,363.422852,-45.178650,0.000000,"Idle"};
+item3[] = {"enemies_",4,218,101.538040,-18.562744,191.538055,31.437256,0.000000,"enemies?"};
+item4[] = {"Warning",2,250,265.838043,56.203491,355.838074,106.203491,0.000000,"Warning"};
+item5[] = {"new_owner_",4,218,86.086731,178.957458,176.086731,228.957458,0.000000,"new owner?"};
+item6[] = {"Contested",2,250,266.248352,260.101898,356.248352,310.101898,0.000000,"Contested"};
+item7[] = {"no_enemies_",4,218,419.396240,-22.682068,509.396240,27.317932,0.000000,"no enemies?"};
+item8[] = {"_",8,218,475.292542,178.509247,565.292542,228.509247,0.000000,""};
 link0[] = {0,1};
 link1[] = {1,2};
 link2[] = {2,3};
 link3[] = {3,4};
 link4[] = {4,5};
-link5[] = {4,6};
-link6[] = {5,2};
-link7[] = {6,4};
-globals[] = {0.000000,0,0,0,0,640,480,1,24,6316128,1,-14.624413,647.248291,116.020233,-301.011475,1403,884,1};
-window[] = {2,-1,-1,-1,-1,915,156,1596,156,3,1421};
+link5[] = {4,7};
+link6[] = {5,6};
+link7[] = {6,8};
+link8[] = {7,2};
+link9[] = {8,4};
+globals[] = {0.000000,0,0,0,0,640,480,1,32,6316128,1,-102.014389,734.632446,348.359589,-307.892212,1127,884,1};
+window[] = {2,-1,-1,-1,-1,941,182,1622,182,3,1145};
 *//*%FSM</HEAD>*/
 class FSM
 {
         fsmName = "townController";
         class States
         {
-                /*%FSM<STATE "init">*/
-                class init
+                /*%FSM<STATE "Init">*/
+                class Init
                 {
-                        name = "init";
+                        name = "Init";
                         itemno = 0;
                         init = /*%FSM<STATEINIT""">*/"params [""_presentUnits"", ""_town""];" \n
-                         "_town setVariable [""townOwner"", resistance];"/*%FSM</STATEINIT""">*/;
+                         "_town setVariable [""townOwner"", resistance];" \n
+                         ""/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
-                                /*%FSM<LINK "_">*/
-                                class _
+                                /*%FSM<LINK "true">*/
+                                class true
                                 {
                                         itemno = 1;
                                         priority = 0.000000;
-                                        to="Not_occupied_";
+                                        to="Idle";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
                                         condition=/*%FSM<CONDITION""">*/""/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
@@ -48,59 +53,138 @@ class FSM
                         };
                 };
                 /*%FSM</STATE>*/
-                /*%FSM<STATE "Not_occupied_">*/
-                class Not_occupied_
+                /*%FSM<STATE "Idle">*/
+                class Idle
                 {
-                        name = "Not_occupied_";
+                        name = "Idle";
                         itemno = 2;
-                        init = /*%FSM<STATEINIT""">*/"""NO"" remoteExec [""hint""];"/*%FSM</STATEINIT""">*/;
+                        init = /*%FSM<STATEINIT""">*/"""idle"" remoteExec [""hint"", 0];" \n
+                         "" \n
+                         "// Mission param?" \n
+                         "// Change amount depending on town size?"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
-                                /*%FSM<LINK "_">*/
-                                class _
+                                /*%FSM<LINK "enemies_">*/
+                                class enemies_
                                 {
                                         itemno = 3;
                                         priority = 0.000000;
-                                        to="Occupied_";
+                                        to="Warning";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/"(count _presentUnits) > 0"/*%FSM</CONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"_ourSide = _town getVariable ""townOwner"";" \n
+                                         "_enemyPresent = false;" \n
+                                         "" \n
+                                         "{" \n
+                                         "  _objectSide = side _x;" \n
+                                         "  if ((_objectSide != _ourSide) && ((_objectSide == west) || (_objectSide == east) || (_objectSide == resistance))) exitWith {" \n
+                                         "    _enemyPresent = true;" \n
+                                         "  };" \n
+                                         "} forEach _presentUnits;" \n
+                                         "" \n
+                                         "_enemyPresent" \n
+                                         "" \n
+                                         ""/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
                                 };
                                 /*%FSM</LINK>*/
                         };
                 };
                 /*%FSM</STATE>*/
-                /*%FSM<STATE "Occupied_">*/
-                class Occupied_
+                /*%FSM<STATE "Warning">*/
+                class Warning
                 {
-                        name = "Occupied_";
+                        name = "Warning";
                         itemno = 4;
-                        init = /*%FSM<STATEINIT""">*/"_a = count _presentUnits;" \n
-                         "_b = format [""%1"", _a];" \n
-                         "_b remoteExec [""hint"", 0];"/*%FSM</STATEINIT""">*/;
+                        init = /*%FSM<STATEINIT""">*/"_n = format [""%1"", _town getVariable ""townOwner""];" \n
+                         "_n remoteExec [""hint"", 0];"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "no_enemies_">*/
+                                class no_enemies_
+                                {
+                                        itemno = 7;
+                                        priority = 0.000000;
+                                        to="Idle";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"// is there no enemies within a range?" \n
+                                         "_ourSide = _town getVariable ""townOwner"";" \n
+                                         "_enemyPresent = false;" \n
+                                         "" \n
+                                         "{" \n
+                                         "  _objectSide = side _x;" \n
+                                         "  if ((_objectSide != _ourSide) && ((_objectSide == west) || (_objectSide == east) || (_objectSide == resistance))) then {" \n
+                                         "    _enemyPresent = true;" \n
+                                         "  };" \n
+                                         "} forEach _presentUnits;" \n
+                                         "" \n
+                                         "!_enemyPresent" \n
+                                         "" \n
+                                         ""/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                                /*%FSM<LINK "new_owner_">*/
+                                class new_owner_
+                                {
+                                        itemno = 5;
+                                        priority = 0.000000;
+                                        to="Contested";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"_eastUnits = 0;" \n
+                                         "_westUnits = 0;" \n
+                                         "_indUnits = 0;" \n
+                                         "_townOwner = _town getVariable ""townOwner"";" \n
+                                         "" \n
+                                         "{" \n
+                                         "  switch (side _x) do {" \n
+                                         "    case east: { _eastUnits = _eastUnits + 1 };" \n
+                                         "    case west: { _westUnits = _westUnits + 1 };" \n
+                                         "    case resistance: { _indUnits = _indUnits + 1 };" \n
+                                         "  };" \n
+                                         "} forEach _presentUnits;" \n
+                                         "" \n
+                                         "_winning = _townOwner;" \n
+                                         "" \n
+                                         "if ((_eastUnits > _westUnits) && (_eastUnits > _indUnits)) then {" \n
+                                         "  _winning = east;" \n
+                                         "} else {" \n
+                                         "  if ((_westUnits > _eastUnits) && (_westUnits > _indUnits)) then {" \n
+                                         "    _winning = west;" \n
+                                         "  } else {" \n
+                                         "    if ((_indUnits > _eastUnits) && (_indUnits > _westUnits)) then {" \n
+                                         "      _winning = resistance;" \n
+                                         "    };" \n
+                                         "  };" \n
+                                         "};" \n
+                                         "" \n
+                                         "_townOwner != _winning"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "Contested">*/
+                class Contested
+                {
+                        name = "Contested";
+                        itemno = 6;
+                        init = /*%FSM<STATEINIT""">*/"""contested"" remoteExec [""hint"", 0];" \n
+                         "// Handle change" \n
+                         "_town setVariable [""townOwner"", _winning];"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
                                 /*%FSM<LINK "_">*/
                                 class _
                                 {
-                                        itemno = 6;
+                                        itemno = 8;
                                         priority = 0.000000;
-                                        to="Occupied_";
+                                        to="Warning";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/"_a != count _presentUnits"/*%FSM</CONDITION""">*/;
-                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
-                                };
-                                /*%FSM</LINK>*/
-                                /*%FSM<LINK "__1">*/
-                                class __1
-                                {
-                                        itemno = 5;
-                                        priority = 0.000000;
-                                        to="Not_occupied_";
-                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/"count _presentUnits == 0"/*%FSM</CONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/""/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
                                 };
                                 /*%FSM</LINK>*/
@@ -108,7 +192,7 @@ class FSM
                 };
                 /*%FSM</STATE>*/
         };
-        initState="init";
+        initState="Init";
         finalStates[] =
         {
         };

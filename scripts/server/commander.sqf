@@ -12,6 +12,6 @@ _minDist = -1;
 
 {
   if (side _x == _side) then {
-    _x addWaypoint [(getPos _mintown), 50];
+    _x addWaypoint [(getPos _mintown), 5];
   };
 } forEach allGroups;

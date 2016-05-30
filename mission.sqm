@@ -9,7 +9,8 @@ class Mission
 		"A3_Air_F_EPC_Plane_CAS_01",
 		"A3_Air_F_EPC_Plane_CAS_02",
 		"A3_Characters_F_BLUFOR",
-		"A3_Characters_F_OPFOR"
+		"A3_Characters_F_OPFOR",
+		"A3_Characters_F_INDEP"
 	};
 	addOnsAuto[]=
 	{
@@ -40,7 +41,7 @@ class Mission
 	};
 	class Groups
 	{
-		items=8;
+		items=9;
 		class Item0
 		{
 			side="WEST";
@@ -164,7 +165,6 @@ class Mission
 					id=6;
 					side="CIV";
 					vehicle="C_man_1";
-					player="PLAYER COMMANDER";
 					leader=1;
 					skill=0.60000002;
 				};
@@ -196,6 +196,25 @@ class Mission
 					{
 					};
 					showWP="NEVER";
+				};
+			};
+		};
+		class Item8
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={2651.6992,17.562704,1275.8984};
+					id=8;
+					side="EAST";
+					vehicle="O_Soldier_F";
+					player="PLAYER COMMANDER";
+					leader=1;
+					skill=0.60000002;
+					init="this allowDamage false;";
 				};
 			};
 		};
