@@ -20,5 +20,6 @@ _opForMarker = "";
   [_x] execVM "scripts\server\townManager.sqf";
 } forEach _towns;
 
+sleep 2;  // Come back to this sleep command later!
 [_blueForMarker, _towns, west] execVM "scripts\server\commander.sqf";
 [_opForMarker, _towns, east] execVM "scripts\server\commander.sqf";

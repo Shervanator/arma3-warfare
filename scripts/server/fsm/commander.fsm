@@ -1,0 +1,103 @@
+/*%FSM<COMPILE "C:\Program Files (x86)\Steam\steamapps\common\Arma 3 Tools\FSMEditor\scriptedFSM.cfg, commander">*/
+/*%FSM<HEAD>*/
+/*
+item0[] = {"Init",0,250,-40.348846,-149.418610,49.651154,-99.418610,0.000000,"Init"};
+item1[] = {"_",8,218,-39.767456,-81.976730,50.232544,-31.976730,0.000000,""};
+item2[] = {"Determine_Orders",2,4346,-40.348846,-9.883728,49.651169,40.116272,0.000000,"Determine" \n "Orders"};
+link0[] = {0,1};
+link1[] = {1,2};
+link2[] = {2,1};
+globals[] = {0.000000,0,0,0,0,640,480,1,5,6316128,1,-505.420959,505.420532,429.346649,-339.623047,886,674,1};
+window[] = {0,-1,-1,-1,-1,903,279,1809,57,1,904};
+*//*%FSM</HEAD>*/
+class FSM
+{
+        fsmName = "commander";
+        class States
+        {
+                /*%FSM<STATE "Init">*/
+                class Init
+                {
+                        name = "Init";
+                        itemno = 0;
+                        init = /*%FSM<STATEINIT""">*/"params [""_hqMarker"", ""_towns"", ""_side"", ""_teamGroups""];"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "_">*/
+                                class _
+                                {
+                                        itemno = 1;
+                                        priority = 0.000000;
+                                        to="Determine_Orders";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/""/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "Determine_Orders">*/
+                class Determine_Orders
+                {
+                        name = "Determine_Orders";
+                        itemno = 2;
+                        init = /*%FSM<STATEINIT""">*/"// Find where to attack and update waypoints" \n
+                         "" \n
+                         "// are we attacking any towns?" \n
+                         "//if true" \n
+                         "  // dont do anything" \n
+                         "// else:" \n
+                         "  // find new town to attack" \n
+                         "  // give order" \n
+                         "" \n
+                         "{" \n
+                         "  //_orderTown = _x getVariable ""order"";" \n
+                         "  if ((isNil ""_x getVariable 'order'"") || ((!(isNil ""_x getVariable 'order'"")) && ((_x getVariable ""order"") getVariable ""townOwner"") == _side)) then {" \n
+                         "  //if ((isNil ""_orderTown"") || ((!(isNil ""_orderTown"")) && (_orderTown getVariable ""townOwner"") == _side)) then {" \n
+                         "  " \n
+                         "_minTown = """";" \n
+                         "_minDist = -1;" \n
+                         "for '_j' in " \n
+                         "{" \n
+                         "  if ((_x getVariable ""townOwner"") != _side) then {" \n
+                         "    _dist = (getMarkerPos _hqMarker) distanceSqr (getPos _x);" \n
+                         "    if ((_minDist == -1) or (_dist < _minDist)) then {" \n
+                         "      _minDist = _dist;" \n
+                         "      _minTown = _x;" \n
+                         "    };" \n
+                         "  };	" \n
+                         "} forEach _towns;" \n
+                         "" \n
+                         "_x setVariable [""order"", _mintown];" \n
+                         "_x addWaypoint [(getPos _mintown), 5];" \n
+                         "" \n
+                         "  };" \n
+                         "} forEach _teamGroups;" \n
+                         "" \n
+                         ""/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "_">*/
+                                class _
+                                {
+                                        itemno = 1;
+                                        priority = 0.000000;
+                                        to="Determine_Orders";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/""/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+        };
+        initState="Init";
+        finalStates[] =
+        {
+        };
+};
+/*%FSM</COMPILE>*/

@@ -14,10 +14,7 @@ class Mission
 	};
 	addOnsAuto[]=
 	{
-		"A3_Characters_F_BLUFOR",
-		"a3_characters_f",
-		"A3_Characters_F_OPFOR",
-		"A3_Characters_F_Civil",
+		"A3_Characters_F",
 		"a3_map_stratis"
 	};
 	randomSeed=9587005;
@@ -41,7 +38,7 @@ class Mission
 	};
 	class Groups
 	{
-		items=9;
+		items=8;
 		class Item0
 		{
 			side="WEST";
@@ -165,6 +162,7 @@ class Mission
 					id=6;
 					side="CIV";
 					vehicle="C_man_1";
+					player="PLAYER COMMANDER";
 					leader=1;
 					skill=0.60000002;
 				};
@@ -196,25 +194,6 @@ class Mission
 					{
 					};
 					showWP="NEVER";
-				};
-			};
-		};
-		class Item8
-		{
-			side="EAST";
-			class Vehicles
-			{
-				items=1;
-				class Item0
-				{
-					position[]={2651.6992,17.562704,1275.8984};
-					id=8;
-					side="EAST";
-					vehicle="O_Soldier_F";
-					player="PLAYER COMMANDER";
-					leader=1;
-					skill=0.60000002;
-					init="this allowDamage false;";
 				};
 			};
 		};

@@ -1,6 +1,6 @@
 params ["_hqMarker", "_towns", "_side"];
 
-_minTown = "";
+/*_minTown = "";
 _minDist = -1;
 {
   _dist = (getMarkerPos _hqMarker) distanceSqr (getPos _x);
@@ -9,9 +9,14 @@ _minDist = -1;
     _minTown = _x;
   };
 } forEach _towns;
+*/
+
+_teamGroups = [];
 
 {
   if (side _x == _side) then {
-    _x addWaypoint [(getPos _mintown), 5];
+    _teamGroups pushBack _x;
   };
 } forEach allGroups;
+
+[_hqMarker, _towns, _side, _teamGroups] execFSM "scripts\server\fsm\commander.fsm";
