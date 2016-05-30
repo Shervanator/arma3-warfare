@@ -1,13 +1,13 @@
 /*%FSM<COMPILE "C:\Program Files (x86)\Steam\steamapps\common\Arma 3 Tools\FSMEditor\scriptedFSM.cfg, townController">*/
 /*%FSM<HEAD>*/
 /*
-item0[] = {"init",0,4346,107.170639,-267.146729,197.170654,-217.146774,0.000000,"init"};
+item0[] = {"init",0,250,107.170639,-267.146729,197.170654,-217.146774,0.000000,"init"};
 item1[] = {"_",8,218,336.041351,-268.111420,426.041351,-218.111465,0.000000,""};
 item2[] = {"Not_occupied_",2,250,335.433380,-182.993439,425.433411,-132.993423,0.000000,"Not occupied" \n ""};
 item3[] = {"_",4,218,424.325439,-104.626320,514.325439,-54.626320,0.000000,""};
 item4[] = {"Occupied_",2,250,332.578644,-18.863373,422.578674,31.136627,0.000000,"Occupied" \n ""};
 item5[] = {"__1",4,218,215.052139,-105.779221,305.052124,-55.779221,0.000000,""};
-item6[] = {"_",4,218,168.399414,40.046921,258.399414,90.046921,0.000000,""};
+item6[] = {"_",4,4314,168.399414,40.046921,258.399414,90.046921,0.000000,""};
 link0[] = {0,1};
 link1[] = {1,2};
 link2[] = {2,3};
@@ -16,8 +16,8 @@ link4[] = {4,5};
 link5[] = {4,6};
 link6[] = {5,2};
 link7[] = {6,4};
-globals[] = {0.000000,0,0,0,0,640,480,1,24,6316128,1,-14.701429,647.171265,116.020233,-301.011475,1403,884,1};
-window[] = {2,-1,-1,-1,-1,967,208,1648,208,3,1421};
+globals[] = {0.000000,0,0,0,0,640,480,1,24,6316128,1,-14.624413,647.248291,116.020233,-301.011475,1403,884,1};
+window[] = {2,-1,-1,-1,-1,915,156,1596,156,3,1421};
 *//*%FSM</HEAD>*/
 class FSM
 {
@@ -29,7 +29,8 @@ class FSM
                 {
                         name = "init";
                         itemno = 0;
-                        init = /*%FSM<STATEINIT""">*/"//(_this select 1) setVariable [""townOwner"", resistance];"/*%FSM</STATEINIT""">*/;
+                        init = /*%FSM<STATEINIT""">*/"params [""_presentUnits"", ""_town""];" \n
+                         "_town setVariable [""townOwner"", resistance];"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
@@ -63,7 +64,7 @@ class FSM
                                         priority = 0.000000;
                                         to="Occupied_";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/"(count (_this select 0)) > 0"/*%FSM</CONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"(count _presentUnits) > 0"/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
                                 };
                                 /*%FSM</LINK>*/
@@ -75,7 +76,7 @@ class FSM
                 {
                         name = "Occupied_";
                         itemno = 4;
-                        init = /*%FSM<STATEINIT""">*/"_a = count (_this select 0);" \n
+                        init = /*%FSM<STATEINIT""">*/"_a = count _presentUnits;" \n
                          "_b = format [""%1"", _a];" \n
                          "_b remoteExec [""hint"", 0];"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
@@ -88,7 +89,7 @@ class FSM
                                         priority = 0.000000;
                                         to="Occupied_";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/"_a != count (_this select 0)"/*%FSM</CONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"_a != count _presentUnits"/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
                                 };
                                 /*%FSM</LINK>*/
@@ -99,7 +100,7 @@ class FSM
                                         priority = 0.000000;
                                         to="Not_occupied_";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/"count (_this select 0) == 0"/*%FSM</CONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"count _presentUnits == 0"/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
                                 };
                                 /*%FSM</LINK>*/
