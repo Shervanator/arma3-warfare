@@ -3,9 +3,9 @@
 /*
 item0[] = {"Init",0,250,270.024994,-258.702393,360.024994,-208.702469,0.000000,"Init"};
 item1[] = {"true",8,218,268.105530,-177.425842,358.105530,-127.425842,0.000000,"true"};
-item2[] = {"Idle",2,4346,273.422852,-95.178650,363.422852,-45.178650,0.000000,"Idle"};
+item2[] = {"Idle",2,250,273.422852,-95.178650,363.422852,-45.178650,0.000000,"Idle"};
 item3[] = {"enemies_",4,218,10.110611,-100.770599,100.110626,-50.770599,0.000000,"enemies?"};
-item4[] = {"Warning",2,250,265.838043,56.203491,355.838074,106.203491,0.000000,"Warning"};
+item4[] = {"Warning",2,4346,265.838043,56.203491,355.838074,106.203491,0.000000,"Warning"};
 item5[] = {"new_owner_",4,218,86.086731,178.957458,176.086731,228.957458,0.000000,"new owner?"};
 item6[] = {"Contested",2,250,266.248352,260.101898,356.248352,310.101898,0.000000,"Contested"};
 item7[] = {"no_enemies_",4,218,419.396240,-22.682068,509.396240,27.317932,0.000000,"no enemies?"};
@@ -24,8 +24,8 @@ link8[] = {7,2};
 link9[] = {8,4};
 link10[] = {9,10};
 link11[] = {10,4};
-globals[] = {0.000000,0,0,0,0,640,480,1,36,6316128,1,-113.653023,838.805786,438.851349,-308.241516,1127,884,1};
-window[] = {2,-1,-1,-1,-1,993,234,1674,234,3,1145};
+globals[] = {0.000000,0,0,0,0,640,480,1,36,6316128,1,-135.601959,860.754456,456.067505,-325.457916,1127,884,1};
+window[] = {2,-1,-1,-32000,-32000,993,234,1674,234,3,1145};
 *//*%FSM</HEAD>*/
 class FSM
 {
@@ -114,8 +114,8 @@ class FSM
                 {
                         name = "Warning";
                         itemno = 4;
-                        init = /*%FSM<STATEINIT""">*/"_n = format [""%1"", _town getVariable ""townOwner""];" \n
-                         "_n remoteExec [""hint"", 0];" \n
+                        init = /*%FSM<STATEINIT""">*/"//_n = format [""%1"", _town getVariable ""townOwner""];" \n
+                         "//_n remoteExec [""hint"", 0];" \n
                          "" \n
                          "" \n
                          "" \n
@@ -218,11 +218,10 @@ class FSM
                 {
                         name = "Spawn_Patrol";
                         itemno = 9;
-                        init = /*%FSM<STATEINIT""">*/"_grp = [(getPos _town), (_town getVariable ""townOwner""), 6] call BIS_fnc_spawnGroup;" \n
-                         "[_grp, (getPos _town), 100] call BIS_fnc_taskPatrol;" \n
+                        init = /*%FSM<STATEINIT""">*/"_patrolSize = 6;" \n
                          "" \n
-                         "_patrolForces = _town getVariable ""patrolForces"";" \n
-                         "_patrolForces pushback _grp;" \n
+                         "_patrolForces = _town call WF_createPatrolGroup;" \n
+                         "" \n
                          "_town setVariable [""patrolForces"", _patrolForces];"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
