@@ -12,8 +12,13 @@ _opForMarker = "";
 } foreach allMapMarkers;
 
 {
-  _fPole = "FlagPole_F" createVehicle (getMarkerPos _x);
-  _towns pushBack _fPole;
+  _town = "FlagPole_F" createVehicle (getMarkerPos _x);
+  _towns pushBack _town;
+  switch (getMarkerColor _x) do {
+    case "ColorYellow": { _town setVariable ["type", "village"] };
+    case "ColorBlack": { _town setVariable ["type", "town"] };
+    case "ColorRed": { _town setVariable ["type", "airport"] };
+  };
 } forEach _townMarkers;
 
 {

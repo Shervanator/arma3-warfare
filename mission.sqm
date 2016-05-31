@@ -241,14 +241,14 @@ class Mission
 			position[]={2157.6108,6.610857,5550.1333};
 			name="Airport";
 			type="mil_flag";
-			colorName="ColorPink";
+			colorName="ColorRed";
 		};
 		class Item6
 		{
 			position[]={2994.4529,3.3422644,6034.2627};
 			name="town6";
 			type="mil_flag";
-			colorName="ColorOrange";
+			colorName="ColorBlack";
 		};
 		class Item7
 		{
