@@ -38,7 +38,7 @@ class Mission
 	};
 	class Groups
 	{
-		items=8;
+		items=10;
 		class Item0
 		{
 			side="WEST";
@@ -197,10 +197,104 @@ class Mission
 				};
 			};
 		};
+		class Item8
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={2588.2437,119.8578,1679.9053};
+					id=8;
+					side="EAST";
+					vehicle="O_Soldier_F";
+					leader=1;
+					skill=0.60000002;
+				};
+			};
+		};
+		class Item9
+		{
+			side="WEST";
+			class Vehicles
+			{
+				items=8;
+				class Item0
+				{
+					position[]={2707.946,82.78228,950.49854};
+					id=9;
+					side="WEST";
+					vehicle="B_soldier_SL_F";
+					leader=1;
+					rank="SERGEANT";
+					skill=0.5;
+				};
+				class Item1
+				{
+					position[]={2712.946,83.246208,945.49854};
+					id=10;
+					side="WEST";
+					vehicle="B_soldier_F";
+					skill=0.40000001;
+				};
+				class Item2
+				{
+					position[]={2702.946,83.03875,945.49854};
+					id=11;
+					side="WEST";
+					vehicle="B_soldier_LAT_F";
+					rank="CORPORAL";
+					skill=0.44999999;
+				};
+				class Item3
+				{
+					position[]={2717.946,82.866516,940.49854};
+					id=12;
+					side="WEST";
+					vehicle="B_soldier_M_F";
+					skill=0.40000001;
+				};
+				class Item4
+				{
+					position[]={2697.946,81.870605,940.49854};
+					id=13;
+					side="WEST";
+					vehicle="B_soldier_TL_F";
+					rank="SERGEANT";
+					skill=0.5;
+				};
+				class Item5
+				{
+					position[]={2722.946,83.062668,935.49854};
+					id=14;
+					side="WEST";
+					vehicle="B_soldier_AR_F";
+					rank="CORPORAL";
+					skill=0.44999999;
+				};
+				class Item6
+				{
+					position[]={2692.946,79.523048,935.49854};
+					id=15;
+					side="WEST";
+					vehicle="B_soldier_A_F";
+					skill=0.40000001;
+				};
+				class Item7
+				{
+					position[]={2727.946,81.504547,930.49854};
+					id=16;
+					side="WEST";
+					vehicle="B_medic_F";
+					skill=0.40000001;
+				};
+			};
+		};
 	};
 	class Markers
 	{
-		items=12;
+		items=14;
 		class Item0
 		{
 			position[]={2782.9226,143.52373,1744.1372};
@@ -283,6 +377,28 @@ class Mission
 			name="town9";
 			type="mil_flag";
 			colorName="ColorYellow";
+		};
+		class Item12
+		{
+			position[]={2697.104,19.344364,1146.2246};
+			name="wqawsd";
+			markerType="ELLIPSE";
+			type="mil_circle";
+			colorName="ColorGreen";
+			fillName="Grid";
+			a=1000;
+			b=1000;
+		};
+		class Item13
+		{
+			position[]={2698.5085,19.582703,1146.0938};
+			name="sadsadsa";
+			markerType="ELLIPSE";
+			type="Empty";
+			colorName="ColorRed";
+			fillName="Cross";
+			a=65;
+			b=65;
 		};
 	};
 };

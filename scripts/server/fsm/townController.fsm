@@ -1,27 +1,31 @@
 /*%FSM<COMPILE "C:\Program Files (x86)\Steam\steamapps\common\Arma 3 Tools\FSMEditor\scriptedFSM.cfg, townController">*/
 /*%FSM<HEAD>*/
 /*
-item0[] = {"Init",0,4346,270.024994,-258.702393,360.024994,-208.702469,0.000000,"Init"};
+item0[] = {"Init",0,250,270.024994,-258.702393,360.024994,-208.702469,0.000000,"Init"};
 item1[] = {"true",8,218,268.105530,-177.425842,358.105530,-127.425842,0.000000,"true"};
-item2[] = {"Idle",2,250,273.422852,-95.178650,363.422852,-45.178650,0.000000,"Idle"};
-item3[] = {"enemies_",4,218,101.538040,-18.562744,191.538055,31.437256,0.000000,"enemies?"};
+item2[] = {"Idle",2,4346,273.422852,-95.178650,363.422852,-45.178650,0.000000,"Idle"};
+item3[] = {"enemies_",4,218,10.110611,-100.770599,100.110626,-50.770599,0.000000,"enemies?"};
 item4[] = {"Warning",2,250,265.838043,56.203491,355.838074,106.203491,0.000000,"Warning"};
 item5[] = {"new_owner_",4,218,86.086731,178.957458,176.086731,228.957458,0.000000,"new owner?"};
 item6[] = {"Contested",2,250,266.248352,260.101898,356.248352,310.101898,0.000000,"Contested"};
 item7[] = {"no_enemies_",4,218,419.396240,-22.682068,509.396240,27.317932,0.000000,"no enemies?"};
-item8[] = {"_",8,218,475.292542,178.509247,565.292542,228.509247,0.000000,""};
+item8[] = {"_",8,218,439.287415,165.801575,529.287415,215.801575,0.000000,""};
+item9[] = {"Spawn_Patrol",2,250,6.924522,60.642456,96.924530,110.642464,0.000000,"Spawn Patrol"};
+item10[] = {"_",8,218,129.727585,57.207489,219.727585,107.207489,0.000000,""};
 link0[] = {0,1};
 link1[] = {1,2};
 link2[] = {2,3};
-link3[] = {3,4};
+link3[] = {3,9};
 link4[] = {4,5};
 link5[] = {4,7};
 link6[] = {5,6};
 link7[] = {6,8};
 link8[] = {7,2};
 link9[] = {8,4};
-globals[] = {0.000000,0,0,0,0,640,480,1,32,6316128,1,-56.417145,689.035156,312.593811,-272.126495,1127,884,1};
-window[] = {2,-1,-1,-1,-1,889,130,1570,130,3,1145};
+link10[] = {9,10};
+link11[] = {10,4};
+globals[] = {0.000000,0,0,0,0,640,480,1,36,6316128,1,-113.653023,838.805786,438.851349,-308.241516,1127,884,1};
+window[] = {2,-1,-1,-1,-1,993,234,1674,234,3,1145};
 *//*%FSM</HEAD>*/
 class FSM
 {
@@ -34,9 +38,10 @@ class FSM
                         name = "Init";
                         itemno = 0;
                         init = /*%FSM<STATEINIT""">*/"params [""_town""];" \n
-                         "_presentUnits = list (_town getVariable ""capZone"");" \n
+                         "_capZoneUnits = list (_town getVariable ""capZone"");" \n
+                         "_alertZoneUnits = list (_town getVariable ""alertZone"");" \n
                          "_town setVariable [""townOwner"", resistance];" \n
-                         ""/*%FSM</STATEINIT""">*/;
+                         "_town setVariable [""patrolForces"", []];"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
@@ -61,6 +66,16 @@ class FSM
                         itemno = 2;
                         init = /*%FSM<STATEINIT""">*/"""idle"" remoteExec [""hint"", 0];" \n
                          "" \n
+                         "_patrolForces = _town getVariable ""patrolForces"";" \n
+                         "" \n
+                         "{" \n
+                         "  { deleteVehicle _x; } forEach units _x;" \n
+                         "  deleteGroup _x;" \n
+                         "} forEach _patrolForces;" \n
+                         "" \n
+                         "_town setVariable [""patrolForces"", []];" \n
+                         "" \n
+                         "" \n
                          "// Mission param?" \n
                          "// Change amount depending on town size?" \n
                          "" \n
@@ -73,7 +88,7 @@ class FSM
                                 {
                                         itemno = 3;
                                         priority = 0.000000;
-                                        to="Warning";
+                                        to="Spawn_Patrol";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
                                         condition=/*%FSM<CONDITION""">*/"_ourSide = _town getVariable ""townOwner"";" \n
                                          "_enemyPresent = false;" \n
@@ -83,7 +98,7 @@ class FSM
                                          "  if ((_objectSide != _ourSide) && ((_objectSide == west) || (_objectSide == east) || (_objectSide == resistance))) exitWith {" \n
                                          "    _enemyPresent = true;" \n
                                          "  };" \n
-                                         "} forEach _presentUnits;" \n
+                                         "} forEach _alertZoneUnits;" \n
                                          "" \n
                                          "_enemyPresent" \n
                                          "" \n
@@ -101,6 +116,8 @@ class FSM
                         itemno = 4;
                         init = /*%FSM<STATEINIT""">*/"_n = format [""%1"", _town getVariable ""townOwner""];" \n
                          "_n remoteExec [""hint"", 0];" \n
+                         "" \n
+                         "" \n
                          "" \n
                          "// Spawn _side units in town"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
@@ -122,7 +139,7 @@ class FSM
                                          "  if ((_objectSide != _ourSide) && ((_objectSide == west) || (_objectSide == east) || (_objectSide == resistance))) then {" \n
                                          "    _enemyPresent = true;" \n
                                          "  };" \n
-                                         "} forEach _presentUnits;" \n
+                                         "} forEach _alertZoneUnits;" \n
                                          "" \n
                                          "!_enemyPresent" \n
                                          "" \n
@@ -148,7 +165,7 @@ class FSM
                                          "    case west: { _westUnits = _westUnits + 1 };" \n
                                          "    case resistance: { _indUnits = _indUnits + 1 };" \n
                                          "  };" \n
-                                         "} forEach _presentUnits;" \n
+                                         "} forEach _capZoneUnits;" \n
                                          "" \n
                                          "_winning = _townOwner;" \n
                                          "" \n
@@ -186,6 +203,34 @@ class FSM
                                 class _
                                 {
                                         itemno = 8;
+                                        priority = 0.000000;
+                                        to="Warning";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/""/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "Spawn_Patrol">*/
+                class Spawn_Patrol
+                {
+                        name = "Spawn_Patrol";
+                        itemno = 9;
+                        init = /*%FSM<STATEINIT""">*/"_grp = [(getPos _town), (_town getVariable ""townOwner""), 6] call BIS_fnc_spawnGroup;" \n
+                         "[_grp, (getPos _town), 100] call BIS_fnc_taskPatrol;" \n
+                         "" \n
+                         "_patrolForces = _town getVariable ""patrolForces"";" \n
+                         "_patrolForces pushback _grp;" \n
+                         "_town setVariable [""patrolForces"", _patrolForces];"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "_">*/
+                                class _
+                                {
+                                        itemno = 10;
                                         priority = 0.000000;
                                         to="Warning";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;

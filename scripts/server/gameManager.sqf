@@ -3,6 +3,11 @@ _towns = [];
 _blueForMarker = "";
 _opForMarker = "";
 
+west setFriend [resistance, 0];
+east setFriend [resistance, 0];
+resistance setFriend [west, 0];
+resistance setFriend [east, 0];
+
 {
   switch (getMarkerType _x) do {
     case "mil_flag": { _townMarkers pushback _x };
