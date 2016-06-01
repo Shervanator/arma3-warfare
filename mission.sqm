@@ -10,11 +10,13 @@ class Mission
 		"A3_Air_F_EPC_Plane_CAS_02",
 		"A3_Characters_F_BLUFOR",
 		"A3_Characters_F_OPFOR",
-		"A3_Characters_F_INDEP"
+		"A3_Characters_F_INDEP",
+		"A3_Armor_F_Beta_APC_Tracked_02"
 	};
 	addOnsAuto[]=
 	{
 		"A3_Characters_F",
+		"A3_Armor_F_Beta_APC_Tracked_02",
 		"a3_map_stratis"
 	};
 	randomSeed=9587005;
@@ -90,6 +92,7 @@ class Mission
 					player="PLAY CDG";
 					leader=1;
 					skill=0.60000002;
+					text="man5";
 				};
 			};
 		};
@@ -164,17 +167,32 @@ class Mission
 				items=1;
 				class Item0
 				{
-					position[]={2728.3071,38.171913,1350.0693};
-					azimut=185;
+					position[]={2764.8359,29.233177,1271.7959};
+					azimut=263.46399;
 					id=6;
 					side="WEST";
-					vehicle="B_Soldier_F";
+					vehicle="B_soldier_LAT_F";
 					player="PLAYER COMMANDER";
 					leader=1;
 					skill=0.60000002;
 					init="this allowDamage false;";
 				};
 			};
+		};
+	};
+	class Vehicles
+	{
+		items=1;
+		class Item0
+		{
+			position[]={2710.9185,23.181423,1270.2324};
+			azimut=173.405;
+			id=7;
+			side="EMPTY";
+			vehicle="O_APC_Tracked_02_cannon_F";
+			leader=1;
+			skill=0.60000002;
+			text="myVehicle";
 		};
 	};
 	class Markers
