@@ -4,14 +4,14 @@
 item0[] = {"Init",0,250,270.024994,-258.702393,360.024994,-208.702469,0.000000,"Init"};
 item1[] = {"true",8,218,268.105530,-177.425842,358.105530,-127.425842,0.000000,"true"};
 item2[] = {"Idle",2,250,273.422852,-95.178650,363.422852,-45.178650,0.000000,"Idle"};
-item3[] = {"enemies_",4,218,10.110611,-100.770599,100.110626,-50.770599,0.000000,"enemies?"};
-item4[] = {"Warning",2,4346,265.838043,56.203491,355.838074,106.203491,0.000000,"Warning"};
+item3[] = {"enemies_",4,4314,10.110611,-100.770599,100.110626,-50.770599,0.000000,"enemies?"};
+item4[] = {"Warning",2,250,265.838043,56.203491,355.838074,106.203491,0.000000,"Warning"};
 item5[] = {"new_owner_",4,218,86.086731,178.957458,176.086731,228.957458,0.000000,"new owner?"};
 item6[] = {"Contested",2,250,266.248352,260.101898,356.248352,310.101898,0.000000,"Contested"};
 item7[] = {"no_enemies_",4,218,419.396240,-22.682068,509.396240,27.317932,0.000000,"no enemies?"};
 item8[] = {"_",8,218,439.287415,165.801575,529.287415,215.801575,0.000000,""};
 item9[] = {"Spawn_Patrol",2,250,6.924522,60.642456,96.924530,110.642464,0.000000,"Spawn Patrol"};
-item10[] = {"_",8,218,129.727585,57.207489,219.727585,107.207489,0.000000,""};
+item10[] = {"_",4,218,129.727585,57.207489,219.727585,107.207489,0.000000,""};
 link0[] = {0,1};
 link1[] = {1,2};
 link2[] = {2,3};
@@ -24,8 +24,8 @@ link8[] = {7,2};
 link9[] = {8,4};
 link10[] = {9,10};
 link11[] = {10,4};
-globals[] = {0.000000,0,0,0,0,640,480,1,36,6316128,1,-135.601959,860.754456,456.067505,-325.457916,1127,884,1};
-window[] = {2,-1,-1,-32000,-32000,993,234,1674,234,3,1145};
+globals[] = {0.000000,0,0,0,0,640,480,1,37,6316128,1,-28.963047,754.115417,237.633392,-376.600342,1127,884,1};
+window[] = {2,-1,-1,-32000,-32000,967,208,1648,208,3,1145};
 *//*%FSM</HEAD>*/
 class FSM
 {
@@ -64,22 +64,8 @@ class FSM
                 {
                         name = "Idle";
                         itemno = 2;
-                        init = /*%FSM<STATEINIT""">*/"""idle"" remoteExec [""hint"", 0];" \n
-                         "" \n
-                         "_patrolForces = _town getVariable ""patrolForces"";" \n
-                         "" \n
-                         "{" \n
-                         "  { deleteVehicle _x; } forEach units _x;" \n
-                         "  deleteGroup _x;" \n
-                         "} forEach _patrolForces;" \n
-                         "" \n
-                         "_town setVariable [""patrolForces"", []];" \n
-                         "" \n
-                         "" \n
-                         "// Mission param?" \n
-                         "// Change amount depending on town size?" \n
-                         "" \n
-                         "// despawn _side units in town"/*%FSM</STATEINIT""">*/;
+                        init = /*%FSM<STATEINIT""">*/"_despawnHandle = _town execVM ""scripts\server\town\despawnTownPatrol.sqf"";" \n
+                         ""/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
@@ -90,17 +76,20 @@ class FSM
                                         priority = 0.000000;
                                         to="Spawn_Patrol";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/"_ourSide = _town getVariable ""townOwner"";" \n
-                                         "_enemyPresent = false;" \n
+                                        condition=/*%FSM<CONDITION""">*/"_enemyPresentAndScriptDone = false;" \n
                                          "" \n
-                                         "{" \n
-                                         "  _objectSide = side _x;" \n
-                                         "  if ((_objectSide != _ourSide) && ((_objectSide == west) || (_objectSide == east) || (_objectSide == resistance))) exitWith {" \n
-                                         "    _enemyPresent = true;" \n
-                                         "  };" \n
-                                         "} forEach _alertZoneUnits;" \n
+                                         "if (scriptDone _despawnHandle) then {" \n
+                                         "  _ourSide = _town getVariable ""townOwner"";" \n
                                          "" \n
-                                         "_enemyPresent" \n
+                                         "  {" \n
+                                         "    _objectSide = side _x;" \n
+                                         "    if ((_objectSide != _ourSide) && ((_objectSide == west) || (_objectSide == east) || (_objectSide == resistance))) exitWith {" \n
+                                         "      _enemyPresentAndScriptDone = true;" \n
+                                         "    };" \n
+                                         "  } forEach _alertZoneUnits;" \n
+                                         "};" \n
+                                         "" \n
+                                         "_enemyPresentAndScriptDone" \n
                                          "" \n
                                          ""/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
@@ -218,11 +207,7 @@ class FSM
                 {
                         name = "Spawn_Patrol";
                         itemno = 9;
-                        init = /*%FSM<STATEINIT""">*/"_patrolSize = 6;" \n
-                         "" \n
-                         "_patrolForces = _town call WF_createPatrolGroup;" \n
-                         "" \n
-                         "_town setVariable [""patrolForces"", _patrolForces];"/*%FSM</STATEINIT""">*/;
+                        init = /*%FSM<STATEINIT""">*/"_spawnHandle = _town execVM ""scripts\server\town\spawnTownPatrol.sqf"";"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
@@ -233,7 +218,7 @@ class FSM
                                         priority = 0.000000;
                                         to="Warning";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/""/*%FSM</CONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"scriptDone _spawnHandle"/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
                                 };
                                 /*%FSM</LINK>*/

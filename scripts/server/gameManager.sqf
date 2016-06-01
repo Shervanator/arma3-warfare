@@ -27,7 +27,7 @@ resistance setFriend [east, 0];
 } forEach _townMarkers;
 
 {
-  [_x] execVM "scripts\server\townManager.sqf";
+  [_x] execVM "scripts\server\town\townManager.sqf";
 } forEach _towns;
 
 sleep 3;  // Come back to this sleep command later!
