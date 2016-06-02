@@ -1,39 +1,66 @@
-params ["_savedGroups", "_side"];
+params ["_savedGroup", "_side"];
 
-_groups = [];
+_group = createGroup _side;
+
+_units = _savedGroup select 0;
+_vehicles = _savedGroup select 1;
+_groupSettings = _savedGroup select 2;
+
+_patrolPosition = _groupSettings select 0;
+_patrolRadius = _groupSettings select 1;
+
+_group setVariable ["patrolPosition", _patrolPosition];
+_group setVariable ["patrolRadius", _patrolRadius];
+
+_newVehicles = [];
 
 {
-  _group = createGroup _side;
-  _groups pushBack _group;
+  _classNameVehicle = _x select 0;
+  _vehicleHealth = _x select 1;
+  _vehiclePos = _x select 2;
 
-  {
-    _className = _x select 0;
-    _unitHealth = _x select 1;
-    _unitPos = _x select 2;
+  _vehicle = _classNameVehicle createVehicle _vehiclePos;
+  _newVehicles pushback _vehicle;
 
-    _classNameVehicle = _x select 3;
-    _vehicleHealth = _x select 4;
-    _vehiclePos = _x select 5;
+  _vehicleHitPointNames = _vehicleHealth select 0;
+  _vehicleDamageValues = _vehicleHealth select 2;
 
-    _className createUnit [_unitPos, _group, "newUnit = this"];
+  for "_i" from 0 to ((count _vehicleHitPointNames) - 1) do {
+    _vehicle setHitPointDamage [(_vehicleHitPointNames select _i), (_vehicleDamageValues select _i)];
+  };
 
-    _hitPointNames = _unitHealth select 0;
-    _damageValues = _unitHealth select 2;
-    for "_i" from 0 to ((count _hitPointNames )- 1) do {
-      newUnit setHitPointDamage [(_hitPointNames select _i), (_damageValues select _i)];
+  _group addVehicle _vehicle;
+} forEach _vehicles;
+
+{
+  _className = _x select 0;
+  _unitHealth = _x select 1;
+  _unitPos = _x select 2;
+  _vehicleIndex = _x select 3;
+  _vehicleRole = _x select 4;
+
+  _className createUnit [_unitPos, _group, "newUnit = this"];
+
+  _hitPointNames = _unitHealth select 0;
+  _damageValues = _unitHealth select 2;
+  for "_i" from 0 to ((count _hitPointNames) - 1) do {
+    newUnit setHitPointDamage [(_hitPointNames select _i), (_damageValues select _i)];
+  };
+
+  if (_vehicleIndex >= 0 && count _vehicleRole > 0) then {
+    _vehicle = _newVehicles select _vehicleIndex;
+    _roleType = _vehicleRole select 0;
+
+    switch (toLower _roleType) do {
+      case "driver": { newUnit moveInDriver _vehicle };
+      case "cargo": { newUnit moveInCargo _vehicle };
+      case "turret": { newUnit moveInTurret [_vehicle, _vehicleRole select 1] };
+      case "commander": { newUnit moveInCommander _vehicle };
+      case "gunner": { newUnit moveInGunner _vehicle };
     };
+  };
+} forEach _units;
 
-    if (_classNameVehicle != "") then {
-      _vehicle = _classNameVehicle createVehicle _vehiclePos;
-      _vehicleHitPointNames = _vehicleHealth select 0;
-      _vehicleDamageValues = _vehicleHealth select 2;
-      for "_i" from 0 to ((count _vehicleHitPointNames) - 1) do {
-        _vehicle setHitPointDamage [(_vehicleHitPointNames select _i), (_vehicleDamageValues select _i)];
-      };
+[_group, _patrolPosition, _patrolRadius] call BIS_fnc_taskPatrol;
 
-      _group addVehicle _vehicle;
-    };
-  } forEach _x;
-} forEach _savedGroups;
-
-_groups
+_group

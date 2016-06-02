@@ -94,7 +94,10 @@ switch (_side) do {
 {
   for "_i" from 0 to ((_x select 1) - 1) do {
     _grp = [_position vectorAdd [(random (_x select 2)), (random (_x select 2)), 0], _side, (_x select 0)] call BIS_fnc_spawnGroup;
-    [_grp, _position, (_x select 2)] call BIS_fnc_taskPatrol;
+    _radius = (_x select 2);
+    [_grp, _position, _radius] call BIS_fnc_taskPatrol;
+    _grp setVariable ["patrolPosition", _position];
+    _grp setVariable ["patrolRadius", _radius];
     _groups pushBack _grp;
   };
 } forEach _patrolTypes;
