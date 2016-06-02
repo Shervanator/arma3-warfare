@@ -15,7 +15,7 @@ _townPos = getPos _town;
 switch (_town getVariable "type") do {
   case "village": {
     _town setVariable ["capZone", ([_townPos, 65] call WF_createTrigger)];
-    _town setVariable ["alertZone", ([_townPos, 1000] call WF_createTrigger)];
+    _town setVariable ["alertZone", ([_townPos, 100] call WF_createTrigger)];
   };
   case "town": {
     _town setVariable ["capZone", ([_townPos, 130] call WF_createTrigger)];

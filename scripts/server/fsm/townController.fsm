@@ -25,7 +25,7 @@ link9[] = {8,4};
 link10[] = {9,10};
 link11[] = {10,4};
 globals[] = {0.000000,0,0,0,0,640,480,1,37,6316128,1,-111.186287,836.338501,302.127808,-441.094849,1127,884,1};
-window[] = {2,-1,-1,-1,-1,863,104,1544,104,3,1145};
+window[] = {2,-1,-1,-1,-1,941,182,1622,182,3,1145};
 *//*%FSM</HEAD>*/
 class FSM
 {
@@ -41,7 +41,8 @@ class FSM
                          "_capZoneUnits = list (_town getVariable ""capZone"");" \n
                          "_alertZoneUnits = list (_town getVariable ""alertZone"");" \n
                          "_town setVariable [""townOwner"", resistance];" \n
-                         "_town setVariable [""patrolForces"", []];"/*%FSM</STATEINIT""">*/;
+                         "_town setVariable [""patrolForces"", []];" \n
+                         "_town setVariable [""savedGroups"", []];"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {

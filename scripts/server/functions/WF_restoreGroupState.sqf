@@ -15,15 +15,20 @@ _groups = [];
     _vehicleHealth = _x select 4;
     _vehiclePos = _x select 5;
 
-    _unit = _className createUnit [_unitPos, _group];
-    for "_i" from 0 to (count (_unitHealth select 0) - 1) do {
-      _unit setHitPointDamage ((_unitHealth select 0) select _i) ((_unitHealth select 2) select _i);
+    _className createUnit [_unitPos, _group, "newUnit = this"];
+
+    _hitPointNames = _unitHealth select 0;
+    _damageValues = _unitHealth select 2;
+    for "_i" from 0 to ((count _hitPointNames )- 1) do {
+      newUnit setHitPointDamage [(_hitPointNames select _i), (_damageValues select _i)];
     };
 
     if (_classNameVehicle != "") then {
       _vehicle = _classNameVehicle createVehicle _vehiclePos;
-      for "_i" from 0 to (count (_vehicleHealth select 0) - 1) do {
-        _vehicle setHitPointDamage ((_vehicleHealth select 0) select _i) ((_vehicleHealth select 2) select _i);
+      _vehicleHitPointNames = _vehicleHealth select 0;
+      _vehicleDamageValues = _vehicleHealth select 2;
+      for "_i" from 0 to ((count _vehicleHitPointNames) - 1) do {
+        _vehicle setHitPointDamage [(_vehicleHitPointNames select _i), (_vehicleDamageValues select _i)];
       };
 
       _group addVehicle _vehicle;
