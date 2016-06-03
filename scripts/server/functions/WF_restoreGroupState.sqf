@@ -19,7 +19,14 @@ _newVehicles = [];
   _vehicleHealth = _x select 1;
   _vehiclePos = _x select 2;
 
-  _vehicle = _classNameVehicle createVehicle _vehiclePos;
+  _vehicle = objNull;
+
+  if (_classNameVehicle isKindOf "Air") then {
+    _vehicle = createVehicle [_classNameVehicle, _vehiclePos, [], 0, "FLY"];
+  } else {
+    _vehicle = _classNameVehicle createVehicle _vehiclePos;
+  };
+
   _newVehicles pushback _vehicle;
 
   _vehicleHitPointNames = _vehicleHealth select 0;

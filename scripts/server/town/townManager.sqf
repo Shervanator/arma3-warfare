@@ -13,7 +13,7 @@ switch (_town getVariable "type") do {
   };
   case "airport": {
     _town setVariable ["capZone", ([_townPos, 270] call WF_createTrigger)];
-    _town setVariable ["alertZone", ([_townPos, 200] call WF_createTrigger)];
+    _town setVariable ["alertZone", ([_townPos, 1500] call WF_createTrigger)];
   };
 };
 
