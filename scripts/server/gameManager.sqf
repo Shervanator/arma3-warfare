@@ -42,5 +42,6 @@ _blueForGroups = [];
   };
 } forEach allGroups;
 
+
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
 [_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";
