@@ -30,6 +30,17 @@ resistance setFriend [east, 0];
   [_x] execVM "scripts\server\town\townManager.sqf";
 } forEach _towns;
 
-sleep 3;  // Come back to this sleep command later!
-[_blueForMarker, _towns, west] execVM "scripts\server\commander.sqf";
-[_opForMarker, _towns, east] execVM "scripts\server\commander.sqf";
+sleep 3;
+
+_opForGroups = [];
+_blueForGroups = [];
+
+{
+  switch (side _x) do {
+    case west: { _blueForGroups pushBack _x; };
+    case east: { _opForGroups pushBack _x; };
+  };
+} forEach allGroups;
+
+[_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
+[_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";
