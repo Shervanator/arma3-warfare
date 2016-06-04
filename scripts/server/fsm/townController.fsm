@@ -24,8 +24,8 @@ link8[] = {7,2};
 link9[] = {8,4};
 link10[] = {9,10};
 link11[] = {10,4};
-globals[] = {0.000000,0,0,0,0,640,480,1,37,6316128,1,-171.732666,896.884216,449.444946,-388.760376,1127,884,1};
-window[] = {2,-1,-1,-1,-1,811,52,1492,52,3,1145};
+globals[] = {0.000000,0,0,0,0,640,480,1,37,6316128,1,-171.732666,896.884216,449.444946,-388.760376,1127,895,1};
+window[] = {2,-1,-1,-1,-1,784,25,1465,25,3,1145};
 *//*%FSM</HEAD>*/
 class FSM
 {
@@ -185,7 +185,6 @@ class FSM
                         itemno = 6;
                         init = /*%FSM<STATEINIT""">*/"// Handle change" \n
                          "_town setVariable [""townOwner"", _winning];" \n
-                         "_winning remoteExec [""hint"", 0];" \n
                          "_town setVariable [""savedGroups"", []];" \n
                          ""/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;

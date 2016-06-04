@@ -9,9 +9,10 @@ setWaypoint ={
   _group setVariable ["order", _minTown];
 
   while {(count (waypoints _group)) > 0} do {
-    _waypoint = ((waypoints _group) select 0);
-    _waypoint setWPPos _leader;
-    deleteWaypoint _waypoint;
+    /*_waypoint = ((waypoints _group) select 0);*/
+    /*hint ((str _waypoint) + (str random 100));
+    _waypoint setWPPos _leader;*/
+    deleteWaypoint [_group, 0];
   };
 
   _group addWaypoint [(getPos _minTown), 50]
@@ -20,9 +21,11 @@ setWaypoint ={
 {
   _currentOrder = _x getVariable "order";
   if ((isNil "_currentOrder")) then {
+    hint "no order";
     [_x, _towns, _side] call setWaypoint;
   } else {
     if ((_currentOrder getVariable "townOwner") == _side) then {
+      hint "new order";
       [_x, _towns, _side] call setWaypoint;
     };
   };
