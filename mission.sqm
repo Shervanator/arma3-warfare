@@ -404,7 +404,7 @@ class Mission
 	};
 	class Markers
 	{
-		items=13;
+		items=14;
 		class Item0
 		{
 			position[]={2782.9226,143.52373,1744.1372};
@@ -503,6 +503,12 @@ class Mission
 			fillName="Cross";
 			a=65;
 			b=65;
+		};
+		class Item13
+		{
+			position[]={2621.8928,64.357208,612.00635};
+			name="respawn_west";
+			type="mil_destroy";
 		};
 	};
 };
