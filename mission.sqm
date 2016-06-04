@@ -418,7 +418,7 @@ class Mission
 		class Item9
 		{
 			position[]={4499.2295,105.50092,6801.3481};
-			name="OpForBase";
+			name="respawn_east";
 			type="o_hq";
 			colorName="ColorRed";
 		};
@@ -453,9 +453,9 @@ class Mission
 		};
 		class Item13
 		{
-			position[]={2713.2441,83.171753,943.13916};
+			position[]={2693.5151,81.381294,944.1665};
 			name="respawn_west";
-			type="mil_destroy";
+			type="b_hq";
 		};
 	};
 };
