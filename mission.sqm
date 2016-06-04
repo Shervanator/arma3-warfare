@@ -24,7 +24,6 @@ class Mission
 		"A3_Armor_F_Beta_APC_Tracked_01",
 		"A3_Air_F_Beta_Heli_Attack_01",
 		"A3_Armor_F_Beta_APC_Tracked_02",
-		"A3_Air_F_Heli_Light_01",
 		"a3_map_stratis"
 	};
 	randomSeed=9587005;
@@ -48,7 +47,7 @@ class Mission
 	};
 	class Groups
 	{
-		items=14;
+		items=13;
 		class Item0
 		{
 			side="EAST";
@@ -129,11 +128,12 @@ class Mission
 				items=1;
 				class Item0
 				{
-					position[]={2426.7124,71.05793,5627.2739};
-					azimut=263.46399;
+					position[]={2670.0178,75.811096,951.02979};
+					azimut=4.9530602;
 					id=4;
 					side="WEST";
 					vehicle="B_soldier_LAT_F";
+					player="PLAYER COMMANDER";
 					leader=1;
 					skill=0.60000002;
 					init="this allowDamage false;";
@@ -398,24 +398,6 @@ class Mission
 					side="EAST";
 					vehicle="O_recon_F";
 					skill=0.40000001;
-				};
-			};
-		};
-		class Item13
-		{
-			side="CIV";
-			class Vehicles
-			{
-				items=1;
-				class Item0
-				{
-					position[]={2830.239,66.112907,1148.6851};
-					id=27;
-					side="CIV";
-					vehicle="C_Heli_Light_01_civil_F";
-					player="PLAYER COMMANDER";
-					leader=1;
-					skill=0.60000002;
 				};
 			};
 		};
