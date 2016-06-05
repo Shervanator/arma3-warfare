@@ -29,4 +29,10 @@ setWaypoint ={
       [_x, _towns, _side] call setWaypoint;
     };
   };
+  _wallet = _x getVariable "wallet";
+  _x setVariable ["wallet", (_wallet + 20)];
+
+  if (!(isPlayer (leader _x))) then {
+    [_x, "O_G_Soldier_F"] call WF_buildUnit;
+  };
 } forEach _teamGroups;

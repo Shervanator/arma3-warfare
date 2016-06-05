@@ -1,10 +1,11 @@
-params ["_unit", "_vehicleClass"];
-
-_group = group _unit;
+params ["_group", "_vehicleClass"];
 
 _wallet = _group getVariable "wallet";
-_vehicleClass createUnit [ getPos _unit, _group ];
-_group setVariable ["wallet", _wallet - 100];
 
-_wallet = _group getVariable "wallet";
-((str _wallet) + (str _group)) remoteExec ["hint", 0];
+if (_wallet >= 200) then {
+  _vehicleClass createUnit [ getPos (leader _group), _group ];
+  _group setVariable ["wallet", _wallet - 200];
+
+  _wallet = _group getVariable "wallet";
+};
+(format ["$%1", _wallet]) remoteExec ["hint", 0];
