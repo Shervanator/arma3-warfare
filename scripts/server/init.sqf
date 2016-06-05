@@ -4,3 +4,4 @@ WF_saveGroupState = compileFinal preprocessFileLineNumbers "scripts\server\funct
 WF_restoreGroupState = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_restoreGroupState.sqf";
 WF_deleteGroup = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_deleteGroup.sqf";
 WF_createTrigger = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_createTrigger.sqf";
+WF_buildUnit = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buildUnit.sqf";

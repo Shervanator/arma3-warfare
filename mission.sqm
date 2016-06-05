@@ -15,11 +15,13 @@ class Mission
 		"A3_Armor_F_Gamma_MBT_01",
 		"A3_Armor_F_Beta_APC_Tracked_01",
 		"A3_Air_F_Beta_Heli_Attack_01",
-		"A3_Air_F_Heli_Light_01"
+		"A3_Air_F_Heli_Light_01",
+		"A3_Props_F_Exp_A_Military_Equipment"
 	};
 	addOnsAuto[]=
 	{
 		"A3_Characters_F",
+		"A3_Props_F_Exp_A_Military_Equipment",
 		"a3_map_stratis"
 	};
 	randomSeed=9587005;
@@ -43,7 +45,7 @@ class Mission
 	};
 	class Groups
 	{
-		items=13;
+		items=14;
 		class Item0
 		{
 			side="WEST";
@@ -291,6 +293,38 @@ class Mission
 					skill=0.60000002;
 				};
 			};
+		};
+		class Item13
+		{
+			side="CIV";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={4500.3096,110.78255,6766.667};
+					id=13;
+					side="CIV";
+					vehicle="C_man_1";
+					player="PLAYER COMMANDER";
+					leader=1;
+					skill=0.60000002;
+				};
+			};
+		};
+	};
+	class Vehicles
+	{
+		items=1;
+		class Item0
+		{
+			position[]={4495.0757,111.50061,6768.3857};
+			azimut=-64.080803;
+			id=14;
+			side="EMPTY";
+			vehicle="Land_DataTerminal_01_F";
+			skill=0.60000002;
+			text="matt";
 		};
 	};
 	class Markers

@@ -1,8 +1,8 @@
 respawn = 3;
 // Delay in seconds before playable unit respawns.
-respawnDelay = 10;
+respawnDelay = 0;
 // Delay in seconds before vehicle respawns.
-respawnVehicleDelay = 60;
+respawnVehicleDelay = 0;
 // 0 to disable the score table (it can still be opened manually by pressing 'P' key).
 respawnDialog = 0;
 // Respawn templates from CfgRespawnTemplates. You can combine any number of them together.
