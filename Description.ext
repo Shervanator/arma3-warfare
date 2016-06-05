@@ -11,3 +11,7 @@ respawnTemplates[] = {"MenuPosition"};
 respawnOnStart = 1;
 // When 1, the score table contains score of all playable units as opposed to players only.
 aikills = 1;
+
+class CfgFunctions {
+	#include "addons\LARs\actionMenu.cpp"
+};
