@@ -40,8 +40,9 @@ _blueForGroups = [];
     case west: { _blueForGroups pushBack _x; };
     case east: { _opForGroups pushBack _x; };
   };
-} forEach allGroups;
 
+  _x setVariable ["wallet", 1000];
+} forEach allGroups;
 
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
 [_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";
