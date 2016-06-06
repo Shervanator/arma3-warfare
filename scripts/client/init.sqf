@@ -48,12 +48,17 @@ _autonomousMenu = [];
 	_autonomousMenu pushBack [ getText (_x >> 'displayName'), {[group (_this select 1), (_this select 3) select 0] remoteExec ["WF_buildVehicle", 2]}, [configName _x], -1, false, false, "", "" ];
 } forEach _autonomous;
 
+_weapons = "true" configClasses (configFile >> "CfgWeapons");
+_weaponMenu = [];
+{
+	_weaponMenu pushBack [ configName _x, {[_this select 1, (_this select 3) select 0] remoteExec ["WF_buyWeapon", 2]}, [configName _x], -1, false, false, "", ""];
+} forEach _weapons;
+
+
+
 menu = [
 	[ "Build Units", {}, [], -1, false, false, "", "" ],
-	[
-		[ "Infantry", {}, [], -1, false, false, "", "" ],
-		_unitMenu
-	],
+	_unitMenu,
 
 	[ "Build Vehicles", {}, [], -1, false, false, "", "" ],
 	[
@@ -70,12 +75,9 @@ menu = [
 	],
 
 	[ "Build Weapons", {}, [], -1, false, false, "", "" ],
-	[
-		["BFG", {[_this select 1, "srifle_EBR_MRCO_pointer_F"] remoteExec ["WF_buyWeapon", 2]}, [], -1, false, false, "", ""]
-	]
+	_weaponMenu
 ];
 [ menu, matt, false, 5, [ true, true, true, false ] ] call LARs_fnc_menuStart;
-
 
 //---------------------------BUYING WEAPONS------------------------------
 //-----------------------------------------------------------------------
