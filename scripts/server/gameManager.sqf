@@ -18,6 +18,7 @@ resistance setFriend [east, 0];
 
 {
   _town = "FlagPole_F" createVehicle (getMarkerPos _x);
+  _town setVariable ["marker", _x];
   _towns pushBack _town;
   switch (getMarkerColor _x) do {
     case "ColorYellow": { _town setVariable ["type", "village"] };
