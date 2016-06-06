@@ -7,6 +7,10 @@ switch (side player) do {
 	case east: {_side = "0"};
 	case resistance: {_side = "3"};
 };
+
+
+//---------------------------BUYING UNITS------------------------------
+//---------------------------------------------------------------------
 _units = ("getNumber (_x >> 'side') == " + _side + " && getText (_x >> 'vehicleClass') == 'Men' && getText (_x >> 'faction') == '" + _faction + "'") configClasses (configFile >> "CfgVehicles");
 
 _unitMenu = [];
@@ -63,6 +67,15 @@ menu = [
 		_autonomousMenu,
 		[ "Support", {}, [], -1, false, false, "", "" ],
 		_supportMenu
+	],
+
+	[ "Build Weapons", {}, [], -1, false, false, "", "" ],
+	[
+		["BFG", {[_this select 1, "srifle_EBR_MRCO_pointer_F"] remoteExec ["WF_buyWeapon", 2]}, [], -1, false, false, "", ""]
 	]
 ];
 [ menu, matt, false, 5, [ true, true, true, false ] ] call LARs_fnc_menuStart;
+
+
+//---------------------------BUYING WEAPONS------------------------------
+//-----------------------------------------------------------------------
