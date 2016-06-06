@@ -41,7 +41,11 @@ _blueForGroups = [];
     case east: { _opForGroups pushBack _x; };
   };
 
-  _x setVariable ["wallet", 1000];
+  if (isPlayer (leader _x)) then {
+    _x setVariable ["wallet", 10000];
+  } else {
+    _x setVariable ["wallet", 1000];
+  };
 } forEach allGroups;
 
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
