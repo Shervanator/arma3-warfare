@@ -1,3 +1,5 @@
+call compile preprocessFileLineNumbers "scripts\common\init.sqf";
+
 if (isServer) then {
   call compile preprocessFileLineNumbers "scripts\server\init.sqf";
   _handle = execVM "scripts\server\gameManager.sqf";

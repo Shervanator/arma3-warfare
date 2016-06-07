@@ -1,10 +1,10 @@
-params ["_group", "_vehicleClass"];
+params ["_group", "_vehicleClass", "_price"];
 
 _wallet = _group getVariable "wallet";
 
-if (_wallet >= 200) then {
+if (_wallet >= _price) then {
   _vehicleClass createUnit [ getPos (leader _group), _group ];
-  _group setVariable ["wallet", _wallet - 200];
+  _group setVariable ["wallet", _wallet - _price];
 
   _wallet = _group getVariable "wallet";
 };

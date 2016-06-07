@@ -33,10 +33,8 @@ setWaypoint ={
   _x setVariable ["wallet", (_wallet + 20)];
 
   if (!(isPlayer (leader _x)) && (count (units _x)) <= 10) then {
-    if (random 1 <= 0.5) then {
-      [_x, "B_soldier_LAT_F"] call WF_buildUnit;
-    } else {
-      [_x, "O_G_Soldier_F"] call WF_buildUnit;
-    };
+    _units = _side call WF_units;
+    _unit = _units select (floor (random (count _units)));
+    [_x, configName (_unit select 0), _unit select 1] call WF_buildUnit;
   };
 } forEach _teamGroups;
