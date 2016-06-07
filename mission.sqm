@@ -16,9 +16,7 @@ class Mission
 		"A3_Armor_F_Beta_APC_Tracked_01",
 		"A3_Air_F_Beta_Heli_Attack_01",
 		"A3_Air_F_Heli_Light_01",
-		"A3_Props_F_Exp_A_Military_Equipment",
-		"A3_Modules_F",
-		"dac_source"
+		"A3_Props_F_Exp_A_Military_Equipment"
 	};
 	addOnsAuto[]=
 	{
@@ -331,7 +329,7 @@ class Mission
 	};
 	class Markers
 	{
-		items=10;
+		items=11;
 		class Item0
 		{
 			position[]={2782.9226,143.52373,1744.1372};
@@ -362,40 +360,47 @@ class Mission
 		};
 		class Item4
 		{
+			position[]={1983.6941,2.625597,3526.9834};
+			name="town5";
+			type="mil_flag";
+			colorName="ColorYellow";
+		};
+		class Item5
+		{
 			position[]={2157.6108,6.610857,5550.1333};
 			name="Airport";
 			type="mil_flag";
 			colorName="ColorRed";
 		};
-		class Item5
+		class Item6
 		{
 			position[]={2994.4529,3.3422644,6034.2627};
 			name="town6";
 			type="mil_flag";
 			colorName="ColorBlack";
 		};
-		class Item6
+		class Item7
 		{
 			position[]={5018.0654,208.53889,5906.7568};
 			name="town7";
 			type="mil_flag";
 			colorName="ColorYellow";
 		};
-		class Item7
+		class Item8
 		{
 			position[]={6465.4878,13.431863,5319.2437};
 			name="town8";
 			type="mil_flag";
 			colorName="ColorYellow";
 		};
-		class Item8
+		class Item9
 		{
 			position[]={4499.2295,105.50092,6801.3481};
 			name="respawn_east";
 			type="o_hq";
 			colorName="ColorRed";
 		};
-		class Item9
+		class Item10
 		{
 			position[]={2646.4077,65.689064,612.30127};
 			name="respawn_west";
