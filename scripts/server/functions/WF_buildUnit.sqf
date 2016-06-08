@@ -1,6 +1,7 @@
-params ["_group", "_vehicleClass", "_price"];
+params ["_group", "_vehicleClass"];
 
 _wallet = _group getVariable "wallet";
+_price = missionNamespace getVariable ("WF_UNITS_" + _vehicleClass);
 
 if (_wallet >= _price) then {
   _vehicleClass createUnit [ getPos (leader _group), _group ];

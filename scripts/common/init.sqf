@@ -89,4 +89,12 @@ WF_bluForUnits = [
   [configFile >> "CfgVehicles" >> "B_support_MG_F", 225]
 ];
 
+{
+  missionNamespace setVariable ["WF_UNITS_" + (configName (_x select 0)), _x select 1];
+} forEach WF_bluForUnits;
+
+{
+  missionNamespace setVariable ["WF_UNITS_" + (configName (_x select 0)), _x select 1];
+} forEach WF_opForUnits;
+
 WF_units = compileFinal preprocessFileLineNumbers "scripts\common\functions\WF_units.sqf";
