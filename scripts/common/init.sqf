@@ -97,4 +97,36 @@ WF_bluForUnits = [
   missionNamespace setVariable ["WF_UNITS_" + (configName (_x select 0)), _x select 1];
 } forEach WF_opForUnits;
 
+WF_opForVehiclesCar = [
+  [configFile >> "CfgVehicles" >> "O_MRAP_02_F", 300],
+  [configFile >> "CfgVehicles" >> "O_MRAP_02_gmg_F", 550],
+  [configFile >> "CfgVehicles" >> "O_MRAP_02_hmg_F", 500],
+  [configFile >> "CfgVehicles" >> "O_Quadbike_01_F", 100],
+  [configFile >> "CfgVehicles" >> "O_Truck_02_transport_F", 500],
+  [configFile >> "CfgVehicles" >> "O_Truck_02_covered_F", 550],
+  [configFile >> "CfgVehicles" >> "O_Truck_03_transport_F", 600],
+  [configFile >> "CfgVehicles" >> "O_Truck_03_covered_F", 650],
+  [configFile >> "CfgVehicles" >> "O_Truck_03_device_F", 650]
+];
+
+WF_bluForVehiclesCar = [
+  [configFile >> "CfgVehicles" >> "B_MRAP_01_F", 300],
+  [configFile >> "CfgVehicles" >> "B_MRAP_01_gmg_F", 550],
+  [configFile >> "CfgVehicles" >> "B_MRAP_01_hmg_F", 500],
+  [configFile >> "CfgVehicles" >> "B_Quadbike_01_F", 100],
+  [configFile >> "CfgVehicles" >> "B_Truck_01_transport_F", 500],
+  [configFile >> "CfgVehicles" >> "B_Truck_01_covered_F", 550],
+  [configFile >> "CfgVehicles" >> "B_Truck_01_mover_F", 550],
+  [configFile >> "CfgVehicles" >> "B_Truck_01_box_F", 550]
+];
+
+{
+  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+} forEach WF_bluForVehiclesCar;
+
+{
+  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+} forEach WF_opForVehiclesCar;
+
 WF_units = compileFinal preprocessFileLineNumbers "scripts\common\functions\WF_units.sqf";
+WF_vehicleCars = compileFinal preprocessFileLineNumbers "scripts\common\functions\WF_vehicleCars.sqf";

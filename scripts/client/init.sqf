@@ -13,8 +13,6 @@ switch (side player) do {
 //---------------------------------------------------------------------
 /*_units = ("getNumber (_x >> 'side') == " + _side + " && getText (_x >> 'vehicleClass') == 'Men' && getText (_x >> 'faction') == '" + _faction + "'") configClasses (configFile >> "CfgVehicles");*/
 _units = (side player) call WF_units;
-hint format ["%1", (_units select 0) select 1];
-
 _unitMenu = [];
 {
 	_configEntry = _x select 0;
@@ -22,10 +20,12 @@ _unitMenu = [];
 	_unitMenu pushBack [ getText (_configEntry >> 'displayName'), {[group (_this select 1), (_this select 3) select 0] remoteExec ["WF_buildUnit", 2]}, [configName _configEntry], -1, false, false, "", "" ];
 } forEach _units;
 
-_cars = ("getNumber (_x >> 'side') == " + _side + " && getText (_x >> 'vehicleClass') == 'Car' && getText (_x >> 'faction') == '" + _faction + "'") configClasses (configFile >> "CfgVehicles");
+_cars =  (side player) call WF_vehicleCars;
 _carMenu = [];
 {
-	_carMenu pushBack [ getText (_x >> 'displayName'), {[group (_this select 1), (_this select 3) select 0] remoteExec ["WF_buildVehicle", 2]}, [configName _x], -1, false, false, "", "" ];
+	_configEntry = _x select 0;
+
+	_carMenu pushBack [ getText (_configEntry >> 'displayName'), {[group (_this select 1), (_this select 3) select 0] remoteExec ["WF_buildVehicle", 2]}, [configName _configEntry], -1, false, false, "", "" ];
 } forEach _cars;
 
 _armor = ("getNumber (_x >> 'side') == " + _side + " && getText (_x >> 'vehicleClass') == 'Armored' && getText (_x >> 'faction') == '" + _faction + "'") configClasses (configFile >> "CfgVehicles");
