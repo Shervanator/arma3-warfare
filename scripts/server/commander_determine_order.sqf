@@ -33,7 +33,7 @@ setWaypoint ={
   _x setVariable ["wallet", (_wallet + 20)];
 
   if (!(isPlayer (leader _x)) && (count (units _x)) <= 10) then {
-    _units = _side call WF_units;
+    _units = missionNamespace getVariable ("WF_arrayTypes_" + (str _side) + "infantry");
     _unit = _units select (floor (random (count _units)));
     [_x, configName (_unit select 0), _unit select 1] call WF_buildUnit;
   };

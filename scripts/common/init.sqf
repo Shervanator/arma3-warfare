@@ -1,4 +1,4 @@
-WF_opForUnits = [
+_WF_opForUnits = [
   [configFile >> "CfgVehicles" >> "O_Soldier_F", 75],
   [configFile >> "CfgVehicles" >> "O_Soldier_lite_F", 50],
   [configFile >> "CfgVehicles" >> "O_Soldier_GL_F", 125],
@@ -51,7 +51,7 @@ WF_opForUnits = [
   [configFile >> "CfgVehicles" >> "O_SoldierU_GL_F", 125]
 ];
 
-WF_bluForUnits = [
+_WF_bluForUnits = [
   [configFile >> "CfgVehicles" >> "B_Soldier_F", 75],
   [configFile >> "CfgVehicles" >> "B_Soldier_lite_F", 50],
   [configFile >> "CfgVehicles" >> "B_Soldier_GL_F", 125],
@@ -89,15 +89,18 @@ WF_bluForUnits = [
   [configFile >> "CfgVehicles" >> "B_support_MG_F", 225]
 ];
 
-{
-  missionNamespace setVariable ["WF_UNITS_" + (configName (_x select 0)), _x select 1];
-} forEach WF_bluForUnits;
+missionNameSpace setVariable ["WF_arrayTypes_EASTinfantry", _WF_opForUnits];
+missionNameSpace setVariable ["WF_arrayTypes_WESTinfantry", _WF_bluForUnits];
 
 {
   missionNamespace setVariable ["WF_UNITS_" + (configName (_x select 0)), _x select 1];
-} forEach WF_opForUnits;
+} forEach _WF_bluForUnits;
 
-WF_opForVehiclesCar = [
+{
+  missionNamespace setVariable ["WF_UNITS_" + (configName (_x select 0)), _x select 1];
+} forEach _WF_opForUnits;
+
+_WF_opForVehiclesCar = [
   [configFile >> "CfgVehicles" >> "O_MRAP_02_F", 300],
   [configFile >> "CfgVehicles" >> "O_MRAP_02_gmg_F", 550],
   [configFile >> "CfgVehicles" >> "O_MRAP_02_hmg_F", 500],
@@ -109,7 +112,7 @@ WF_opForVehiclesCar = [
   [configFile >> "CfgVehicles" >> "O_Truck_03_device_F", 650]
 ];
 
-WF_bluForVehiclesCar = [
+_WF_bluForVehiclesCar = [
   [configFile >> "CfgVehicles" >> "B_MRAP_01_F", 300],
   [configFile >> "CfgVehicles" >> "B_MRAP_01_gmg_F", 550],
   [configFile >> "CfgVehicles" >> "B_MRAP_01_hmg_F", 500],
@@ -120,15 +123,18 @@ WF_bluForVehiclesCar = [
   [configFile >> "CfgVehicles" >> "B_Truck_01_box_F", 550]
 ];
 
-{
-  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
-} forEach WF_bluForVehiclesCar;
+missionNameSpace setVariable ["WF_arrayTypes_EASTcar", _WF_opForVehiclesCar];
+missionNameSpace setVariable ["WF_arrayTypes_WESTcar", _WF_bluForVehiclesCar];
 
 {
   missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
-} forEach WF_opForVehiclesCar;
+} forEach _WF_bluForVehiclesCar;
 
-WF_opForVehiclesArmored = [
+{
+  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+} forEach _WF_opForVehiclesCar;
+
+_WF_opForVehiclesArmored = [
   [configFile >> "CfgVehicles" >> "O_APC_Tracked_02_cannon_F", 1000],
   [configFile >> "CfgVehicles" >> "O_APC_Tracked_02_AA_F", 3000],
   [configFile >> "CfgVehicles" >> "O_MBT_02_cannon_F", 4500],
@@ -136,7 +142,7 @@ WF_opForVehiclesArmored = [
   [configFile >> "CfgVehicles" >> "O_APC_Wheeled_02_rcws_F", 2000]
 ];
 
-WF_bluForVehiclesArmored = [
+_WF_bluForVehiclesArmored = [
   [configFile >> "CfgVehicles" >> "B_APC_Tracked_01_rcws_F", 1000],
   [configFile >> "CfgVehicles" >> "B_APC_Tracked_01_AA_F", 3000],
   [configFile >> "CfgVehicles" >> "B_MBT_01_cannon_F", 4500],
@@ -145,14 +151,42 @@ WF_bluForVehiclesArmored = [
   [configFile >> "CfgVehicles" >> "B_MBT_01_TUSK_F", 6000]
 ];
 
-{
-  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
-} forEach WF_bluForVehiclesArmored;
+missionNameSpace setVariable ["WF_arrayTypes_EASTarmored", _WF_opForVehiclesArmored];
+missionNameSpace setVariable ["WF_arrayTypes_WESTarmored", _WF_bluForVehiclesArmored];
 
 {
   missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
-} forEach WF_opForVehiclesArmored;
+} forEach _WF_bluForVehiclesArmored;
 
-WF_units = compileFinal preprocessFileLineNumbers "scripts\common\functions\WF_units.sqf";
-WF_vehicleCars = compileFinal preprocessFileLineNumbers "scripts\common\functions\WF_vehicleCars.sqf";
-WF_vehicleArmored = compileFinal preprocessFileLineNumbers "scripts\common\functions\WF_vehicleArmored.sqf";
+{
+  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+} forEach _WF_opForVehiclesArmored;
+
+_WF_opForVehiclesAir = [
+  [configFile >> "CfgVehicles" >> "O_Heli_Light_02_F", 2500],
+  [configFile >> "CfgVehicles" >> "O_Heli_Light_02_unarmed_F", 1500],
+  [configFile >> "CfgVehicles" >> "O_Heli_Attack_02_F", 7000],
+  [configFile >> "CfgVehicles" >> "O_Heli_Attack_02_black_F", 7000],
+  [configFile >> "CfgVehicles" >> "O_Plane_CAS_02_F", 10000]
+];
+
+_WF_bluForVehiclesAir = [
+  [configFile >> "CfgVehicles" >> "B_Heli_Light_01_F", 1500],
+  [configFile >> "CfgVehicles" >> "B_Heli_Light_01_armed_F", 2500],
+  [configFile >> "CfgVehicles" >> "B_Heli_Light_01_stripped_F", 1500],
+  [configFile >> "CfgVehicles" >> "B_Heli_Attack_01_F", 7000],
+  [configFile >> "CfgVehicles" >> "B_Heli_Transport_01_F", 3000],
+  [configFile >> "CfgVehicles" >> "B_Heli_Transport_01_camo_F", 3000],
+  [configFile >> "CfgVehicles" >> "B_Plane_CAS_01_F", 10000]
+];
+
+missionNameSpace setVariable ["WF_arrayTypes_EASTair", _WF_opForVehiclesAir];
+missionNameSpace setVariable ["WF_arrayTypes_WESTair", _WF_bluForVehiclesAir];
+
+{
+  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+} forEach _WF_bluForVehiclesAir;
+
+{
+  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+} forEach _WF_opForVehiclesAir;
