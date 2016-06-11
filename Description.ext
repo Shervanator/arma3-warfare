@@ -1,17 +1,67 @@
+class CfgFunctions {
+	#include "addons\LARs\actionMenu.cpp"
+};
+
+class CfgRespawnInventory
+{
+	class WEST1
+	{
+		displayName = "Light"; // Name visible in the menu
+		icon = "\A3\Ui_f\data\GUI\Cfg\Ranks\sergeant_gs.paa"; // Icon displayed next to the name
+
+		// Loadout definition, uses same entries as CfgVehicles classes
+		weapons[] = {
+			"arifle_MXC_F",
+			"Binocular"
+		};
+		magazines[] = {
+			"30Rnd_65x39_caseless_mag",
+			"30Rnd_65x39_caseless_mag",
+			"SmokeShell"
+		};
+		items[] = {
+			"FirstAidKit"
+		};
+		linkedItems[] = {
+			"V_Chestrig_khk",
+			"H_Watchcap_blk",
+			"optic_Aco",
+			"acc_flashlight",
+			"ItemMap",
+			"ItemCompass",
+			"ItemWatch",
+			"ItemRadio"
+		};
+		uniformClass = "U_B_CombatUniform_mcam_tshirt";
+		backpack = "B_AssaultPack_mcamo";
+	};
+	class WEST2
+	{
+		// Alternative configuration pointing to a CfgVehicles class. Loadout will be copied from it.
+		vehicle = "B_soldier_AR_F"
+	};
+};
+
 respawn = 3;
 // Delay in seconds before playable unit respawns.
-respawnDelay = 0;
+respawnDelay = 2;
 // Delay in seconds before vehicle respawns.
-respawnVehicleDelay = 0;
+respawnVehicleDelay = 2;
 // 0 to disable the score table (it can still be opened manually by pressing 'P' key).
 respawnDialog = 0;
 // Respawn templates from CfgRespawnTemplates. You can combine any number of them together.
-respawnTemplates[] = {"MenuPosition"};
+respawnTemplates[] = {"MenuInventory", "MenuPosition"};
 // 1 to respawn player when he joins the game. Available only for INSTANT and BASE respawn types.
 respawnOnStart = 1;
 // When 1, the score table contains score of all playable units as opposed to players only.
 aikills = 1;
 
-class CfgFunctions {
-	#include "addons\LARs\actionMenu.cpp"
-};
+corpseManagerMode = 1;
+corpseLimit = 10;
+corpseRemovalMinTime = 120; //seconds
+corpseRemovalMaxTime = 300; //seconds
+
+wreckManagerMode = 1;
+wreckLimit = 10;
+wreckRemovalMinTime = 120;
+wreckRemovalMaxTime = 500;

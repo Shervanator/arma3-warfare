@@ -7,3 +7,6 @@ WF_createTrigger = compileFinal preprocessFileLineNumbers "scripts\server\functi
 WF_buildUnit = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buildUnit.sqf";
 WF_buildVehicle = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buildVehicle.sqf";
 WF_buyWeapon = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buyWeapon.sqf";
+
+[west, "WEST1"] call BIS_fnc_addRespawnInventory;
+[west, "WEST2"] call BIS_fnc_addRespawnInventory;
