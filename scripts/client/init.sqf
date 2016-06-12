@@ -8,7 +8,7 @@ _subMenu = [];
 	_allAvailableUnitTypes = missionNamespace getVariable ("WF_arrayTypes_" + (str _side) + (_x select 0));
 	_unitMenu = [];
 
-	if (_x select 0 != "bangSticks") then
+	if (_x select 0 != "bangSticks" && _x select 0 != "ammo") then
 	{
 		{
 			_configEntry = _x select 0;
@@ -17,15 +17,25 @@ _subMenu = [];
 	}
 	else
 	{
+		if (_x select 0 == "bangSticks") then
 		{
-			_configEntry = _x select 0;
-			_unitMenu pushBack [ "TESTING", {[_this select 1, (_this select 3) select 0] remoteExec [(_this select 3) select 1, 2]}, [configName _configEntry, _buildFunction], -1, false, false, "", ""];
-		} forEach _allAvailableUnitTypes;
+			{
+				_configEntry = _x select 0;
+				_unitMenu pushBack [ getText (_configEntry >> "displayName"), {[_this select 1, (_this select 3) select 0] remoteExec [(_this select 3) select 1, 2]}, [configName _configEntry, _buildFunction], -1, false, false, "", ""];
+			} forEach _allAvailableUnitTypes;
+		}
+		else
+		{
+			{
+				_configEntry = _x select 0;
+				_unitMenu pushBack [ getText (_configEntry >> "displayName"), {[_this select 1, (_this select 3) select 0] remoteExec [(_this select 3) select 1, 2]}, [configName _configEntry, _buildFunction], -1, false, false, "", ""];
+			} forEach _allAvailableUnitTypes;
+		}
 	};
 	_subMenu pushBack [ (_x select 1), {}, [], -1, false, false, "", "" ];
 	_subMenu pushBack _unitMenu;
 
-} forEach [["infantry", "Build Infantry", "WF_buildUnit"], ["car", "Build Light Vehicle", "WF_buildVehicle"], ["armored", "Build Heavy Vehicle", "WF_buildVehicle"], ["air", "Build Flying Vehicle", "WF_buildVehicle"], ["bangSticks", "Cook Bang Sticks", "WF_buyWeapons"]];
+} forEach [["infantry", "Build Infantry", "WF_buildUnit"], ["car", "Build Light Vehicle", "WF_buildVehicle"], ["armored", "Build Heavy Vehicle", "WF_buildVehicle"], ["air", "Build Flying Vehicle", "WF_buildVehicle"], ["bangSticks", "Cook Bang Sticks", "WF_buyWeapons"], ["ammo", "Munitions", "WF_buyAmmo"]];
 
 titleMenu pushBack _subMenu;
 

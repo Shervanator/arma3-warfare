@@ -201,3 +201,14 @@ missionNamespace setVariable ["WF_arrayTypes_WESTbangSticks", _WF_weapons];
 {
   missionNamespace setVariable ["WF_WEAPONS_" + (configName(_x select 0)), _x select 1];
 } forEach _WF_weapons;
+
+/*TESTING AMMO*/
+_WF_ammo =[
+[configFile >> "CfgMagazines" >> "20Rnd_762x51_Mag", 100]
+];
+
+missionNamespace setVariable ["WF_arrayTypes_WESTammo", _WF_ammo];
+
+{
+  missionNamespace setVariable ["WF_AMMO_" + (configName(_x select 0)), _x select 1];
+} forEach _WF_ammo;

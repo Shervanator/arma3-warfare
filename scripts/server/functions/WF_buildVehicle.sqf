@@ -10,4 +10,4 @@ if (_wallet >= _price) then {
 
   _wallet = _group getVariable "wallet";
 };
-(format ["$%1", _wallet]) remoteExec ["hint", 0];
+/*(format ["$%1", _wallet]) remoteExec ["hint", 0];*/
