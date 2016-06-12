@@ -190,3 +190,14 @@ missionNameSpace setVariable ["WF_arrayTypes_WESTair", _WF_bluForVehiclesAir];
 {
   missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForVehiclesAir;
+
+/*TESTING WEAPONS*/
+_WF_weapons =[
+[configFile >> "CfgWeapons" >> "srifle_EBR_MRCO_pointer_F", 100]
+];
+
+missionNamespace setVariable ["WF_arrayTypes_WESTbangSticks", _WF_weapons];
+
+{
+  missionNamespace setVariable ["WF_WEAPONS_" + (configName(_x select 0)), _x select 1];
+} forEach _WF_weapons;

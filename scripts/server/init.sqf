@@ -6,7 +6,7 @@ WF_deleteGroup = compileFinal preprocessFileLineNumbers "scripts\server\function
 WF_createTrigger = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_createTrigger.sqf";
 WF_buildUnit = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buildUnit.sqf";
 WF_buildVehicle = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buildVehicle.sqf";
-WF_buyWeapon = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buyWeapon.sqf";
+WF_buyWeapons = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buyWeapons.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;
