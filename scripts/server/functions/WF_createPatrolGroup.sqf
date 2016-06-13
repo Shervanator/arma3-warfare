@@ -108,7 +108,7 @@ switch (_side) do {
         _killerWallet = _killerGroup getVariable "wallet";
         if (!(isNil "_killerWallet")) then {
           _killerGroup setVariable ["wallet", _killerWallet + 10];
-          (format ["killed get money: $%1", _killWallet + 10]) remoteExec ["hint", 0];
+      (format ["killed get money: $%1", _killerWallet + 10]) remoteExec ["hint", 0];
         };
       }];
     } forEach units _grp;
