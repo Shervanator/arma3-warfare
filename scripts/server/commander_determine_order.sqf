@@ -30,7 +30,14 @@ setWaypoint ={
     };
   };
   _wallet = _x getVariable "wallet";
-  _x setVariable ["wallet", (_wallet + 20)];
+  // count towns
+  _numberOfTowns = 0;
+  {
+    if (_x getVariable "townOwner" == _side) then {
+      _numberOfTowns = _numberOfTowns + 1;
+    };
+  } forEach _towns;
+  _x setVariable ["wallet", (_wallet + 20 + (_numberOfTowns * 20))];
 
   if (!(isPlayer (leader _x)) && (count (units _x)) <= 10) then {
     _units = missionNamespace getVariable ("WF_arrayTypes_" + (str _side) + "infantry");

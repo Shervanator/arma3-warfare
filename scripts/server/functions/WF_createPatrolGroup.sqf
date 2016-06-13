@@ -101,6 +101,17 @@ switch (_side) do {
     _grp setVariable ["patrolPosition", _position];
     _grp setVariable ["patrolRadius", _radius];
     _groups pushBack _grp;
+
+    {
+      _x addEventHandler ["killed", {
+        _killerGroup = group (_this select 1);
+        _killerWallet = _killerGroup getVariable "wallet";
+        if (!(isNil "_killerWallet")) then {
+          _killerGroup setVariable ["wallet", _killerWallet + 10];
+          (format ["killed get money: $%1", _killWallet + 10]) remoteExec ["hint", 0];
+        };
+      }];
+    } forEach units _grp;
   };
 } forEach _patrolTypes;
 

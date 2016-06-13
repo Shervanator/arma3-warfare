@@ -37,6 +37,15 @@ _newVehicles = [];
   };
 
   _group addVehicle _vehicle;
+
+  _vehicle addEventHandler ["killed", {
+    _killerGroup = group (_this select 1);
+    _killerWallet = _killerGroup getVariable "wallet";
+    if (!(isNil "_killerWallet")) then {
+      _killerGroup setVariable ["wallet", _killerWallet + 10];
+      (format ["killed get money: $%1", _killWallet + 10]) remoteExec ["hint", 0];
+    };
+  }];
 } forEach _vehicles;
 
 {
@@ -66,6 +75,16 @@ _newVehicles = [];
       case "gunner": { newUnit moveInGunner _vehicle };
     };
   };
+
+  newUnit addEventHandler ["killed", {
+    _killerGroup = group (_this select 1);
+    _killerWallet = _killerGroup getVariable "wallet";
+    if (!(isNil "_killerWallet")) then {
+      _killerGroup setVariable ["wallet", _killerWallet + 10];
+      (format ["killed get money: $%1", _killWallet + 10]) remoteExec ["hint", 0];
+    };
+  }];
+
 } forEach _units;
 
 [_group, _patrolPosition, _patrolRadius] call BIS_fnc_taskPatrol;
