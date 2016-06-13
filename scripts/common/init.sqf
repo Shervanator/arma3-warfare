@@ -193,6 +193,38 @@ missionNameSpace setVariable ["WF_arrayTypes_WESTair", _WF_bluForVehiclesAir];
 
 /*TESTING WEAPONS*/
 _WF_weapons =[
+[configFile >> "CfgWeapons" >> "launch_B_Titan_F", 100],
+[configFile >> "CfgWeapons" >> "launch_B_Titan_short_F", 100],
+[configFile >> "CfgWeapons" >> "launch_RPG32_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_DMR_01_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_DMR_01_ACO_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_DMR_01_SOS_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_DMR_01_DMS_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_ACO_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_MRCO_pointer_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_ARCO_pointer_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_SOS_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_ARCO_pointer_snds_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_DMS_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_Hamr_pointer_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_EBR_DMS_pointer_snds_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_GM6_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_GM6_SOS_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_GM6_LRPS_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_LRR_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_LRR_SOS_F", 100],
+[configFile >> "CfgWeapons" >> "srifle_LRR_LRPS_F", 100],
+[configFile >> "CfgWeapons" >> "LMG_Mk200_F", 100],
+[configFile >> "CfgWeapons" >> "LMG_Mk200_MRCO_F", 100],
+[configFile >> "CfgWeapons" >> "LMG_Mk200_pointer_F", 100],
+[configFile >> "CfgWeapons" >> "LMG_Zafir_F", 100],
+[configFile >> "CfgWeapons" >> "LMG_Zafir_pointer_F", 100],
+[configFile >> "CfgWeapons" >> "hgun_ACPC2_F", 100],
+[configFile >> "CfgWeapons" >> "hgun_ACPC2_snds_F", 100],
+[configFile >> "CfgWeapons" >> "hgun_P07_F", 100],
+[configFile >> "CfgWeapons" >> "hgun_P07_snds_F", 100],
+[configFile >> "CfgWeapons" >> "hgun_Pistol_heavy_01_F", 100],
 [configFile >> "CfgWeapons" >> "srifle_EBR_MRCO_pointer_F", 100]
 ];
 
