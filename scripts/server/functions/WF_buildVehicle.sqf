@@ -1,7 +1,7 @@
 params ["_group", "_vehicleClass"];
 
 _wallet = _group getVariable "wallet";
-_price = missionNamespace getVariable ("WF_VEHICLES_" + _vehicleClass);
+_price = missionNamespace getVariable ("WF_VEHICLE_" + _vehicleClass);
 
 if (_wallet >= _price) then {
   _vehicle = _vehicleClass createVehicle (getPos (leader _group));
@@ -10,4 +10,4 @@ if (_wallet >= _price) then {
 
   _wallet = _group getVariable "wallet";
 };
-/*(format ["$%1", _wallet]) remoteExec ["hint", 0];*/
+(format ["$%1", _wallet]) remoteExec ["hint", 0];

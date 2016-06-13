@@ -22,7 +22,9 @@ _subMenu = [];
 	["armored", "Build Heavy Vehicle", {[group (_this select 1), (_this select 3) select 0] remoteExec ["WF_buildVehicle", 2]}],
 	["air", "Build Flying Vehicle", {[group (_this select 1), (_this select 3) select 0] remoteExec ["WF_buildVehicle", 2]}],
 	["bangSticks", "Cook Bang Sticks", {[_this select 1, (_this select 3) select 0] remoteExec ["WF_buyWeapons", 2]}],
-	["ammo", "Munitions", {[_this select 1, (_this select 3) select 0] remoteExec ["WF_buyAmmo", 2]}]
+	["ammo", "Munitions", {[_this select 1, (_this select 3) select 0] remoteExec ["WF_buyItem", 2]}],
+	["items", "Gear Up Cowboy", {[_this select 1, (_this select 3) select 0] remoteExec ["WF_buyItem", 2]}],
+	["backpacks", "Put your shit in", {[_this select 1, (_this select 3) select 0] remoteExec ["WF_buyBackpack", 2]}]
 ];
 
 titleMenu pushBack _subMenu;

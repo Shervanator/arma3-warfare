@@ -93,11 +93,11 @@ missionNameSpace setVariable ["WF_arrayTypes_EASTinfantry", _WF_opForUnits];
 missionNameSpace setVariable ["WF_arrayTypes_WESTinfantry", _WF_bluForUnits];
 
 {
-  missionNamespace setVariable ["WF_UNITS_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_UNIT_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_bluForUnits;
 
 {
-  missionNamespace setVariable ["WF_UNITS_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_UNIT_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForUnits;
 
 _WF_opForVehiclesCar = [
@@ -127,11 +127,11 @@ missionNameSpace setVariable ["WF_arrayTypes_EASTcar", _WF_opForVehiclesCar];
 missionNameSpace setVariable ["WF_arrayTypes_WESTcar", _WF_bluForVehiclesCar];
 
 {
-  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_bluForVehiclesCar;
 
 {
-  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForVehiclesCar;
 
 _WF_opForVehiclesArmored = [
@@ -155,11 +155,11 @@ missionNameSpace setVariable ["WF_arrayTypes_EASTarmored", _WF_opForVehiclesArmo
 missionNameSpace setVariable ["WF_arrayTypes_WESTarmored", _WF_bluForVehiclesArmored];
 
 {
-  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_bluForVehiclesArmored;
 
 {
-  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForVehiclesArmored;
 
 _WF_opForVehiclesAir = [
@@ -184,11 +184,11 @@ missionNameSpace setVariable ["WF_arrayTypes_EASTair", _WF_opForVehiclesAir];
 missionNameSpace setVariable ["WF_arrayTypes_WESTair", _WF_bluForVehiclesAir];
 
 {
-  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_bluForVehiclesAir;
 
 {
-  missionNamespace setVariable ["WF_VEHICLES_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForVehiclesAir;
 
 /*TESTING WEAPONS*/
@@ -228,9 +228,10 @@ _WF_weapons =[
 ];
 
 missionNamespace setVariable ["WF_arrayTypes_WESTbangSticks", _WF_weapons];
+missionNamespace setVariable ["WF_arrayTypes_EASTbangSticks", _WF_weapons];
 
 {
-  missionNamespace setVariable ["WF_WEAPONS_" + (configName(_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_WEAPON_" + (configName(_x select 0)), _x select 1];
 } forEach _WF_weapons;
 
 /*TESTING AMMO*/
@@ -266,10 +267,105 @@ _WF_ammo =[
 ];
 
 missionNamespace setVariable ["WF_arrayTypes_WESTammo", _WF_ammo];
+missionNamespace setVariable ["WF_arrayTypes_EASTammo", _WF_ammo];
 
 {
-  missionNamespace setVariable ["WF_AMMO_" + (configName(_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_ITEM_" + (configName(_x select 0)), _x select 1];
 } forEach _WF_ammo;
 
 
 /*TESTING Items*/
+_WF_items =[
+  [configFile >> "CfgWeapons" >> "ItemWatch", 100],
+  [configFile >> "CfgWeapons" >> "ItemCompass", 100],
+  [configFile >> "CfgWeapons" >> "ItemRadio", 100],
+  [configFile >> "CfgWeapons" >> "ItemGPS", 100],
+  [configFile >> "CfgWeapons" >> "ItemRadio", 100],
+  [configFile >> "CfgWeapons" >> "ItemMap", 100],
+  [configFile >> "CfgWeapons" >> "MineDetector", 100],
+  [configFile >> "CfgWeapons" >> "Binocular", 100],
+  [configFile >> "CfgWeapons" >> "Rangefinder", 100],
+  [configFile >> "CfgWeapons" >> "NVGoggles", 100],
+  [configFile >> "CfgWeapons" >> "Laserdesignator", 100],
+  [configFile >> "CfgWeapons" >> "FirstAidKit", 100],
+  [configFile >> "CfgWeapons" >> "Medikit", 100],
+  [configFile >> "CfgWeapons" >> "ToolKit", 100],
+  [configFile >> "CfgWeapons" >> "B_UavTerminal", 100],
+  [configFile >> "CfgWeapons" >> "O_UavTerminal", 100],
+  [configFile >> "CfgWeapons" >> "muzzle_snds_H", 100],
+  [configFile >> "CfgWeapons" >> "muzzle_snds_L", 100],
+  [configFile >> "CfgWeapons" >> "muzzle_snds_M", 100],
+  [configFile >> "CfgWeapons" >> "muzzle_snds_B", 100],
+  [configFile >> "CfgWeapons" >> "muzzle_snds_H_MG", 100],
+  [configFile >> "CfgWeapons" >> "optic_Arco", 100],
+  [configFile >> "CfgWeapons" >> "optic_Hamr", 100],
+  [configFile >> "CfgWeapons" >> "optic_Aco", 100],
+  [configFile >> "CfgWeapons" >> "optic_ACO_grn", 100],
+  [configFile >> "CfgWeapons" >> "optic_Aco_smg", 100],
+  [configFile >> "CfgWeapons" >> "optic_ACO_grn_smg", 100],
+  [configFile >> "CfgWeapons" >> "optic_Holosight", 100],
+  [configFile >> "CfgWeapons" >> "optic_Holosight_smg", 100],
+  [configFile >> "CfgWeapons" >> "optic_SOS", 100],
+  [configFile >> "CfgWeapons" >> "acc_flashlight", 100],
+  [configFile >> "CfgWeapons" >> "acc_pointer_IR", 100],
+  [configFile >> "CfgWeapons" >> "optic_MRCO", 100],
+  [configFile >> "CfgWeapons" >> "muzzle_snds_acp", 100],
+  [configFile >> "CfgWeapons" >> "optic_NVS", 100],
+  [configFile >> "CfgWeapons" >> "optic_Nightstalker", 100],
+  [configFile >> "CfgWeapons" >> "optic_tws", 100],
+  [configFile >> "CfgWeapons" >> "optic_tws_mg", 100],
+  [configFile >> "CfgWeapons" >> "optic_DMS", 100],
+  [configFile >> "CfgWeapons" >> "optic_Yorris", 100],
+  [configFile >> "CfgWeapons" >> "optic_MRD", 100],
+  [configFile >> "CfgWeapons" >> "optic_LRPS", 100]
+];
+
+missionNamespace setVariable ["WF_arrayTypes_WESTitems", _WF_items];
+missionNamespace setVariable ["WF_arrayTypes_EASTitems", _WF_items];
+
+{
+  missionNamespace setVariable ["WF_ITEM_" + (configName(_x select 0)), _x select 1];
+} forEach _WF_items;
+
+/*BACKPACKS*/
+_WF_backpacks =[
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_khk", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_khk_holder", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_dgtl", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_rgr", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_rgr_Medic", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_rgr_Repair", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_sgg", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_blk", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_blk_DiverExp", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_blk_DiverTL", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_cbr", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_mcamo", 100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_ocamo", 100],
+  [configFile >> "CfgVehicles" >> "B_Kitbag_mcamo", 100],
+  [configFile >> "CfgVehicles" >> "B_Kitbag_sgg", 100],
+  [configFile >> "CfgVehicles" >> "B_Kitbag_cbr", 100],
+  [configFile >> "CfgVehicles" >> "B_FieldPack_blk", 100],
+  [configFile >> "CfgVehicles" >> "B_FieldPack_blk_DiverExp", 100],
+  [configFile >> "CfgVehicles" >> "B_FieldPack_blk_DiverTL", 100],
+  [configFile >> "CfgVehicles" >> "B_FieldPack_ocamo", 100],
+  [configFile >> "CfgVehicles" >> "B_FieldPack_cbr", 100],
+  [configFile >> "CfgVehicles" >> "B_FieldPack_cbr_AT", 100],
+  [configFile >> "CfgVehicles" >> "B_FieldPack_cbr_Repair", 100],
+  [configFile >> "CfgVehicles" >> "B_Carryall_ocamo", 100],
+  [configFile >> "CfgVehicles" >> "B_Carryall_oucamo", 100],
+  [configFile >> "CfgVehicles" >> "B_Carryall_oucamo_Exp", 100],
+  [configFile >> "CfgVehicles" >> "Bag_Base",  100],
+  [configFile >> "CfgVehicles" >> "B_AssaultPack_Base", 100],
+  [configFile >> "CfgVehicles" >> "B_Kitbag_Base", 100],
+  [configFile >> "CfgVehicles" >> "B_FieldPack_Base", 100],
+  [configFile >> "CfgVehicles" >> "B_Bergen_Base", 100],
+  [configFile >> "CfgVehicles" >> "B_Carryall_Base", 100]
+];
+
+missionNamespace setVariable ["WF_arrayTypes_WESTbackpacks", _WF_backpacks];
+missionNamespace setVariable ["WF_arrayTypes_EASTbackpacks", _WF_backpacks];
+
+{
+  missionNamespace setVariable ["WF_BACKPACK_" + (configName(_x select 0)), _x select 1];
+} forEach _WF_backpacks;
