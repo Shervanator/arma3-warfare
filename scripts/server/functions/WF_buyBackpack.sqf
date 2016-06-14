@@ -5,7 +5,7 @@ _wallet = _group getVariable "wallet";
 _price = missionNamespace getVariable ("WF_BACKPACK_" + _backpackType);
 
 if (_wallet >= _price) then {
-  _unit addBackpack _backpackType;
+  _unit addBackpackGlobal _backpackType;
 
   _group setVariable ["wallet", _wallet - _price];
   _wallet = _group getVariable "wallet";

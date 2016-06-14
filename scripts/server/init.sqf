@@ -9,6 +9,7 @@ WF_buildVehicle = compileFinal preprocessFileLineNumbers "scripts\server\functio
 WF_buyWeapons = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buyWeapons.sqf";
 WF_buyItem = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buyItem.sqf";
 WF_buyBackpack = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buyBackpack.sqf";
+WF_setWaypoint = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_setWaypoint.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;

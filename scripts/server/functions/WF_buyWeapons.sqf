@@ -2,7 +2,7 @@ params ["_unit", "_weaponClass"];
 
 _group = group _unit;
 _wallet = _group getVariable "wallet";
-_price = missionNamespace getVariable ("WF_WEAPON_" + _weaponsClass);
+_price = missionNamespace getVariable ("WF_WEAPON_" + _weaponClass);
 
 if (_wallet >= _price) then {
   _currentWeapon = currentWeapon _unit;

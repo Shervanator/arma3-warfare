@@ -15,8 +15,8 @@ switch (_side) do {
   case resistance: {
     switch (_townType) do {
       case "village": {
-        _patrolTypes pushBack [(configfile >> "CfgGroups" >> "Indep" >> "IND_F" >> "Infantry" >> "HAF_InfSquad"), 2, 60];
-        _patrolTypes pushBack [(configfile >> "CfgGroups" >> "Indep" >> "IND_F" >> "Mechanized" >> "HAF_MechInfSquad"), 1, 100];
+        /*_patrolTypes pushBack [(configfile >> "CfgGroups" >> "Indep" >> "IND_F" >> "Infantry" >> "HAF_InfSquad"), 2, 60];
+        _patrolTypes pushBack [(configfile >> "CfgGroups" >> "Indep" >> "IND_F" >> "Mechanized" >> "HAF_MechInfSquad"), 1, 100];*/
       };
       case "town": {
         _patrolTypes pushBack [(configfile >> "CfgGroups" >> "Indep" >> "IND_F" >> "Infantry" >> "HAF_InfSquad"), 3, 100];

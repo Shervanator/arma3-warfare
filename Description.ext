@@ -42,6 +42,15 @@ class CfgRespawnInventory
 	};
 };
 
+class CfgRespawnTemplates
+{
+	// Class used in respawnTemplates entry
+	class playerRespawn
+	{
+		onPlayerRespawn = "scripts\client\playerRespawn.sqf";
+	};
+};
+
 respawn = 3;
 // Delay in seconds before playable unit respawns.
 respawnDelay = 2;
@@ -50,7 +59,7 @@ respawnVehicleDelay = 2;
 // 0 to disable the score table (it can still be opened manually by pressing 'P' key).
 respawnDialog = 0;
 // Respawn templates from CfgRespawnTemplates. You can combine any number of them together.
-respawnTemplates[] = {"MenuInventory", "MenuPosition"};
+respawnTemplates[] = {"MenuInventory", "MenuPosition", "playerRespawn"};
 // 1 to respawn player when he joins the game. Available only for INSTANT and BASE respawn types.
 respawnOnStart = 1;
 // When 1, the score table contains score of all playable units as opposed to players only.

@@ -31,7 +31,7 @@ resistance setFriend [east, 0];
   [_x] execVM "scripts\server\town\townManager.sqf";
 } forEach _towns;
 
-sleep 3;
+
 
 _opForGroups = [];
 _blueForGroups = [];
@@ -49,5 +49,6 @@ _blueForGroups = [];
   };
 } forEach allGroups;
 
+sleep 10;
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
 [_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";
