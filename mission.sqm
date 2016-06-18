@@ -16,7 +16,8 @@ class Mission
 		"A3_Armor_F_Beta_APC_Tracked_01",
 		"A3_Air_F_Beta_Heli_Attack_01",
 		"A3_Air_F_Heli_Light_01",
-		"A3_Props_F_Exp_A_Military_Equipment"
+		"A3_Props_F_Exp_A_Military_Equipment",
+		"A3_Air_F_Beta_Heli_Transport_02"
 	};
 	addOnsAuto[]=
 	{
@@ -343,21 +344,21 @@ class Mission
 		items=11;
 		class Item0
 		{
-			position[]={2782.9226,143.52373,1744.1372};
+			position[]={2778.0447,143.46034,1744.4863};
 			name="town1";
 			type="mil_flag";
 			colorName="ColorYellow";
 		};
 		class Item1
 		{
-			position[]={2010.9578,4.0827427,2697.2725};
+			position[]={2020.6678,4.9000168,2692.0742};
 			name="town2";
 			type="mil_flag";
 			colorName="ColorYellow";
 		};
 		class Item2
 		{
-			position[]={3290.0249,229.12721,2939.5244};
+			position[]={3289.5542,229.17999,2933.2563};
 			name="town3";
 			type="mil_flag";
 			colorName="ColorYellow";

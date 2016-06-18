@@ -1,14 +1,24 @@
 params ["_hqMarker", "_towns", "_side", "_teamGroups"];
+_allObjectives = [];
+_enemyTowns = [];
+_hqPos = getMarkerPos _hqMarker;
 
 {
-  _currentOrder = _x getVariable "order";
-  if ((isNil "_currentOrder")) then {
-    [_x, _towns, _side, _hqMarker] call WF_setWaypoint;
-  } else {
-    if ((_currentOrder getVariable "townOwner") == _side) then {
-      [_x, _towns, _side, _hqMarker] call WF_setWaypoint;
-    };
+  if ((_x getVariable "WF_townState") == "alert") then {
+    _allObjectives pushBack [_x, (getPos _x) distanceSqr _hqPos];
   };
+} forEach (missionNameSpace getVariable ((str _side) + "locations"));
+
+_enemySides = [resistance, east, west] - [_side];
+_enemyTowns append (missionNameSpace getVariable ((str (_enemySides select 0)) + "locations"));
+_enemyTowns append (missionNameSpace getVariable ((str (_enemySides select 1)) + "locations"));
+{
+  _allObjectives pushBack [_x, ((getPos _x) distanceSqr _hqPos) / 3];
+} forEach _enemyTowns;
+
+{
+  [_x, _allObjectives] call WF_findBestObjective;
+
   _wallet = _x getVariable "wallet";
   // count towns
   _numberOfTowns = 0;

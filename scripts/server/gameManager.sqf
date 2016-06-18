@@ -2,6 +2,9 @@ _townMarkers = [];
 _towns = [];
 _blueForMarker = "";
 _opForMarker = "";
+missionNameSpace setVariable ["EASTlocations", []];
+missionNameSpace setVariable ["WESTlocations", []];
+missionNameSpace setVariable ["GUERlocations", []];
 
 west setFriend [resistance, 0];
 east setFriend [resistance, 0];

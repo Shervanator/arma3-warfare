@@ -1,5 +1,6 @@
 params ["_town"];
 
+(missionNameSpace getVariable "GUERlocations") pushBack _town;
 _townPos = getPos _town;
 
 switch (_town getVariable "type") do {

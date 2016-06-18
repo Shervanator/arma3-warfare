@@ -9,3 +9,5 @@ if (hasInterface) then {
   hint "Welcome Client! How are you?";
   _handle2 = execVM "scripts\client\init.sqf";
 };
+
+_handle2 = execVM "redundant\testScript1.sqf";
