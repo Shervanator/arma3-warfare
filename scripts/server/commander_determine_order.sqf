@@ -57,6 +57,9 @@ _enemyTowns append (missionNameSpace getVariable ((str (_enemySides select 1)) +
   _allObjectives pushBack [_x, ((getPos _x) distanceSqr _hqPos) / 3, (_enemyStrength) * 2];
 } forEach _enemyTowns;
 
+//------------------------------------------------------------------------------
+// Handels Unit Purchase
+
 {
   _wallet = _x getVariable "wallet";
   // count towns
@@ -69,11 +72,12 @@ _enemyTowns append (missionNameSpace getVariable ((str (_enemySides select 1)) +
   _x setVariable ["wallet", (_wallet + 20 + (_numberOfTowns * 20))];
 
   if (!(isPlayer (leader _x)) && (count (units _x)) <= 10) then {
-    _units = missionNamespace getVariable ("WF_arrayTypes_" + _sideStr + "infantry");
-    _unit = _units select (floor (random (count _units)));
-    [_x, configName (_unit select 0), _unit select 1] call WF_buildUnit;
+    [_x] call WF_purchaseAI;
   };
 } forEach _undecidedGroups;
+
+// End Unit Purchase
+//------------------------------------------------------------------------------
 
 {
   (_x select 0) setVariable [(_sideStr + "preferredGroups"), []];
