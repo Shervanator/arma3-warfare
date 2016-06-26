@@ -41,8 +41,15 @@ _blueForGroups = [];
 
 {
   switch (side _x) do {
-    case west: { _blueForGroups pushBack _x; };
-    case east: { _opForGroups pushBack _x; };
+    case west: {
+      _blueForGroups pushBack _x;
+      _x setVariable ["currentObjective", objNull];
+    };
+
+    case east: {
+      _opForGroups pushBack _x;
+      _x setVariable ["currentObjective", objNull];
+    };
   };
 
   if (isPlayer (leader _x)) then {
@@ -52,6 +59,6 @@ _blueForGroups = [];
   };
 } forEach allGroups;
 
-sleep 10;
+sleep 20; // this sleep time needs to be increased as town scripts now take longer than 10 seconds to execute (running in background). Alternatively come up with a better way
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
 [_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";

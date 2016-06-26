@@ -1,5 +1,8 @@
 params ["_town"];
 
+_town setVariable ["EASTpreferredGroups", []];
+_town setVariable ["WESTpreferredGroups", []];
+_town setVariable ["GUERpreferredGroups", []];
 (missionNameSpace getVariable "GUERlocations") pushBack _town;
 _townPos = getPos _town;
 

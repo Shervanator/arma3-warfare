@@ -10,6 +10,8 @@ WF_buyItem = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF
 WF_buyBackpack = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_buyBackpack.sqf";
 WF_setWaypoint = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_setWaypoint.sqf";
 WF_findBestObjective = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_findBestObjective.sqf";
+WF_estimateForceStrength = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_estimateForceStrength.sqf";
+WF_testFunc = compileFinal preprocessFileLineNumbers "test.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;

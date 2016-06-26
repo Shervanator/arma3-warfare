@@ -2,10 +2,10 @@
 /*%FSM<HEAD>*/
 /*
 item0[] = {"Init",0,250,270.024994,-258.702393,360.024994,-208.702469,0.000000,"Init"};
-item1[] = {"true",8,218,268.105530,-177.425842,358.105530,-127.425842,0.000000,"true"};
-item2[] = {"Idle",2,250,273.422852,-95.178650,363.422852,-45.178650,0.000000,"Idle"};
+item1[] = {"init_done_",4,218,268.105530,-177.425842,358.105530,-127.425842,0.000000,"init done?"};
+item2[] = {"Idle",2,4346,273.422852,-95.178650,363.422852,-45.178650,0.000000,"Idle"};
 item3[] = {"enemies_",4,218,10.110611,-100.770599,100.110626,-50.770599,0.000000,"enemies?"};
-item4[] = {"Warning",2,4346,265.838043,56.203491,355.838074,106.203491,0.000000,"Warning"};
+item4[] = {"Warning",2,250,265.838043,56.203491,355.838074,106.203491,0.000000,"Warning"};
 item5[] = {"new_owner_",4,218,86.086731,178.957458,176.086731,228.957458,0.000000,"new owner?"};
 item6[] = {"Contested",2,250,266.248352,260.101898,356.248352,310.101898,0.000000,"Contested"};
 item7[] = {"no_enemies_",4,218,419.396240,-22.682068,509.396240,27.317932,0.000000,"no enemies?"};
@@ -25,7 +25,7 @@ link9[] = {8,4};
 link10[] = {9,10};
 link11[] = {10,4};
 globals[] = {0.000000,0,0,0,0,640,480,1,37,6316128,1,-171.732666,896.884216,449.444946,-388.760376,960,884,1};
-window[] = {2,-1,-1,-1,-1,993,234,1674,234,3,978};
+window[] = {2,-1,-1,-1,-1,785,26,1466,26,3,978};
 *//*%FSM</HEAD>*/
 class FSM
 {
@@ -45,19 +45,19 @@ class FSM
                          "_respawnPosition = [resistance, getPos _town] call BIS_fnc_addRespawnPosition;" \n
                          "_town setVariable [""townOwner"", resistance];" \n
                          "_town setVariable [""respawnPosition"", _respawnPosition];" \n
-                         "_town setVariable [""patrolForces"", []];" \n
-                         "_town setVariable [""savedGroups"", []];"/*%FSM</STATEINIT""">*/;
+                         "_town setVariable [""savedGroups"", []];" \n
+                         "_spawnHandle1 = _town execVM ""scripts\server\town\spawnTownPatrol.sqf"";"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
-                                /*%FSM<LINK "true">*/
-                                class true
+                                /*%FSM<LINK "init_done_">*/
+                                class init_done_
                                 {
                                         itemno = 1;
                                         priority = 0.000000;
                                         to="Idle";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/""/*%FSM</CONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"scriptDone _spawnHandle1"/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
                                 };
                                 /*%FSM</LINK>*/
@@ -223,7 +223,7 @@ class FSM
                 {
                         name = "Spawn_Patrol";
                         itemno = 9;
-                        init = /*%FSM<STATEINIT""">*/"_spawnHandle = _town execVM ""scripts\server\town\spawnTownPatrol.sqf"";"/*%FSM</STATEINIT""">*/;
+                        init = /*%FSM<STATEINIT""">*/"_spawnHandle2 = _town execVM ""scripts\server\town\spawnTownPatrol.sqf"";"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {
@@ -234,7 +234,7 @@ class FSM
                                         priority = 0.000000;
                                         to="Warning";
                                         precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
-                                        condition=/*%FSM<CONDITION""">*/"scriptDone _spawnHandle"/*%FSM</CONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"scriptDone _spawnHandle2"/*%FSM</CONDITION""">*/;
                                         action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
                                 };
                                 /*%FSM</LINK>*/

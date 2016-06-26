@@ -1,6 +1,5 @@
 params ["_town"];
 
-
 _patrolForces = [];
 _savedGroups = _town getVariable "savedGroups";
 
