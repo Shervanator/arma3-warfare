@@ -113,7 +113,7 @@ _preferredObjectives = [];
       } forEach _allPreferredgroups;
 
       if ((_grp getVariable "currentObjective") != _objective) then {
-        [_grp, _objective] call WF_setWaypoint;
+        [_grp, _objective, 100] call WF_setWaypoint;
         _grp setVariable ["currentObjective", _objective];
       };
 

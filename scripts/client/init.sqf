@@ -1,7 +1,7 @@
 _side = side player;
 _faction = faction player;
 
-titleMenu = [[ "Chase", {}, [], -1, false, false, "", "" ]];
+titleMenu = [[ "Purchase", {}, [], -1, false, false, "", "" ]];
 _subMenu = [];
 {
 	_buildFunction = _x select 2;
@@ -30,8 +30,8 @@ _subMenu = [];
 titleMenu pushBack _subMenu;
 
 switch (_side) do {
-	case east: {[ titleMenu, matt, false, 5, [ true, true, true, false ] ] call LARs_fnc_menuStart;};
-	case west: {[ titleMenu, ehsan, false, 5, [ true, true, true, false ] ] call LARs_fnc_menuStart;};
+	case east: {[ titleMenu, matt, true, 5, [ true, true, true, false ] ] call LARs_fnc_menuStart;};
+	case west: {[ titleMenu, ehsan, true, 5, [ true, true, true, false ] ] call LARs_fnc_menuStart;};
 };
 
 /*{[_this select 1 !selects instigator! , (_this select 3 !selects arguments!) select 0 !Selects first argument!] remoteExec [(_this select 3) select 1, 2]}*/

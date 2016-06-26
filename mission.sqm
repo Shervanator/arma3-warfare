@@ -48,7 +48,7 @@ class Mission
 	};
 	class Groups
 	{
-		items=14;
+		items=16;
 		class Item0
 		{
 			side="WEST";
@@ -316,6 +316,43 @@ class Mission
 				};
 			};
 		};
+		class Item14
+		{
+			side="WEST";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={2640.2031,64.99543,659.85352};
+					id=14;
+					side="WEST";
+					vehicle="B_Soldier_SL_F";
+					player="PLAY CDG";
+					leader=1;
+					skill=0.60000002;
+				};
+			};
+		};
+		class Item15
+		{
+			side="EAST";
+			class Vehicles
+			{
+				items=1;
+				class Item0
+				{
+					position[]={4326.3569,136.02527,6816.1719};
+					azimut=-155.45015;
+					id=15;
+					side="EAST";
+					vehicle="O_Soldier_SL_F";
+					player="PLAY CDG";
+					leader=1;
+					skill=0.60000002;
+				};
+			};
+		};
 	};
 	class Vehicles
 	{
@@ -324,7 +361,7 @@ class Mission
 		{
 			position[]={4303.7212,134.7137,6804.0991};
 			azimut=-64.080803;
-			id=14;
+			id=16;
 			side="EMPTY";
 			vehicle="Land_DataTerminal_01_F";
 			skill=0.60000002;
@@ -334,7 +371,7 @@ class Mission
 		{
 			position[]={2619.3301,63.425056,679.03467};
 			azimut=-64.080803;
-			id=15;
+			id=17;
 			side="EMPTY";
 			vehicle="Land_DataTerminal_01_F";
 			skill=0.60000002;
@@ -346,7 +383,7 @@ class Mission
 		items=11;
 		class Item0
 		{
-			position[]={2779.3069,143.56514,1746.0508};
+			position[]={2779.2439,143.48219,1744.4331};
 			name="town1";
 			type="mil_flag";
 			colorName="ColorYellow";
