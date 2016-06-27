@@ -383,7 +383,7 @@ class Mission
 		items=11;
 		class Item0
 		{
-			position[]={2779.2439,143.48219,1744.4331};
+			position[]={2778.5327,143.39647,1743.3008};
 			name="town1";
 			type="mil_flag";
 			colorName="ColorYellow";

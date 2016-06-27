@@ -1,3 +1,4 @@
+private ["_sideStr", "_units", "_unit", "_parentGroup"];
 params ["_parentGroup"];
 
 _sideStr = str (side _parentGroup);

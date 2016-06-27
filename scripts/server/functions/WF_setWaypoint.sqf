@@ -7,4 +7,4 @@ while {(count (waypoints _group) > 1)} do {
 
 _wp = _group addWaypoint [(getPos _minObjective), _radius];
 _wp setWaypointType "SAD";
-_wp setWayPointStateMents ["true", "this execVM 'scripts\server\WP_reassignWaypoint.sqf'"];
+_wp setWayPointStateMents ["true", "[group this] execVM 'scripts\server\functions\WP_reassignWaypoint.sqf'"];

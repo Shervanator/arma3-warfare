@@ -5,18 +5,11 @@ _sideStr = str _side;
 _allObjectives = [];
 _enemyTowns = [];
 _hqPos = getMarkerPos _hqMarker;
-_enemySides = [resistance, east, west] - [_side];
+_enemySides = [_side] call WF_getEnemySides;
 
 {
   if ((_x getVariable "WF_townState") == "alert") then {
-    _enemyForces = [];
-    {
-      // make the line below into a nice func as this exact code is used more than once in this script
-      if (((side _x) isEqualTo (_enemySides select 0)) or ((side _x) isEqualTo (_enemySides select 1))) then {
-        _enemyForces pushBack _x;
-      };
-
-    }forEach (list (_x getVariable "alertZone"));
+    _enemyForces = [list (_x getVariable "alertZone"), _enemySides] call WF_unitSideFilter;
 
     _friendlyForces = [];
     {
@@ -27,7 +20,6 @@ _enemySides = [resistance, east, west] - [_side];
     _friendlyStrength = [_friendlyForces] call WF_estimateForceStrength;
     if (_enemyStrength > _friendlyStrength) then {
       _allObjectives pushBack [_x, ((getPos _x) distanceSqr _hqPos) / 3, (_enemyStrength - _friendlyStrength) * 2];
-      _x setVariable [(_sideStr + "assigned_Force_Strength"), 0];
     };
   };
 } forEach (missionNameSpace getVariable (_sideStr + "locations"));
@@ -37,20 +29,10 @@ _enemyTowns append (missionNameSpace getVariable ((str (_enemySides select 1)) +
 {
   _enemyStrength = 0;
   if ((_x getVariable "WF_townState") == "alert") then {
-    _enemyForces = [];
-    {
-      if (((side _x) isEqualTo (_enemySides select 0)) or ((side _x) isEqualTo (_enemySides select 1))) then {
-        _enemyForces pushBack _x;
-      };
-    }forEach (list (_x getVariable "alertZone"));
+    _enemyForces = [list (_x getVariable "alertZone"), _enemySides] call WF_unitSideFilter;
     _enemyStrength = [_enemyForces] call WF_estimateForceStrength;
   } else {
-    _enemyForces = [];
-    {
-      if (((side _x) isEqualTo (_enemySides select 0)) or ((side _x) isEqualTo (_enemySides select 1))) then {
-        _enemyForces pushBack _x;
-      };
-    }forEach (list (_x getVariable "alertZone"));
+    _enemyForces = [list (_x getVariable "alertZone"), _enemySides] call WF_unitSideFilter;
     _enemyStrength = ([_enemyForces] call WF_estimateForceStrength) + (_x getVariable "patrolForceStrength");
   };
 
@@ -103,7 +85,7 @@ _preferredObjectives = [];
 
     while {(count _allPreferredgroups) > 0} do {
 
-      if (_forceStrength > _thershold) exitWith {
+      if ((count _allObjectives > 1) and (_forceStrength > _thershold)) exitWith {
         _allObjectives = _allObjectives - [_x];
         _undecidedGroups append _allPreferredgroups;
       };
@@ -117,7 +99,7 @@ _preferredObjectives = [];
       } forEach _allPreferredgroups;
 
       if ((_grp getVariable "currentObjective") != _objective) then {
-        [_grp, _objective, 100] call WF_setWaypoint;
+        [_grp, _objective, 50] call WF_setWaypoint;
         _grp setVariable ["currentObjective", _objective];
       };
 

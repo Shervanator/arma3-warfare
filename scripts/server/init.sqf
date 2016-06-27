@@ -12,6 +12,8 @@ WF_setWaypoint = compileFinal preprocessFileLineNumbers "scripts\server\function
 WF_findBestObjective = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_findBestObjective.sqf";
 WF_estimateForceStrength = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_estimateForceStrength.sqf";
 WF_purchaseAI = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_purchaseAI.sqf";
+WF_unitSideFilter = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_unitSideFilter.sqf";
+WF_getEnemySides = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getEnemySides.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;
