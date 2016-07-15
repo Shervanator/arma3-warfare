@@ -1,12 +1,16 @@
+private ["_notEnoughChips", "_skill", "_unit"];
 params ["_group", "_vehicleClass"];
 
+_notEnoughChips = false;
 _wallet = _group getVariable "wallet";
-_price = missionNamespace getVariable ("WF_UNIT_" + _vehicleClass);
+_price = missionNamespace getVariable ("WF_cost_" + _vehicleClass);
+_skill = 1 - (random 0.3);
 
 if (_wallet >= _price) then {
-  _vehicleClass createUnit [ getPos (leader _group), _group ];
+  _vehicleClass createUnit [getPos (leader _group), _group, "", _skill];
   _group setVariable ["wallet", _wallet - _price];
-
-  _wallet = _group getVariable "wallet";
+} else {
+  _notEnoughChips = true;
 };
 /*(format ["$%1", _wallet]) remoteExec ["hint", 0];*/
+_notEnoughChips

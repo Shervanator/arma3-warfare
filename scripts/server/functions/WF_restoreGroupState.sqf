@@ -43,7 +43,7 @@ _newVehicles = [];
     _killerWallet = _killerGroup getVariable "wallet";
     if (!(isNil "_killerWallet")) then {
       _killerGroup setVariable ["wallet", _killerWallet + 10];
-      (format ["killed get money: $%1", _killerWallet + 10]) remoteExec ["hint", 0];
+      /*(format ["killed get money: $%1", _killerWallet + 10]) remoteExec ["hint", 0];*/
     };
   }];
 } forEach _vehicles;
@@ -81,10 +81,12 @@ _newVehicles = [];
     _killerWallet = _killerGroup getVariable "wallet";
     if (!(isNil "_killerWallet")) then {
       _killerGroup setVariable ["wallet", _killerWallet + 10];
-      (format ["killed get money: $%1", _killerWallet + 10]) remoteExec ["hint", 0];
+      /*(format ["killed get money: $%1", _killerWallet + 10]) remoteExec ["hint", 0];*/
     };
   }];
 
+  _skill = 1 - (random 0.3);
+  newUnit setSkill _skill;
 } forEach _units;
 
 [_group, _patrolPosition, _patrolRadius] call BIS_fnc_taskPatrol;

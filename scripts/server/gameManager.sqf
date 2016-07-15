@@ -18,6 +18,8 @@ resistance setFriend [east, 0];
     case "o_hq": { _opForMarker = _x };
   };
 } foreach allMapMarkers;
+missionNameSpace setVariable ["EASTHQPos", getMarkerPos _opForMarker];
+missionNameSpace setVariable ["WESTHQPos", getMarkerPos _blueForMarker];
 
 {
   _town = "FlagPole_F" createVehicle (getMarkerPos _x);
@@ -38,27 +40,41 @@ resistance setFriend [east, 0];
 
 _opForGroups = [];
 _blueForGroups = [];
+missionNameSpace setVariable ["EASTinfSqds", []];
+missionNameSpace setVariable ["WESTinfSqds", []];
+missionNameSpace setVariable ["EASTarmorSqds", []];
+missionNameSpace setVariable ["WESTarmorSqds", []];
+missionNameSpace setVariable ["EASTairSqds", []];
+missionNameSpace setVariable ["WESTairSqds", []];
 
 {
   switch (side _x) do {
     case west: {
       _blueForGroups pushBack _x;
       _x setVariable ["currentObjective", objNull];
+      (missionNamespace getVariable "WESTinfSqds") pushBack _x;
+      _x setVariable ["grpType", "inf"];
     };
 
     case east: {
       _opForGroups pushBack _x;
       _x setVariable ["currentObjective", objNull];
+      (missionNamespace getVariable "EASTinfSqds") pushBack _x;
+      _x setVariable ["grpType", "inf"];
     };
   };
 
   if (isPlayer (leader _x)) then {
-    _x setVariable ["wallet", 10000];
+    _x setVariable ["wallet", 500];
   } else {
-    _x setVariable ["wallet", 1000];
+    _x setVariable ["wallet", 500];
   };
 } forEach allGroups;
 
 sleep 20; // this sleep time needs to be increased as town scripts now take longer than 10 seconds to execute (running in background). Alternatively come up with a better way
+missionNamespace setVariable ["EASTincome", 0];
+missionNamespace setVariable ["WESTincome", 0];
+missionNamespace setVariable ["countEASTgrps", count _opForGroups];
+missionNamespace setVariable ["countWESTgrps", count _blueForGroups];
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
 [_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";

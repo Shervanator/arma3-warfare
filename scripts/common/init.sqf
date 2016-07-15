@@ -1,3 +1,5 @@
+WF_calcAvgTypeCost = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_calcAvgTypeCost.sqf";
+
 _WF_opForUnits = [
   [configFile >> "CfgVehicles" >> "O_Soldier_F", 75],
   [configFile >> "CfgVehicles" >> "O_Soldier_lite_F", 50],
@@ -93,11 +95,11 @@ missionNameSpace setVariable ["WF_arrayTypes_EASTinfantry", _WF_opForUnits];
 missionNameSpace setVariable ["WF_arrayTypes_WESTinfantry", _WF_bluForUnits];
 
 {
-  missionNamespace setVariable ["WF_UNIT_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_cost_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_bluForUnits;
 
 {
-  missionNamespace setVariable ["WF_UNIT_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_cost_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForUnits;
 
 _WF_opForVehiclesCar = [
@@ -109,10 +111,10 @@ _WF_opForVehiclesCar = [
   [configFile >> "CfgVehicles" >> "O_Truck_02_covered_F", 550],
   [configFile >> "CfgVehicles" >> "O_Truck_03_transport_F", 600],
   [configFile >> "CfgVehicles" >> "O_Truck_03_covered_F", 650],
-  [configFile >> "CfgVehicles" >> "O_Truck_03_device_F", 650],
-  [configFile >> "CfgVehicles" >> "C_Kart_01_Blu_F", 50],
-  [configFile >> "CfgVehicles" >> "C_SUV_01_F", 200],
-  [configFile >> "CfgVehicles" >> "C_Hatchback_01_sport_F", 200]
+  [configFile >> "CfgVehicles" >> "O_Truck_03_device_F", 650],  // *
+  [configFile >> "CfgVehicles" >> "C_Kart_01_Blu_F", 50],  // *
+  [configFile >> "CfgVehicles" >> "C_SUV_01_F", 200],  // *
+  [configFile >> "CfgVehicles" >> "C_Hatchback_01_sport_F", 200]  // *
 ];
 
 _WF_bluForVehiclesCar = [
@@ -122,57 +124,62 @@ _WF_bluForVehiclesCar = [
   [configFile >> "CfgVehicles" >> "B_Quadbike_01_F", 100],
   [configFile >> "CfgVehicles" >> "B_Truck_01_transport_F", 500],
   [configFile >> "CfgVehicles" >> "B_Truck_01_covered_F", 550],
-  [configFile >> "CfgVehicles" >> "B_Truck_01_mover_F", 550],
-  [configFile >> "CfgVehicles" >> "B_Truck_01_box_F", 550],
-  [configFile >> "CfgVehicles" >> "C_Kart_01_Red_F", 50],
-  [configFile >> "CfgVehicles" >> "C_SUV_01_F", 200],
-  [configFile >> "CfgVehicles" >> "C_Hatchback_01_sport_F", 200]
+  [configFile >> "CfgVehicles" >> "B_Truck_01_mover_F", 550],  // *
+  [configFile >> "CfgVehicles" >> "B_Truck_01_box_F", 550],  // *
+  [configFile >> "CfgVehicles" >> "C_Kart_01_Red_F", 50],  // *
+  [configFile >> "CfgVehicles" >> "C_SUV_01_F", 200],  // *
+  [configFile >> "CfgVehicles" >> "C_Hatchback_01_sport_F", 200]  // *
 ];
 
 missionNameSpace setVariable ["WF_arrayTypes_EASTcar", _WF_opForVehiclesCar];
 missionNameSpace setVariable ["WF_arrayTypes_WESTcar", _WF_bluForVehiclesCar];
 
 {
-  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_cost_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_bluForVehiclesCar;
 
 {
-  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_cost_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForVehiclesCar;
 
 _WF_opForVehiclesArmored = [
-  [configFile >> "CfgVehicles" >> "O_APC_Tracked_02_cannon_F", 1000],
+  [configFile >> "CfgVehicles" >> "O_APC_Tracked_02_cannon_F", 2000],
   [configFile >> "CfgVehicles" >> "O_APC_Tracked_02_AA_F", 3000],
   [configFile >> "CfgVehicles" >> "O_MBT_02_cannon_F", 4500],
   [configFile >> "CfgVehicles" >> "O_MBT_02_arty_F", 5500],
-  [configFile >> "CfgVehicles" >> "O_APC_Wheeled_02_rcws_F", 2000]
+  [configFile >> "CfgVehicles" >> "O_APC_Wheeled_02_rcws_F", 1000]
 ];
 
 _WF_bluForVehiclesArmored = [
-  [configFile >> "CfgVehicles" >> "B_APC_Tracked_01_rcws_F", 1000],
+  [configFile >> "CfgVehicles" >> "B_APC_Tracked_01_rcws_F", 2000],
   [configFile >> "CfgVehicles" >> "B_APC_Tracked_01_AA_F", 3000],
   [configFile >> "CfgVehicles" >> "B_MBT_01_cannon_F", 4500],
   [configFile >> "CfgVehicles" >> "B_MBT_01_arty_F", 5500],
-  [configFile >> "CfgVehicles" >> "B_APC_Wheeled_01_cannon_F", 2000],
+  [configFile >> "CfgVehicles" >> "B_APC_Wheeled_01_cannon_F", 1000],
   [configFile >> "CfgVehicles" >> "B_MBT_01_TUSK_F", 6000]
 ];
 
+missionNameSpace setVariable ["armorEASTavgCost", [_WF_opForVehiclesArmored] call WF_calcAvgTypeCost];
+missionNameSpace setVariable ["armorWESTavgCost", [_WF_bluForVehiclesArmored] call WF_calcAvgTypeCost];
 missionNameSpace setVariable ["WF_arrayTypes_EASTarmored", _WF_opForVehiclesArmored];
 missionNameSpace setVariable ["WF_arrayTypes_WESTarmored", _WF_bluForVehiclesArmored];
 
 {
-  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_cost_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_bluForVehiclesArmored;
 
 {
-  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_cost_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForVehiclesArmored;
 
 _WF_opForVehiclesAir = [
   [configFile >> "CfgVehicles" >> "O_Heli_Light_02_F", 2500],
+  [configFile >> "CfgVehicles" >> "O_Heli_Light_02_v2_F", 2500],
   [configFile >> "CfgVehicles" >> "O_Heli_Light_02_unarmed_F", 1500],
   [configFile >> "CfgVehicles" >> "O_Heli_Attack_02_F", 7000],
   [configFile >> "CfgVehicles" >> "O_Heli_Attack_02_black_F", 7000],
+  [configFile >> "CfgVehicles" >> "O_Heli_Transport_04_bench_F", 2500],
+  [configFile >> "CfgVehicles" >> "O_Heli_Transport_04_covered_F", 2500],
   [configFile >> "CfgVehicles" >> "O_Plane_CAS_02_F", 10000]
 ];
 
@@ -183,18 +190,24 @@ _WF_bluForVehiclesAir = [
   [configFile >> "CfgVehicles" >> "B_Heli_Attack_01_F", 7000],
   [configFile >> "CfgVehicles" >> "B_Heli_Transport_01_F", 3000],
   [configFile >> "CfgVehicles" >> "B_Heli_Transport_01_camo_F", 3000],
+  [configFile >> "CfgVehicles" >> "B_Heli_Transport_03_F", 3000],
+  [configFile >> "CfgVehicles" >> "B_Heli_Transport_03_unarmed_F", 2500],
+  [configFile >> "CfgVehicles" >> "B_Heli_Transport_03_black_F", 3000],
+  [configFile >> "CfgVehicles" >> "B_Heli_Transport_03_unarmed_green_F", 2500],
   [configFile >> "CfgVehicles" >> "B_Plane_CAS_01_F", 10000]
 ];
 
+missionNameSpace setVariable ["airEASTavgCost", [_WF_opForVehiclesAir] call WF_calcAvgTypeCost];
+missionNameSpace setVariable ["airWESTavgCost", [_WF_bluForVehiclesAir] call WF_calcAvgTypeCost];
 missionNameSpace setVariable ["WF_arrayTypes_EASTair", _WF_opForVehiclesAir];
 missionNameSpace setVariable ["WF_arrayTypes_WESTair", _WF_bluForVehiclesAir];
 
 {
-  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_cost_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_bluForVehiclesAir;
 
 {
-  missionNamespace setVariable ["WF_VEHICLE_" + (configName (_x select 0)), _x select 1];
+  missionNamespace setVariable ["WF_cost_" + (configName (_x select 0)), _x select 1];
 } forEach _WF_opForVehiclesAir;
 
 /*TESTING WEAPONS*/

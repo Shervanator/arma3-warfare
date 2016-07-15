@@ -108,9 +108,12 @@ switch (_side) do {
         _killerWallet = _killerGroup getVariable "wallet";
         if (!(isNil "_killerWallet")) then {
           _killerGroup setVariable ["wallet", _killerWallet + 10];
-      (format ["killed get money: $%1", _killerWallet + 10]) remoteExec ["hint", 0];
+      /*(format ["killed get money: $%1", _killerWallet + 10]) remoteExec ["hint", 0];*/
         };
       }];
+
+      _skill = 1 - (random 0.3);
+      _x setSkill _skill;
     } forEach units _grp;
   };
 } forEach _patrolTypes;
