@@ -1,4 +1,4 @@
-private ["_notEnoughChips", "_skill", "_vehicle"];
+private ["_notEnoughChips", "_wallet", "_group", "_price", "_vehicleClass", "_skill", "_vehicle"];
 params ["_group", "_vehicleClass"];
 
 _notEnoughChips = false;

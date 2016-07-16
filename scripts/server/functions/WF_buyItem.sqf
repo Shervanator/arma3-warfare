@@ -1,3 +1,4 @@
+private ["_group", "_unit", "_wallet", "_price", "_ammoType"];
 params ["_unit", "_ammoType"];
 
 _group = group _unit;

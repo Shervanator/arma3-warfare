@@ -8,6 +8,7 @@ _wallet = _group getVariable "wallet";
 _price = missionNamespace getVariable ("WF_cost_" + _unitClass);
 
 if (_wallet >= _price) then {
+  _group setVariable ["unitInQue", false];
   _group setVariable ["wallet", _wallet - _price];
   _safeSpawnPos = [_hqPos, 0, 100, 8, 0, 10, 0] call BIS_fnc_findSafePos;
   _skill = 1 - (random 0.3);

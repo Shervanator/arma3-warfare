@@ -1,4 +1,4 @@
-private ["_unitTypes", "_totCost"];
+private ["_unitTypes", "_totCost", "_avgCost"];
 params ["_unitTypes"];
 
 _totCost = 0;

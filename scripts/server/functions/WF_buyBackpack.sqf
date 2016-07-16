@@ -1,3 +1,4 @@
+private ["_group", "_unit", "_wallet", "_price", "_backpackType"];
 params ["_unit", "_backpackType"];
 
 _group = group _unit;

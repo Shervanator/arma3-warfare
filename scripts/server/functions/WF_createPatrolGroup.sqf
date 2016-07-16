@@ -1,9 +1,9 @@
-
 // village: 2 groups + apc
 // town: 3 groups + apc + tank
 // airport: 4 groups + 2 apcs + tank + ?motorized
 // city: 4 groups + 2 apcs + tank
 
+private ["_position", "_town", "_side", "_townType", "_patrolTypes", "_groups", "_radius", "_safeSpawnPos", "_grp", "_killerGroup", "_killerWallet", "_skill"];
 params ["_town"];
 _position = getPos _town;
 _side = _town getVariable "townOwner";

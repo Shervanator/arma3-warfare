@@ -266,8 +266,8 @@ _preferredObjectives = [];
       } forEach _allPreferredgroups;
 
       if ((_grp getVariable "currentObjective") != _objective) then {
-        [_grp, _objective, 50] call WF_setWaypoint;
         _grp setVariable ["currentObjective", _objective];
+        [_grp, _objective, 50] call WF_setWaypoint;
       };
 
       _forceStrength = _forceStrength + ([units _grp] call WF_estimateForceStrength);

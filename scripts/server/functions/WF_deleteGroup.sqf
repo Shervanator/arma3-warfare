@@ -1,3 +1,4 @@
+private ["_group"];
 params ["_group"];
 
 {

@@ -1,3 +1,4 @@
+private ["_trg", "_position", "_size"];
 params ["_position", "_size"];
 
 _trg = createTrigger ["EmptyDetector", _position];

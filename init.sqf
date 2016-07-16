@@ -1,4 +1,5 @@
 call compile preprocessFileLineNumbers "scripts\common\init.sqf";
+/*["Initialize", [player, [], true, true, true, true, true, true, true, true]] call BIS_fnc_EGSpectator;*/
 
 if (isServer) then {
   call compile preprocessFileLineNumbers "scripts\server\init.sqf";
