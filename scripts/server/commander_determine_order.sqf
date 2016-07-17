@@ -36,9 +36,9 @@ _allAllyTowns = missionNameSpace getVariable (_sideStr + "locations");
 _income = WFG_baseIncome + ((count _allAllyTowns) * WFG_townIncome);
 _incomePerMinut =(_income * 60) / WFG_commanderCycleTime;
 _countTeamAIGroups = count _teamAIGroups;
-if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTeamAIGroups != missionNamespace getVariable ("count" + _sideStr + "grps"))) then {
+if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTeamAIGroups != missionNamespace getVariable ("count" + _sideStr + "AIgrps"))) then {
 
-  missionNamespace setVariable ["count" + _sideStr + "grps", _countTeamAIGroups];
+  missionNamespace setVariable ["count" + _sideStr + "AIgrps", _countTeamAIGroups];
   _remainingPortion = 1;
   {
     private ["_ideal", "_minutes"];
@@ -112,6 +112,19 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
     };
   };
 
+  missionNameSpace setVariable [_sideStr + "infSqds", []];
+  missionNameSpace setVariable [_sideStr + "armorSqds", []];
+  missionNameSpace setVariable [_sideStr + "airSqds", []];
+  {
+    private [];
+    _grpType = _x getVariable "grpType";
+    if (isNil "_grpType") then {
+      _grpType = "inf";
+      _x setVariable ["grpType", "inf"];
+    };
+    (missionNameSpace getVariable (_sideStr + _grpType + "Sqds")) pushBack _x;
+  } forEach _teamAIGroups;
+
   _needMore = [];
   _extraGrps = [];
   {
@@ -132,19 +145,21 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
     };
   } forEach _grpTypeNumbers;
 
-  {
-    private ["_n0GrpsNeeded", "_grps", "_grp"];
-    _n0GrpsNeeded = _x select 1;
-    _grps = missionNameSpace getVariable (_sideStr + (_x select 0) + "Sqds");
-    while {_n0GrpsNeeded > 0} do {
-      _grp = _extraGrps select 0;
-      _grps pushBack _grp;
-      _grp setVariable ["grpType", (_x select 0)];
-      _grp setVariable ["unitInQue", false];
-      _extraGrps deleteAt 0;
-      _n0GrpsNeeded = _n0GrpsNeeded - 1;
-    };
-  } forEach _needMore;
+  if ((count _needMore) > 0) then {
+    {
+      private ["_n0GrpsNeeded", "_grps", "_grp"];
+      _n0GrpsNeeded = _x select 1;
+      _grps = missionNameSpace getVariable (_sideStr + (_x select 0) + "Sqds");
+      while {_n0GrpsNeeded > 0} do {
+        _grp = _extraGrps select 0;
+        _grps pushBack _grp;
+        _grp setVariable ["grpType", (_x select 0)];
+        _grp setVariable ["unitInQue", false];
+        _extraGrps deleteAt 0;
+        _n0GrpsNeeded = _n0GrpsNeeded - 1;
+      };
+    } forEach _needMore;
+  };
 };
 
 {
