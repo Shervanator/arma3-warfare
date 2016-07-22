@@ -3,17 +3,47 @@ params ["_hqMarker", "_towns", "_side", "_teamGroups"];
 
 _sideStr = str _side;
 _undecidedGroups = +_teamGroups;
-_teamAIGroups = [];
 _allObjectives = [];
 _enemyTowns = [];
 _hqPos = getMarkerPos _hqMarker;
 _grpTypeNumbers = [];
-_roundedGrpCount = 0;
 _enemySides = [_side] call WF_getEnemySides;
 _spcSqdTypes = ["armor", "air"]; // MUST be in the same order as WFG_squadTypes in init.sqf! (except no first element, in this case "infantry")
 _typesAndPortions = [["inf", 0]];
 _allAllyTowns = missionNameSpace getVariable (_sideStr + "locations");
 
+//------------------------------------------------------------------------------
+//DEBUG
+
+if ((count _teamGroups) != 10) then {
+  _debug_aliveGrps = [];
+  _debug_playerGrps = [];
+  "SCRIPT ERROR! THE NUMBER OF TEAM GRPS HAS CHANGED!" remoteExec ["hint", 0];
+  diag_log "ATTENTION: SCRIPT ERROR! LOOK HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+  diag_log "THE NUMBER OF TEAM GRPS HAS CHANGED!";
+  diag_log ["time since mission started:", serverTime];
+  diag_log ["side of the groups", _side];
+  diag_log ["Number of groups that are supposed to be", 10];
+  diag_log ["Number of groups that actually are", count _teamGroups];
+  diag_log ["list of all the groups", _teamGroups];
+  diag_log ["Number of Grps with dead leaders", {alive (leader _x)} count _teamGroups];
+  {
+    if (({alive _x} count (units _x)) == 0) then {
+      _debug_aliveGrps pushBack _x;
+    };
+
+    if (isPlayer (leader _x)) then {
+      _debug_playerGrps pushBack _x;
+    };
+  } forEach _teamGroups;
+  diag_log ["List of Groups with no members", _debug_aliveGrps];
+  diag_log ["List of player groups that are still in teamGroups:", _debug_playerGrps];
+};
+
+//END DEBUG
+//------------------------------------------------------------------------------
+
+_teamAIGroups = [];
 {
   if (!(isPlayer (leader _x))) then {
     _teamAIGroups pushBack _x;
@@ -22,10 +52,13 @@ _allAllyTowns = missionNameSpace getVariable (_sideStr + "locations");
 
 //------------------------------------------------------------------------------
 // Handels Unit Money
-
+_countVillage = {(_x getVariable "type") == "village"} count _allAllyTowns;
+_countTown = {(_x getVariable "type") == "town"} count _allAllyTowns;
+_countAirport = {(_x getVariable "type") == "airport"} count _allAllyTowns;
+_income = WFG_baseIncome + (_countVillage * WFG_villageIncome) + (_countTown * WFG_townIncome) + (_countAirport * WFG_AirportIncome);
 {
   _wallet = _x getVariable "wallet";
-  _x setVariable ["wallet", (_wallet + WFG_baseIncome + ((count _allAllyTowns) * WFG_townIncome))];
+  _x setVariable ["wallet", (_wallet + _income)];
 } forEach _undecidedGroups;
 
 // End Unit Money
@@ -33,8 +66,7 @@ _allAllyTowns = missionNameSpace getVariable (_sideStr + "locations");
 
 //------------------------------------------------------------------------------
 // Unit Purchase AI
-_income = WFG_baseIncome + ((count _allAllyTowns) * WFG_townIncome);
-_incomePerMinut =(_income * 60) / WFG_commanderCycleTime;
+_incomePerMinut = (_income * 60) / WFG_commanderCycleTime;
 _countTeamAIGroups = count _teamAIGroups;
 if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTeamAIGroups != missionNamespace getVariable ("count" + _sideStr + "AIgrps"))) then {
 
@@ -52,10 +84,13 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
         _typesAndPortions pushBack [_x, _ideal];
         _remainingPortion = _remainingPortion - _ideal;
       };
+    } else {
+      _typesAndPortions pushBack [_x, 0];
     };
   } forEach _spcSqdTypes;
   _typesAndPortions set [0, ["inf", _remainingPortion]];
 
+  _roundedGrpCount = 0;
   {
     private ["_n"];
     _n = round (_countTeamAIGroups * (_x select 1));
@@ -116,7 +151,7 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
   missionNameSpace setVariable [_sideStr + "armorSqds", []];
   missionNameSpace setVariable [_sideStr + "airSqds", []];
   {
-    private [];
+    private ["_grpType"];
     _grpType = _x getVariable "grpType";
     if (isNil "_grpType") then {
       _grpType = "inf";
@@ -145,6 +180,42 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
     };
   } forEach _grpTypeNumbers;
 
+  //------------------------------------------------------------------------------
+  //DEBUG
+  _debug_countNeedMore = 0;
+  {
+    _debug_countNeedMore = _debug_countNeedMore + (_x select 1);
+  } forEach _needMore;
+  if (_debug_countNeedMore != (count _extraGrps)) then {
+    _debug_aliveGrps = [];
+    "SCRIPT ERROR! needMore != extraGrps" remoteExec ["hint", 0];
+    diag_log "ATTENTION: SCRIPT ERROR! LOOK HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    diag_log "needMore != extraGrps!";
+    diag_log ["time since mission started:", serverTime];
+    diag_log ["side of the groups", _side];
+    diag_log ["Number of needed groups", _debug_countNeedMore];
+    diag_log ["Number of extra groups available", count _extraGrps];
+    diag_log ["list of the extra groups", _extraGrps];
+    diag_log ["list of types we need more groups for", _needMore];
+    diag_log ["Number of extra grps with dead leaders", {alive (leader _x)} count _extraGrps];
+    diag_log ["Ideal grp proportions or typesAndPortions:", _typesAndPortions];
+    diag_log ["Ideal grp comp numbers or grpTypeNumbers:", _grpTypeNumbers];
+    diag_log ["List of inf sqds:", missionNameSpace getVariable (_sideStr + "infSqds")];
+    diag_log ["List of armor sqds:", missionNameSpace getVariable (_sideStr + "armorSqds")];
+    diag_log ["List of air sqds:", missionNameSpace getVariable (_sideStr + "airSqds")];
+    diag_log ["Income:", _income];
+    diag_log ["List of allied towns:", _allAllyTowns];
+    {
+      if (({alive _x} count (units _x)) == 0) then {
+        _debug_aliveGrps pushBack _x;
+      };
+    } forEach _extraGrps;
+    diag_log ["List of extra groups with no members", _debug_aliveGrps];
+  };
+
+  //END DEBUG
+  //------------------------------------------------------------------------------
+
   if ((count _needMore) > 0) then {
     {
       private ["_n0GrpsNeeded", "_grps", "_grp"];
@@ -152,6 +223,39 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
       _grps = missionNameSpace getVariable (_sideStr + (_x select 0) + "Sqds");
       while {_n0GrpsNeeded > 0} do {
         _grp = _extraGrps select 0;
+
+        //------------------------------------------------------------------------------
+        //DEBUG
+
+        if (isNil "_grp") then {
+          _debug_aliveGrps = [];
+          "SCRIPT ERROR! extraGrps select 0 is undefined!" remoteExec ["hint", 0];
+          diag_log "ATTENTION: SCRIPT ERROR! LOOK HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+          diag_log "extraGrps select 0 is undefined!";
+          diag_log ["time since mission started:", serverTime];
+          diag_log ["side of the groups", _side];
+          diag_log ["Number of extra groups available", count _extraGrps];
+          diag_log ["list of the extra groups", _extraGrps];
+          diag_log ["list of types we need more groups for", _needMore];
+          diag_log ["Number of extra grps with dead leaders", {alive (leader _x)} count _extraGrps];
+          diag_log ["Ideal grp proportions or typesAndPortions:", _typesAndPortions];
+          diag_log ["Ideal grp comp numbers or grpTypeNumbers:", _grpTypeNumbers];
+          diag_log ["List of inf sqds:", missionNameSpace getVariable (_sideStr + "infSqds")];
+          diag_log ["List of armor sqds:", missionNameSpace getVariable (_sideStr + "armorSqds")];
+          diag_log ["List of air sqds:", missionNameSpace getVariable (_sideStr + "airSqds")];
+          diag_log ["Income:", _income];
+          diag_log ["List of allied towns:", _allAllyTowns];
+          {
+            if (({alive _x} count (units _x)) == 0) then {
+              _debug_aliveGrps pushBack _x;
+            };
+          } forEach _extraGrps;
+          diag_log ["List of extra groups with no members", _debug_aliveGrps];
+        };
+
+        //END DEBUG
+        //------------------------------------------------------------------------------
+
         _grps pushBack _grp;
         _grp setVariable ["grpType", (_x select 0)];
         _grp setVariable ["unitInQue", false];
@@ -166,7 +270,7 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
   private ["_wallet", "_grpType", "_grpComposition", "_template", "_countUnits", "_index", "_highestPercentGap", "_percentGap", "_buildUnit", "_unitInQue", "_notEnoughChips"];
   _notEnoughChips = false;
 
-  while {(!_notEnoughChips and ((count (units _x)) <= WG_grpLimit))} do {
+  while {(!_notEnoughChips and ((count (units _x)) < WG_grpLimit))} do {
     _unitInQue = _x getVariable "unitInQue";
     if (isNil "_unitInQue") then {
       _unitInQue = false;
@@ -258,7 +362,7 @@ _preferredObjectives = [];
   _undecidedGroups = [];
 
   {
-    private ["_objective", "_thershold", "_forceStrength", "_grp"];
+    private ["_objective", "_thershold", "_forceStrength", "_grp", "_objectivePos"];
     _objective = _x select 0;
     _thershold = _x select 2;
     _forceStrength = 0;
@@ -266,7 +370,6 @@ _preferredObjectives = [];
     //if thershold has not been reached???
 
     while {(count _allPreferredgroups) > 0} do {
-
       if ((count _allObjectives > 1) and (_forceStrength > _thershold)) exitWith {
         _allObjectives = _allObjectives - [_x];
         _undecidedGroups append _allPreferredgroups;
@@ -282,7 +385,8 @@ _preferredObjectives = [];
 
       if ((_grp getVariable "currentObjective") != _objective) then {
         _grp setVariable ["currentObjective", _objective];
-        [_grp, _objective, 50] call WF_setWaypoint;
+        _objectivePos = getPos _objective;
+        [_grp, _objectivePos, 10] call WF_setWaypoint;
       };
 
       _forceStrength = _forceStrength + ([units _grp] call WF_estimateForceStrength);

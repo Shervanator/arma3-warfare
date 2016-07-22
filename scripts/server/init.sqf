@@ -1,7 +1,9 @@
 WFG_commanderCycleTime = 30;
 WFG_baseIncome = 20;
-WFG_townIncome = 10;
-WG_grpLimit = 10;
+WFG_villageIncome = 10;
+WFG_townIncome = 20;
+WFG_AirportIncome = 30;
+WG_grpLimit = 11;
 
 _WF_opForInfAPUnits = [
   configFile >> "CfgVehicles" >> "O_Soldier_F",

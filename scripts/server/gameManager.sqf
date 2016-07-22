@@ -11,6 +11,31 @@ east setFriend [resistance, 0];
 resistance setFriend [west, 0];
 resistance setFriend [east, 0];
 
+_opForGroups = [];
+_blueForGroups = [];
+
+{
+  switch (side _x) do {
+    case west: {
+      _blueForGroups pushBack _x;
+      _x setVariable ["currentObjective", objNull];
+    };
+
+    case east: {
+      _opForGroups pushBack _x;
+      _x setVariable ["currentObjective", objNull];
+    };
+  };
+  missionNameSpace setVariable ["EASTgrps", _opForGroups];
+  missionNameSpace setVariable ["WESTgrps", _blueForGroups];
+
+  if (isPlayer (leader _x)) then {
+    _x setVariable ["wallet", 500];
+  } else {
+    _x setVariable ["wallet", 500];
+  };
+} forEach allGroups;
+
 {
   switch (getMarkerType _x) do {
     case "mil_flag": { _townMarkers pushback _x };
@@ -36,35 +61,10 @@ missionNameSpace setVariable ["WESTHQPos", getMarkerPos _blueForMarker];
   [_x] execVM "scripts\server\town\townManager.sqf";
 } forEach _towns;
 
-
-
-_opForGroups = [];
-_blueForGroups = [];
-
-{
-  switch (side _x) do {
-    case west: {
-      _blueForGroups pushBack _x;
-      _x setVariable ["currentObjective", objNull];
-    };
-
-    case east: {
-      _opForGroups pushBack _x;
-      _x setVariable ["currentObjective", objNull];
-    };
-  };
-
-  if (isPlayer (leader _x)) then {
-    _x setVariable ["wallet", 500];
-  } else {
-    _x setVariable ["wallet", 500];
-  };
-} forEach allGroups;
-
 sleep 20; // this sleep time needs to be increased as town scripts now take longer than 10 seconds to execute (running in background). Alternatively come up with a better way
 missionNamespace setVariable ["EASTincome", 0];
 missionNamespace setVariable ["WESTincome", 0];
-missionNamespace setVariable ["countEASTAIgrps", count _opForGroups];
-missionNamespace setVariable ["countWESTAIgrps", count _blueForGroups];
+missionNamespace setVariable ["countEASTAIgrps", 0];
+missionNamespace setVariable ["countWESTAIgrps", 0];
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
 [_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";
