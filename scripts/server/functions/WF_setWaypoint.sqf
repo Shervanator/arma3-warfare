@@ -42,4 +42,5 @@ if (isNil "_objective") then {
 //END DEBUG
 //------------------------------------------------------------------------------
 
-_wp setWayPointStateMents ["true", "[group this] execVM 'scripts\server\functions\WP_reassignWaypoint.sqf'"];
+/*_wp setWayPointStateMents ["true", "[group this] execVM 'scripts\server\functions\WP_reassignWaypoint.sqf'"];*/
+_wp setWayPointStateMents ["true", "deleteWaypoint [group this, currentWaypoint (group this)]"];

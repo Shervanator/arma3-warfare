@@ -44,11 +44,102 @@ if ((count _teamGroups) != 10) then {
 //------------------------------------------------------------------------------
 
 _teamAIGroups = [];
+_grpControlAI = [];
+_grpControlPlayer = [];
 {
+  private ["_grpControlChange"];
+  _prevStatus = _x getVariable "isLeaderPlayer";
+  if (isNil "_prevStatus") then {
+    _x setVariable ["isLeaderPlayer", true];
+    _prevStatus = true;
+  };
+
+  _grpControlChange = _x getVariable "grpControlChange";
+  if (isNil "_grpControlChange") then {
+    _x setVariable ["grpControlChange", false];
+  };
+
   if (!(isPlayer (leader _x))) then {
     _teamAIGroups pushBack _x;
+    if (_prevStatus == true) then {
+      _x setVariable ["isLeaderPlayer", false];
+      _x setVariable ["grpControlChange", true];
+      _grpControlAI pushBack _x;
+    };
+  } else {
+    if (_prevStatus == false) then {
+      _x setVariable ["isLeaderPlayer", true];
+      _grpControlPlayer pushBack _x;
+    };
   };
 } forEach _undecidedGroups;
+
+//------------------------------------------------------------------------------
+// Handles AI group transport
+{
+  private ["_grp"];
+  _grp = _x;
+  {
+    private ["_vehicle", "_assignedVehicle", "_element"];
+    _element = [];
+    _vehicle = vehicle _x;
+    if (_vehicle != _x) then {
+      if (canMove _vehicle) then {
+        _element pushBack _vehicle;
+        _element pushBack [leader _grp];
+        _element pushBack _grp;
+      };
+    } else {
+      _assignedVehicle = assignedVehicle _x;
+      if !(isNull _assignedVehicle) then {
+        if (canMove _assignedVehicle) then {
+          _element pushBack _assignedVehicle;
+          _element pushBack [leader _grp];
+          _element pushBack _grp;
+        };
+      };
+    };
+
+    if ((count _element) > 2) then {
+      (missionNamespace getVariable (_sideStr +  "ai_vehicle_transport_checklist")) pushBackUnique _element;
+    };
+  } forEach (units _x);
+} forEach _grpControlAI;
+
+{
+  {
+    private ["_vehicle", "_checklist"];
+    _vehicle = objNull;
+
+    if (vehicle _x != _x) then {
+      _vehicle = vehicle _x;
+    } else {
+      if !(isNull (assignedVehicle _x)) then {
+        _vehicle = assignedVehicle _x;
+      };
+    };
+
+    if !(isNull _vehicle) then {
+      _checklist = missionNamespace getVariable (_sideStr +  "ai_vehicle_transport_checklist");
+      {
+        if ((_x select 0) isEqualTo _vehicle) exitWith {
+
+        };
+      } forEach _checklist;
+    };
+  } forEach (units _x);
+} forEach _grpControlPlayer;
+
+{
+  private ["_grp"];
+  _grp = _x select 2;
+  [_x select 0, _x select 1, _grp, (_grp getVariable "grpControlChange")] call WF_determineVehicleLock;
+  if ((_grp getVariable "grpControlChange") == true) then {
+    _grp setVariable ["grpControlChange", false];
+  };
+} forEach (missionNamespace getVariable (_sideStr +  "ai_vehicle_transport_checklist"));
+
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Handels Unit Money
@@ -383,7 +474,11 @@ _preferredObjectives = [];
         };
       } forEach _allPreferredgroups;
 
-      if ((_grp getVariable "currentObjective") != _objective) then {
+      if ((_grp getVariable "currentObjective") == _objective) then {
+        if (count (waypoints _grp) <= 1) then {
+          [_grp, _objective] call WF_reassignWaypoint;
+        };
+      } else {
         _grp setVariable ["currentObjective", _objective];
         _objectivePos = getPos _objective;
         [_grp, _objectivePos, 10] call WF_setWaypoint;

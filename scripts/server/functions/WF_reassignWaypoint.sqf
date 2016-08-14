@@ -1,8 +1,7 @@
 private ["_group", "_radius", "_enemyForces", "_knowAny", "_side", "_objective", "_trg", "_pos"];
-params ["_group"];
+params ["_group", "_objective"];
 
 _side = side _group;
-_objective = _group getVariable "currentObjective";
 
 //------------------------------------------------------------------------------
 //DEBUG

@@ -3,11 +3,15 @@
 /*
 item0[] = {"Init",0,250,-40.348846,-149.418610,49.651154,-99.418610,0.000000,"Init"};
 item1[] = {"_",4,218,-39.767456,-81.976730,50.232544,-31.976730,0.000000,""};
-item2[] = {"Determine_Orders",2,4346,-40.348846,-9.883728,49.651169,40.116272,0.000000,"Determine" \n "Orders"};
+item2[] = {"Determine_Orders",2,250,-40.348846,-9.883728,49.651169,40.116272,0.000000,"Determine" \n "Orders"};
+item3[] = {"_",4,218,102.409248,-10.146820,192.409241,39.853180,0.000000,""};
+item4[] = {"AI_Glitch_Test",2,4346,101.945183,-85.805191,191.945190,-35.805191,0.000000,"AI Glitch Test"};
 link0[] = {0,1};
 link1[] = {1,2};
-link2[] = {2,1};
-globals[] = {0.000000,0,0,0,0,640,480,1,6,6316128,1,-196.534714,214.712738,113.719673,-199.125458,886,674,1};
+link2[] = {2,3};
+link3[] = {3,4};
+link4[] = {4,1};
+globals[] = {0.000000,0,0,0,0,640,480,1,9,6316128,1,-193.749710,217.497757,109.078056,-203.767075,886,674,1};
 window[] = {0,-1,-1,-1,-1,872,26,1556,26,1,904};
 *//*%FSM</HEAD>*/
 class FSM
@@ -48,7 +52,30 @@ class FSM
                         itemno = 2;
                         init = /*%FSM<STATEINIT""">*/"_cycleTimer = time + 30;" \n
                          "" \n
-                         "[_hqMarker, _towns, _side, _teamGroups] execVM ""scripts\server\commander_determine_order.sqf"";"/*%FSM</STATEINIT""">*/;
+                         "_commanderHandle = [_hqMarker, _towns, _side, _teamGroups] execVM ""scripts\server\commander_determine_order.sqf"";"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "_">*/
+                                class _
+                                {
+                                        itemno = 3;
+                                        priority = 0.000000;
+                                        to="AI_Glitch_Test";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"scriptDone _commanderHandle"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "AI_Glitch_Test">*/
+                class AI_Glitch_Test
+                {
+                        name = "AI_Glitch_Test";
+                        itemno = 4;
+                        init = /*%FSM<STATEINIT""">*/"[_teamGroups] execVM ""scripts\server\procedures\WP_AIGlitchHandler.sqf"""/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {

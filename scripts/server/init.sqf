@@ -349,6 +349,8 @@ WF_purchaseAI = compileFinal preprocessFileLineNumbers "scripts\server\functions
 WF_unitSideFilter = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_unitSideFilter.sqf";
 WF_getEnemySides = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getEnemySides.sqf";
 WF_getGrpCompNumbers = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getGrpCompNumbers.sqf";
+WF_reassignWaypoint = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_reassignWaypoint.sqf";
+WF_determineVehicleLock = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_determineVehicleLock.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;

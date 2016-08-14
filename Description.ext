@@ -74,3 +74,4 @@ wreckManagerMode = 1;
 wreckLimit = 10;
 wreckRemovalMinTime = 120;
 wreckRemovalMaxTime = 500;
+enableDebugConsole = 1;

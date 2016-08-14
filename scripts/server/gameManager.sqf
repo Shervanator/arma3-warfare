@@ -66,5 +66,7 @@ missionNamespace setVariable ["EASTincome", 0];
 missionNamespace setVariable ["WESTincome", 0];
 missionNamespace setVariable ["countEASTAIgrps", 0];
 missionNamespace setVariable ["countWESTAIgrps", 0];
+missionNamespace setVariable ["EASTai_vehicle_transport_checklist" , []];
+missionNamespace setVariable ["WESTai_vehicle_transport_checklist" , []];
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
 [_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";

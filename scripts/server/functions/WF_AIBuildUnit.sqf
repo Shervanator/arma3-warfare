@@ -21,6 +21,7 @@ if (_wallet >= _price) then {
     createVehicleCrew _vehicle;
     (crew _vehicle) join _group;
     _vehicle setSkill _skill;
+    [_vehicle, [leader _group], _group, true] call WF_determineVehicleLock;
   };
 } else {
   _notEnoughChips = true;
