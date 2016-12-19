@@ -4,7 +4,7 @@ params ["_group", "_vehicleClass"];
 _notEnoughChips = false;
 _wallet = _group getVariable "wallet";
 _price = missionNamespace getVariable ("WF_cost_" + _vehicleClass);
-_skill = 1 - (random 0.3);
+_skill = 1;
 
 if (_wallet >= _price) then {
   _vehicleClass createUnit [getPos (leader _group), _group, "", _skill];

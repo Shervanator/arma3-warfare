@@ -13,7 +13,7 @@ resistance setFriend [east, 0];
 
 _opForGroups = [];
 _blueForGroups = [];
-
+_allPlayableUnits = [];
 {
   switch (side _x) do {
     case west: {
@@ -26,15 +26,19 @@ _blueForGroups = [];
       _x setVariable ["currentObjective", objNull];
     };
   };
-  missionNameSpace setVariable ["EASTgrps", _opForGroups];
-  missionNameSpace setVariable ["WESTgrps", _blueForGroups];
 
   if (isPlayer (leader _x)) then {
     _x setVariable ["wallet", 500];
   } else {
     _x setVariable ["wallet", 500];
   };
+
+  _allPlayableUnits pushBack (leader _x);
 } forEach allGroups;
+
+missionNameSpace setVariable ["EASTgrps", _opForGroups];
+missionNameSpace setVariable ["WESTgrps", _blueForGroups];
+missionNameSpace setVariable ["allPlayableUnits", _allPlayableUnits];
 
 {
   switch (getMarkerType _x) do {
@@ -66,7 +70,5 @@ missionNamespace setVariable ["EASTincome", 0];
 missionNamespace setVariable ["WESTincome", 0];
 missionNamespace setVariable ["countEASTAIgrps", 0];
 missionNamespace setVariable ["countWESTAIgrps", 0];
-missionNamespace setVariable ["EASTai_vehicle_transport_checklist" , []];
-missionNamespace setVariable ["WESTai_vehicle_transport_checklist" , []];
 [_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
 [_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";

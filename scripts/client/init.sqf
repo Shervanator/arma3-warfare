@@ -35,3 +35,6 @@ switch (_side) do {
 };
 
 /*{[_this select 1 !selects instigator! , (_this select 3 !selects arguments!) select 0 !Selects first argument!] remoteExec [(_this select 3) select 1, 2]}*/
+
+waitUntil {!isNull player};
+[(group player)] remoteExec ["WF_onPlayerConnect", 2];

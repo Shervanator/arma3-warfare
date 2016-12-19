@@ -351,6 +351,18 @@ WF_getEnemySides = compileFinal preprocessFileLineNumbers "scripts\server\functi
 WF_getGrpCompNumbers = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getGrpCompNumbers.sqf";
 WF_reassignWaypoint = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_reassignWaypoint.sqf";
 WF_determineVehicleLock = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_determineVehicleLock.sqf";
+WF_reverseFuncCheck = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_reverseFuncCheck.sqf";
+WF_runReverseFuncType = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_runReverseFuncType.sqf";
+WF_getGrpVehicles = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getGrpVehicles.sqf";
+WF_MonitorFuncListExists = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_MonitorFuncListExists.sqf";
+WF_monitorFuncCheck = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_monitorFuncCheck.sqf";
+WF_onPlayerDisconnect = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_onPlayerDisconnect.sqf";
+WF_onPlayerConnect = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_onPlayerConnect.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;
+
+//-------------------------------------------------------------------------------------------------------
+// MISSION EVENT HANDLERS
+addMissionEventHandler ["HandleDisconnect", {[_this select 0] call WF_onPlayerDisconnect}];
+//-------------------------------------------------------------------------------------------------------

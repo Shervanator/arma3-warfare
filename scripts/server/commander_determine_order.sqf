@@ -42,104 +42,55 @@ if ((count _teamGroups) != 10) then {
 
 //END DEBUG
 //------------------------------------------------------------------------------
-
+// SEPERATE AI GROUPS
 _teamAIGroups = [];
-_grpControlAI = [];
-_grpControlPlayer = [];
 {
-  private ["_grpControlChange"];
-  _prevStatus = _x getVariable "isLeaderPlayer";
-  if (isNil "_prevStatus") then {
-    _x setVariable ["isLeaderPlayer", true];
-    _prevStatus = true;
-  };
-
-  _grpControlChange = _x getVariable "grpControlChange";
-  if (isNil "_grpControlChange") then {
-    _x setVariable ["grpControlChange", false];
-  };
-
-  if (!(isPlayer (leader _x))) then {
+  if !(isPlayer (leader _x)) then {
     _teamAIGroups pushBack _x;
-    if (_prevStatus == true) then {
-      _x setVariable ["isLeaderPlayer", false];
-      _x setVariable ["grpControlChange", true];
-      _grpControlAI pushBack _x;
-    };
-  } else {
-    if (_prevStatus == false) then {
-      _x setVariable ["isLeaderPlayer", true];
-      _grpControlPlayer pushBack _x;
-    };
   };
 } forEach _undecidedGroups;
 
 //------------------------------------------------------------------------------
-// Handles AI group transport
+// RUN ANY PROCESSES RELATING TO NEW AI GROUPS (FROM PLAYER CONTROL)
+{
+  _wasPlayer = _x getVariable "wasPlayer";
+  if !(isNil "_wasPlayer") then {
+    if (_wasPlayer) then {
+      // Necessary for vehicleLocki func
+      {
+        unassignVehicle _x;
+      } forEach (units _x);
+
+      _x setVariable ["wasPlayer", nil];
+    };
+  };
+} forEach _teamAIGroups;
+
+//------------------------------------------------------------------------------
+// RUN MONITOR FUNCTIONS
+_monitorFuncList = missionNamespace getVariable ("monitorFunctions" + _sideStr);
+if !(isNil "_monitorFuncList") then {
+  for [{private _i = 0; private ["_element"]}, {_i < (count _monitorFuncList)}, {_i = _i + 1}] do {
+    _element = _monitorFuncList select _i;
+    _i = [(_element select 2), _monitorFuncList, _i] call (_element select 1);
+  };
+};
+
+//------------------------------------------------------------------------------
+// RUN VEHICLE LOCK AND GET IN VEHICLE SCRIPTS
 {
   private ["_grp"];
   _grp = _x;
   {
-    private ["_vehicle", "_assignedVehicle", "_element"];
-    _element = [];
-    _vehicle = vehicle _x;
-    if (_vehicle != _x) then {
-      if (canMove _vehicle) then {
-        _element pushBack _vehicle;
-        _element pushBack [leader _grp];
-        _element pushBack _grp;
+    if (canMove _x) then {
+      if (isNil {_x getVariable "monitoredUnits"}) then {
+        _x setVariable ["monitoredUnits", [leader _grp]];
       };
-    } else {
-      _assignedVehicle = assignedVehicle _x;
-      if !(isNull _assignedVehicle) then {
-        if (canMove _assignedVehicle) then {
-          _element pushBack _assignedVehicle;
-          _element pushBack [leader _grp];
-          _element pushBack _grp;
-        };
-      };
+
+      [_x, _grp, _side] call WF_determineVehicleLock;
     };
-
-    if ((count _element) > 2) then {
-      (missionNamespace getVariable (_sideStr +  "ai_vehicle_transport_checklist")) pushBackUnique _element;
-    };
-  } forEach (units _x);
-} forEach _grpControlAI;
-
-{
-  {
-    private ["_vehicle", "_checklist"];
-    _vehicle = objNull;
-
-    if (vehicle _x != _x) then {
-      _vehicle = vehicle _x;
-    } else {
-      if !(isNull (assignedVehicle _x)) then {
-        _vehicle = assignedVehicle _x;
-      };
-    };
-
-    if !(isNull _vehicle) then {
-      _checklist = missionNamespace getVariable (_sideStr +  "ai_vehicle_transport_checklist");
-      {
-        if ((_x select 0) isEqualTo _vehicle) exitWith {
-
-        };
-      } forEach _checklist;
-    };
-  } forEach (units _x);
-} forEach _grpControlPlayer;
-
-{
-  private ["_grp"];
-  _grp = _x select 2;
-  [_x select 0, _x select 1, _grp, (_grp getVariable "grpControlChange")] call WF_determineVehicleLock;
-  if ((_grp getVariable "grpControlChange") == true) then {
-    _grp setVariable ["grpControlChange", false];
-  };
-} forEach (missionNamespace getVariable (_sideStr +  "ai_vehicle_transport_checklist"));
-
-//------------------------------------------------------------------------------
+  } forEach ([_grp, true] call WF_getGrpVehicles);
+} forEach _teamAIGroups;
 
 //------------------------------------------------------------------------------
 // Handels Unit Money
@@ -401,7 +352,7 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
       _buildUnit = _unitInQue;
     };
 
-    _notEnoughChips = [_buildUnit, _x] call WF_AIBuildUnit;
+    _notEnoughChips = [_buildUnit, _x, _side] call WF_AIBuildUnit;
   };
 } forEach _teamAIGroups;
 //------------------------------------------------------------------------------

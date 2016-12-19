@@ -1,5 +1,5 @@
-private ["_unitConfig", "_group", "_notEnoughChips", "_unitClass", "_wallet", "_price", "_vehicle", "_safeSpawnPos", "_skill", "_hqPos"];
-params ["_unitConfig", "_group"];
+private ["_unitConfig", "_group", "_side", "_notEnoughChips", "_unitClass", "_wallet", "_price", "_vehicle", "_safeSpawnPos", "_skill", "_hqPos"];
+params ["_unitConfig", "_group", "_side"];
 
 _notEnoughChips = false;
 _hqPos = missionNameSpace getVariable ((str (side _group)) + "HQPos");
@@ -11,7 +11,7 @@ if (_wallet >= _price) then {
   _group setVariable ["unitInQue", false];
   _group setVariable ["wallet", _wallet - _price];
   _safeSpawnPos = [_hqPos, 0, 100, 8, 0, 10, 0] call BIS_fnc_findSafePos;
-  _skill = 1 - (random 0.3);
+  _skill = 1;
 
   if ("Man" in ([_unitConfig, true] call BIS_fnc_returnParents)) then {
     _unitClass createUnit [_safeSpawnPos, _group, "", _skill];
@@ -21,7 +21,8 @@ if (_wallet >= _price) then {
     createVehicleCrew _vehicle;
     (crew _vehicle) join _group;
     _vehicle setSkill _skill;
-    [_vehicle, [leader _group], _group, true] call WF_determineVehicleLock;
+    _vehicle setVariable ["monitoredUnits", [leader _group]];
+    [_vehicle, _group, _side] call WF_determineVehicleLock;
   };
 } else {
   _notEnoughChips = true;
