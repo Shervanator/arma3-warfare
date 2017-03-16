@@ -91,6 +91,8 @@ _WF_bluForUnits = [
   [configFile >> "CfgVehicles" >> "B_support_MG_F", 225]
 ];
 
+missionNameSpace setVariable ["infEASTavgCost", [_WF_opForUnits] call WF_calcAvgTypeCost];
+missionNameSpace setVariable ["infWESTavgCost", [_WF_bluForUnits] call WF_calcAvgTypeCost];
 missionNameSpace setVariable ["WF_arrayTypes_EASTinfantry", _WF_opForUnits];
 missionNameSpace setVariable ["WF_arrayTypes_WESTinfantry", _WF_bluForUnits];
 

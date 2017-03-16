@@ -11,34 +11,10 @@ east setFriend [resistance, 0];
 resistance setFriend [west, 0];
 resistance setFriend [east, 0];
 
-_opForGroups = [];
-_blueForGroups = [];
+// TO BE DELETED LATER
 _allPlayableUnits = [];
-{
-  switch (side _x) do {
-    case west: {
-      _blueForGroups pushBack _x;
-      _x setVariable ["currentObjective", objNull];
-    };
-
-    case east: {
-      _opForGroups pushBack _x;
-      _x setVariable ["currentObjective", objNull];
-    };
-  };
-
-  if (isPlayer (leader _x)) then {
-    _x setVariable ["wallet", 500];
-  } else {
-    _x setVariable ["wallet", 500];
-  };
-
-  _allPlayableUnits pushBack (leader _x);
-} forEach allGroups;
-
-missionNameSpace setVariable ["EASTgrps", _opForGroups];
-missionNameSpace setVariable ["WESTgrps", _blueForGroups];
 missionNameSpace setVariable ["allPlayableUnits", _allPlayableUnits];
+//
 
 {
   switch (getMarkerType _x) do {
@@ -68,7 +44,4 @@ missionNameSpace setVariable ["WESTHQPos", getMarkerPos _blueForMarker];
 sleep 20; // this sleep time needs to be increased as town scripts now take longer than 10 seconds to execute (running in background). Alternatively come up with a better way
 missionNamespace setVariable ["EASTincome", 0];
 missionNamespace setVariable ["WESTincome", 0];
-missionNamespace setVariable ["countEASTAIgrps", 0];
-missionNamespace setVariable ["countWESTAIgrps", 0];
-[_blueForMarker, _towns, west, _blueForGroups] execFSM "scripts\server\fsm\commander.fsm";
-[_opForMarker, _towns, east, _opForGroups] execFSM "scripts\server\fsm\commander.fsm";
+[[_blueForMarker, _towns, west], [_opForMarker, _towns, east]] execFSM "scripts\server\fsm\commander.fsm";

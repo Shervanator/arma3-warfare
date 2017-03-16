@@ -3,7 +3,52 @@ WFG_baseIncome = 20;
 WFG_villageIncome = 10;
 WFG_townIncome = 20;
 WFG_AirportIncome = 30;
-WG_grpLimit = 11;
+
+//------------------------------------------------------------------------------
+// AI behaviour modifying factors:
+
+// Unit Factor. LOWER value means the AI will opt to spend money on units more so than other avenues. Default is 5, recommended range is 3 - 7
+WFG_AIunitFactor = 5;
+
+// construction Factor. Higher value means the AI will opt to spend money on construction more so than other avenues. Default is 0.4, recommended range is 0.25 - 0.65
+WFG_AIConstructionFactor = 0.4;
+//------------------------------------------------------------------------------
+// Unit Caps:
+
+// Group sizes
+WG_playerGrpLimit = 12; // Largest size player groups can have
+missionNamespace setVariable ["infAIGrpUpperLimit", 12]; // Largest size AI infantry groups can have
+missionNamespace setVariable ["infAIGrpLowerLimit", 5]; // Smallest size AI infantry groups can have
+missionNamespace setVariable ["armorAIGrpUpperLimit", 2]; // Largest size AI armor groups can have (number of vehicles)
+missionNamespace setVariable ["armorAIGrpLowerLimit", 1]; // Smallest size AI armor groups can have (number of vehicles)
+missionNamespace setVariable ["airAIGrpUpperLimit", 1]; // Largest size AI air groups can have (number of vehicles)
+missionNamespace setVariable ["airAIGrpLowerLimit", 1]; // Smallest size AI air groups can have (number of vehicles)
+
+// Side unit cap. AI unit building is halted once this cap is reached (includes player units)
+WFG_unitCap = 120;
+//------------------------------------------------------------------------------
+// Important mission variables to be set:
+// Money
+missionNamespace setVariable ["EASTmoney", 1000];
+missionNamespace setVariable ["WESTmoney", 1000];
+
+//------------------------------------------------------------------------------
+// Unit type definitions
+
+_findCheapest = {
+  private ["_array", "_lowestCost", "_cost"];
+  params ["_array"];
+
+  _lowestCost = -1;
+  {
+    _cost = missionNameSpace getVariable ("WF_cost_" + (configName _x));
+    if ((_cost < _lowestCost) or (_lowestCost == -1)) then {
+      _lowestCost = _cost;
+    };
+  } forEach _array;
+
+  _lowestCost
+};
 
 _WF_opForInfAPUnits = [
   configFile >> "CfgVehicles" >> "O_Soldier_F",
@@ -32,6 +77,9 @@ _WF_opForInfAPUnits = [
   missionNamespace setVariable ["unitType_" + (configName _x), "infAP"];
 } forEach _WF_opForInfAPUnits;
 
+_WF_opForInfAPUnits_LC = [_WF_opForInfAPUnits] call _findCheapest;
+//------------------------------------------------------------------------------
+
 _WF_opForInfATUnits = [
   configFile >> "CfgVehicles" >> "O_Soldier_LAT_F",
   configFile >> "CfgVehicles" >> "O_Soldier_AT_F",
@@ -43,6 +91,8 @@ _WF_opForInfATUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infAT"];
 } forEach _WF_opForInfATUnits;
+_WF_opForInfATUnits_LC = [_WF_opForInfATUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForInfSupportUnits = [
   configFile >> "CfgVehicles" >> "O_medic_F",
@@ -56,6 +106,8 @@ _WF_opForInfSupportUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infSupport"];
 } forEach _WF_opForInfSupportUnits;
+_WF_opForInfSupportUnits_LC = [_WF_opForInfSupportUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForInfSpecialUnits = [
   configFile >> "CfgVehicles" >> "O_soldier_M_F",
@@ -71,6 +123,8 @@ _WF_opForInfSpecialUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infSpecial"];
 } forEach _WF_opForInfSpecialUnits;
+_WF_opForInfSpecialUnits_LC = [_WF_opForInfSpecialUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForInfAAUnits = [
   configFile >> "CfgVehicles" >> "O_Soldier_AA_F",
@@ -80,6 +134,8 @@ _WF_opForInfAAUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infAA"];
 } forEach _WF_opForInfAAUnits;
+_WF_opForInfAAUnits_LC = [_WF_opForInfAAUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForInfAPUnits = [
   configFile >> "CfgVehicles" >> "B_Soldier_F",
@@ -99,6 +155,8 @@ _WF_bluForInfAPUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infAP"];
 } forEach _WF_bluForInfAPUnits;
+_WF_bluForInfAPUnits_LC = [_WF_bluForInfAPUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForInfATUnits = [
   configFile >> "CfgVehicles" >> "B_Soldier_LAT_F",
@@ -109,6 +167,8 @@ _WF_bluForInfATUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infAT"];
 } forEach _WF_bluForInfATUnits;
+_WF_bluForInfATUnits_LC = [_WF_bluForInfATUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForInfSupportUnits = [
   configFile >> "CfgVehicles" >> "B_medic_F",
@@ -120,6 +180,8 @@ _WF_bluForInfSupportUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infSupport"];
 } forEach _WF_bluForInfSupportUnits;
+_WF_bluForInfSupportUnits_LC = [_WF_bluForInfSupportUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForInfSpecialUnits = [
   configFile >> "CfgVehicles" >> "B_soldier_M_F",
@@ -133,6 +195,8 @@ _WF_bluForInfSpecialUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infSpecial"];
 } forEach _WF_bluForInfSpecialUnits;
+_WF_bluForInfSpecialUnits_LC = [_WF_bluForInfSpecialUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForInfAAUnits = [
   configFile >> "CfgVehicles" >> "B_Soldier_AA_F"
@@ -141,6 +205,8 @@ _WF_bluForInfAAUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "infAA"];
 } forEach _WF_bluForInfAAUnits;
+_WF_bluForInfAAUnits_LC = [_WF_bluForInfAAUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForTransportUnarmedUnits = [
   configFile >> "CfgVehicles" >> "O_MRAP_02_F",
@@ -155,6 +221,8 @@ _WF_opForTransportUnarmedUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "TPU"];
 } forEach _WF_opForTransportUnarmedUnits;
+_WF_opForTransportUnarmedUnits_LC = [_WF_opForTransportUnarmedUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForTransportUnarmedUnits = [
   configFile >> "CfgVehicles" >> "B_MRAP_01_F",
@@ -170,6 +238,8 @@ _WF_bluForTransportUnarmedUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "TPU"];
 } forEach _WF_bluForTransportUnarmedUnits;
+_WF_bluForTransportUnarmedUnits_LC = [_WF_bluForTransportUnarmedUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForTransportArmedUnits = [
   configFile >> "CfgVehicles" >> "O_MRAP_02_gmg_F",
@@ -183,6 +253,8 @@ _WF_opForTransportArmedUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "TPA"];
 } forEach _WF_opForTransportArmedUnits;
+_WF_opForTransportArmedUnits_LC = [_WF_opForTransportArmedUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForTransportArmedUnits = [
   configFile >> "CfgVehicles" >> "B_MRAP_01_gmg_F",
@@ -197,6 +269,8 @@ _WF_bluForTransportArmedUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "TPA"];
 } forEach _WF_bluForTransportArmedUnits;
+_WF_bluForTransportArmedUnits_LC = [_WF_bluForTransportArmedUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForArmorTankUnits = [
   configFile >> "CfgVehicles" >> "O_APC_Tracked_02_cannon_F",
@@ -206,6 +280,8 @@ _WF_opForArmorTankUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "tank"];
 } forEach _WF_opForArmorTankUnits;
+_WF_opForArmorTankUnits_LC = [_WF_opForArmorTankUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForArmorAAUnits = [
   configFile >> "CfgVehicles" >> "O_APC_Tracked_02_AA_F"
@@ -214,6 +290,8 @@ _WF_opForArmorAAUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "vehicleAA"];
 } forEach _WF_opForArmorAAUnits;
+_WF_opForArmorAAUnits_LC = [_WF_opForArmorAAUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForArmorTankUnits = [
   configFile >> "CfgVehicles" >> "B_APC_Tracked_01_rcws_F",
@@ -224,6 +302,8 @@ _WF_bluForArmorTankUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "tank"];
 } forEach _WF_bluForArmorTankUnits;
+_WF_bluForArmorTankUnits_LC = [_WF_bluForArmorTankUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForArmorAAUnits = [
   configFile >> "CfgVehicles" >> "B_APC_Tracked_01_AA_F"
@@ -232,6 +312,8 @@ _WF_bluForArmorAAUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "vehicleAA"];
 } forEach _WF_bluForArmorAAUnits;
+_WF_bluForArmorAAUnits_LC = [_WF_bluForArmorAAUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForAirHeliUnits = [
   configFile >> "CfgVehicles" >> "O_Heli_Light_02_F",
@@ -243,6 +325,8 @@ _WF_opForAirHeliUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "Heli"];
 } forEach _WF_opForAirHeliUnits;
+_WF_opForAirHeliUnits_LC = [_WF_opForAirHeliUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_opForAirJetUnits = [
   configFile >> "CfgVehicles" >> "O_Plane_CAS_02_F"
@@ -251,6 +335,8 @@ _WF_opForAirJetUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "Jet"];
 } forEach _WF_opForAirJetUnits;
+_WF_opForAirJetUnits_LC = [_WF_opForAirJetUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForAirHeliUnits = [
   configFile >> "CfgVehicles" >> "B_Heli_Light_01_armed_F",
@@ -260,6 +346,8 @@ _WF_bluForAirHeliUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "Heli"];
 } forEach _WF_bluForAirHeliUnits;
+_WF_bluForAirHeliUnits_LC = [_WF_bluForAirHeliUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_bluForAirJetUnits = [
   configFile >> "CfgVehicles" >> "B_Plane_CAS_01_F"
@@ -268,6 +356,8 @@ _WF_bluForAirJetUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "Jet"];
 } forEach _WF_bluForAirJetUnits;
+_WF_bluForAirJetUnits_LC = [_WF_bluForAirJetUnits] call _findCheapest;
+//------------------------------------------------------------------------------
 
 _WF_AICantBuyInf = [
 configFile >> "CfgVehicles" >> "B_Soldier_SL_F",
@@ -318,18 +408,20 @@ _WF_otherUnits = [
 {
   missionNamespace setVariable ["unitType_" + (configName _x), "Other"];
 } forEach _WF_otherUnits;
+_WF_otherUnits_LC = [_WF_otherUnits] call _findCheapest;
+//------------------------------------------------------------------------------
+// Template definitions
 
 missionNameSpace setVariable ["allUnitTypes", ["infAP", "infAT", "infSupport", "infSpecial", "infAA", "TPU", "TPA", "tank", "vehicleAA", "Heli", "Jet", "Other"]];
-missionNamespace setVariable ["EASTinfTemplate", [["infAP", 0.6, _WF_opForInfAPUnits], ["infAT", 0.2, _WF_opForInfATUnits], ["infSupport", 0.1, _WF_opForInfSupportUnits], ["infSpecial", 0.07, _WF_opForInfSpecialUnits], ["infAA", 0.03, _WF_opForInfAAUnits], ["TPU", 0, _WF_opForTransportUnarmedUnits], ["TPA", 0, _WF_opForTransportArmedUnits], ["tank", 0, _WF_opForArmorTankUnits], ["vehicleAA", 0, _WF_opForArmorAAUnits], ["Heli", 0, _WF_opForAirHeliUnits], ["Jet", 0, _WF_opForAirJetUnits], ["Other", 0]]];  // the first element in this array needs to be of the same order as it is in the "allUnitTypes" template!
-missionNamespace setVariable ["WESTinfTemplate", [["infAP", 0.6, _WF_bluforInfAPUnits], ["infAT", 0.2, _WF_bluforInfATUnits], ["infSupport", 0.1, _WF_bluforInfSupportUnits], ["infSpecial", 0.07, _WF_bluforInfSpecialUnits], ["infAA", 0.03, _WF_bluforInfAAUnits], ["TPU", 0, _WF_bluForTransportUnarmedUnits], ["TPA", 0, _WF_bluForTransportArmedUnits], ["tank", 0, _WF_bluforArmorTankUnits], ["vehicleAA", 0, _WF_bluforArmorAAUnits], ["Heli", 0, _WF_bluforAirHeliUnits], ["Jet", 0, _WF_bluforAirJetUnits], ["Other", 0]]];
-missionNameSpace setVariable ["EASTarmorTemplate", [["infAP", 0, _WF_opForInfAPUnits], ["infAT", 0, _WF_opForInfATUnits], ["infSupport", 0, _WF_opForInfSupportUnits], ["infSpecial", 0, _WF_opForInfSpecialUnits], ["infAA", 0, _WF_opForInfAAUnits], ["TPU", 0, _WF_opForTransportUnarmedUnits], ["TPA", 0, _WF_opForTransportArmedUnits], ["tank", 0.9, _WF_opForArmorTankUnits], ["vehicleAA", 0.1, _WF_opForArmorAAUnits], ["Heli", 0, _WF_opForAirHeliUnits], ["Jet", 0, _WF_opForAirJetUnits], ["Other", 0]]];
-missionNameSpace setVariable ["WESTarmorTemplate", [["infAP", 0, _WF_bluforInfAPUnits], ["infAT", 0, _WF_bluforInfATUnits], ["infSupport", 0, _WF_bluforInfSupportUnits], ["infSpecial", 0, _WF_bluforInfSpecialUnits], ["infAA", 0, _WF_bluforInfAAUnits], ["TPU", 0, _WF_bluForTransportUnarmedUnits], ["TPA", 0, _WF_bluForTransportArmedUnits], ["tank", 0.9, _WF_bluForArmorTankUnits], ["vehicleAA", 0.1, _WF_bluForArmorAAUnits], ["Heli", 0, _WF_opForAirHeliUnits], ["Jet", 0, _WF_opForAirJetUnits], ["Other", 0]]];
-missionNameSpace setVariable ["EASTairTemplate", [["infAP", 0, _WF_opForInfAPUnits], ["infAT", 0, _WF_opForInfATUnits], ["infSupport", 0, _WF_opForInfSupportUnits], ["infSpecial", 0, _WF_opForInfSpecialUnits], ["infAA", 0, _WF_opForInfAAUnits], ["TPU", 0, _WF_opForTransportUnarmedUnits], ["TPA", 0, _WF_opForTransportArmedUnits], ["tank", 0, _WF_opForArmorTankUnits], ["vehicleAA", 0, _WF_opForArmorAAUnits], ["Heli", 1, _WF_opForAirHeliUnits], ["Jet", 0, _WF_opForAirJetUnits], ["Other", 0]]];
-missionNameSpace setVariable ["WESTairTemplate", [["infAP", 0, _WF_bluforInfAPUnits], ["infAT", 0, _WF_bluforInfATUnits], ["infSupport", 0, _WF_bluforInfSupportUnits], ["infSpecial", 0, _WF_bluforInfSpecialUnits], ["infAA", 0, _WF_bluforInfAAUnits], ["TPU", 0, _WF_bluForTransportUnarmedUnits], ["TPA", 0, _WF_bluForTransportArmedUnits], ["tank", 0, _WF_bluForArmorTankUnits], ["vehicleAA", 0, _WF_bluForArmorAAUnits], ["Heli", 1, _WF_bluForAirHeliUnits], ["Jet", 0, _WF_bluForAirJetUnits], ["Other", 0]]];
+missionNamespace setVariable ["EASTinfTemplate", [["infAP", 0.6, _WF_opForInfAPUnits, _WF_opForInfAPUnits_LC], ["infAT", 0.2, _WF_opForInfATUnits, _WF_opForInfATUnits_LC], ["infSupport", 0.1, _WF_opForInfSupportUnits, _WF_opForInfSupportUnits_LC], ["infSpecial", 0.07, _WF_opForInfSpecialUnits, _WF_opForInfSpecialUnits_LC], ["infAA", 0.03, _WF_opForInfAAUnits, _WF_opForInfAAUnits_LC], ["TPU", 0, _WF_opForTransportUnarmedUnits, _WF_opForTransportUnarmedUnits_LC], ["TPA", 0, _WF_opForTransportArmedUnits, _WF_opForTransportArmedUnits_LC], ["tank", 0, _WF_opForArmorTankUnits, _WF_opForArmorTankUnits_LC], ["vehicleAA", 0, _WF_opForArmorAAUnits, _WF_opForArmorAAUnits_LC], ["Heli", 0, _WF_opForAirHeliUnits, _WF_opForAirHeliUnits_LC], ["Jet", 0, _WF_opForAirJetUnits, _WF_opForAirJetUnits_LC], ["Other", 0]]];  // the first element in this array needs to be of the same order as it is in the "allUnitTypes" template!
+missionNamespace setVariable ["WESTinfTemplate", [["infAP", 0.6, _WF_bluforInfAPUnits, _WF_bluforInfAPUnits_LC], ["infAT", 0.2, _WF_bluforInfATUnits, _WF_bluforInfATUnits_LC], ["infSupport", 0.1, _WF_bluforInfSupportUnits, _WF_bluforInfSupportUnits_LC], ["infSpecial", 0.07, _WF_bluforInfSpecialUnits, _WF_bluforInfSpecialUnits_LC], ["infAA", 0.03, _WF_bluforInfAAUnits, _WF_bluforInfAAUnits_LC], ["TPU", 0, _WF_bluForTransportUnarmedUnits, _WF_bluForTransportUnarmedUnits_LC], ["TPA", 0, _WF_bluForTransportArmedUnits, _WF_bluForTransportArmedUnits_LC], ["tank", 0, _WF_bluforArmorTankUnits, _WF_bluforArmorTankUnits_LC], ["vehicleAA", 0, _WF_bluforArmorAAUnits, _WF_bluforArmorAAUnits_LC], ["Heli", 0, _WF_bluforAirHeliUnits, _WF_bluforAirHeliUnits_LC], ["Jet", 0, _WF_bluforAirJetUnits, _WF_bluforAirJetUnits_LC], ["Other", 0]]];
+missionNameSpace setVariable ["EASTarmorTemplate", [["infAP", 0, _WF_opForInfAPUnits, _WF_opForInfAPUnits_LC], ["infAT", 0, _WF_opForInfATUnits, _WF_opForInfATUnits_LC], ["infSupport", 0, _WF_opForInfSupportUnits, _WF_opForInfSupportUnits_LC], ["infSpecial", 0, _WF_opForInfSpecialUnits, _WF_opForInfSpecialUnits_LC], ["infAA", 0, _WF_opForInfAAUnits, _WF_opForInfAAUnits_LC], ["TPU", 0, _WF_opForTransportUnarmedUnits, _WF_opForTransportUnarmedUnits_LC], ["TPA", 0, _WF_opForTransportArmedUnits, _WF_opForTransportArmedUnits_LC], ["tank", 0.9, _WF_opForArmorTankUnits, _WF_opForArmorTankUnits_LC], ["vehicleAA", 0.1, _WF_opForArmorAAUnits, _WF_opForArmorAAUnits_LC], ["Heli", 0, _WF_opForAirHeliUnits, _WF_opForAirHeliUnits_LC], ["Jet", 0, _WF_opForAirJetUnits, _WF_opForAirJetUnits_LC], ["Other", 0]]];
+missionNameSpace setVariable ["WESTarmorTemplate", [["infAP", 0, _WF_bluforInfAPUnits, _WF_bluforInfAPUnits_LC], ["infAT", 0, _WF_bluforInfATUnits, _WF_bluforInfATUnits_LC], ["infSupport", 0, _WF_bluforInfSupportUnits, _WF_bluforInfSupportUnits_LC], ["infSpecial", 0, _WF_bluforInfSpecialUnits, _WF_bluforInfSpecialUnits_LC], ["infAA", 0, _WF_bluforInfAAUnits, _WF_bluforInfAAUnits_LC], ["TPU", 0, _WF_bluForTransportUnarmedUnits, _WF_bluForTransportUnarmedUnits_LC], ["TPA", 0, _WF_bluForTransportArmedUnits, _WF_bluForTransportArmedUnits_LC], ["tank", 0.9, _WF_bluForArmorTankUnits, _WF_bluForArmorTankUnits_LC], ["vehicleAA", 0.1, _WF_bluForArmorAAUnits, _WF_bluForArmorAAUnits_LC], ["Heli", 0, _WF_opForAirHeliUnits, _WF_opForAirHeliUnits_LC], ["Jet", 0, _WF_opForAirJetUnits, _WF_opForAirJetUnits_LC], ["Other", 0]]];
+missionNameSpace setVariable ["EASTairTemplate", [["infAP", 0, _WF_opForInfAPUnits, _WF_opForInfAPUnits_LC], ["infAT", 0, _WF_opForInfATUnits, _WF_opForInfATUnits_LC], ["infSupport", 0, _WF_opForInfSupportUnits, _WF_opForInfSupportUnits_LC], ["infSpecial", 0, _WF_opForInfSpecialUnits, _WF_opForInfSpecialUnits_LC], ["infAA", 0, _WF_opForInfAAUnits, _WF_opForInfAAUnits_LC], ["TPU", 0, _WF_opForTransportUnarmedUnits, _WF_opForTransportUnarmedUnits_LC], ["TPA", 0, _WF_opForTransportArmedUnits, _WF_opForTransportArmedUnits_LC], ["tank", 0, _WF_opForArmorTankUnits, _WF_opForArmorTankUnits_LC], ["vehicleAA", 0, _WF_opForArmorAAUnits, _WF_opForArmorAAUnits_LC], ["Heli", 1, _WF_opForAirHeliUnits, _WF_opForAirHeliUnits_LC], ["Jet", 0, _WF_opForAirJetUnits, _WF_opForAirJetUnits_LC], ["Other", 0]]];
+missionNameSpace setVariable ["WESTairTemplate", [["infAP", 0, _WF_bluforInfAPUnits, _WF_bluforInfAPUnits_LC], ["infAT", 0, _WF_bluforInfATUnits, _WF_bluforInfATUnits_LC], ["infSupport", 0, _WF_bluforInfSupportUnits, _WF_bluforInfSupportUnits_LC], ["infSpecial", 0, _WF_bluforInfSpecialUnits, _WF_bluforInfSpecialUnits_LC], ["infAA", 0, _WF_bluforInfAAUnits, _WF_bluforInfAAUnits_LC], ["TPU", 0, _WF_bluForTransportUnarmedUnits, _WF_bluForTransportUnarmedUnits_LC], ["TPA", 0, _WF_bluForTransportArmedUnits, _WF_bluForTransportArmedUnits_LC], ["tank", 0, _WF_bluForArmorTankUnits, _WF_bluForArmorTankUnits_LC], ["vehicleAA", 0, _WF_bluForArmorAAUnits, _WF_bluForArmorAAUnits_LC], ["Heli", 1, _WF_bluForAirHeliUnits, _WF_bluForAirHeliUnits_LC], ["Jet", 0, _WF_bluForAirJetUnits, _WF_bluForAirJetUnits_LC], ["Other", 0]]];
 
-missionNameSpace setVariable ["infPortion", 0.6];
-missionNameSpace setVariable ["armorPortion", 0.3];
-missionNameSpace setVariable ["airPortion", 0.1];
+missionNamespace setVariable ["allGrpTypes", ["inf", "armor", "air", "other"]]; // Infantry type should be placed at the start of this array! (matters in commander script later on)
+missionNamespace setVariable ["portionTemplate", [0.6, 0.3, 0.1, 0]]; // The order of these portions MUST correspond to the order of the array above. So for e.g. if the first element in the array above is "inf", then the first portion in this array represents the portion of "inf". These numbers MUST add up to 1!
 
 WF_createPatrolGroup = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_createPatrolGroup.sqf";
 WF_saveGroupState = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_saveGroupState.sqf";
@@ -358,6 +450,8 @@ WF_MonitorFuncListExists = compileFinal preprocessFileLineNumbers "scripts\serve
 WF_monitorFuncCheck = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_monitorFuncCheck.sqf";
 WF_onPlayerDisconnect = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_onPlayerDisconnect.sqf";
 WF_onPlayerConnect = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_onPlayerConnect.sqf";
+WF_findHighestPercentGap = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_findHighestPercentGap.sqf";
+WF_AIunitSelection = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_AIunitSelection.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;

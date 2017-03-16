@@ -1,8 +1,8 @@
-private ["_preferredElement", "_sideStr"];
-params ["_hqMarker", "_towns", "_side", "_teamGroups"];
+private ["_hqMarker", "_towns", "_side", "_allSideGrps", "_allSidePlayerGrps", "_allSideAIGrps", "_preferredElement", "_sideStr"];
+params ["_hqMarker", "_towns", "_side", "_allSideGrps", "_allSidePlayerGrps", "_allSideAIGrps"];
 
 _sideStr = str _side;
-_undecidedGroups = +_teamGroups;
+_undecidedGroups = +_allSideGrps;
 _allObjectives = [];
 _enemyTowns = [];
 _hqPos = getMarkerPos _hqMarker;
@@ -13,34 +13,165 @@ _typesAndPortions = [["inf", 0]];
 _allAllyTowns = missionNameSpace getVariable (_sideStr + "locations");
 
 //------------------------------------------------------------------------------
-//DEBUG
+// Commander income & money
+_countVillage = {(_x getVariable "type") == "village"} count _allAllyTowns;
+_countTown = {(_x getVariable "type") == "town"} count _allAllyTowns;
+_countAirport = {(_x getVariable "type") == "airport"} count _allAllyTowns;
+_income = WFG_baseIncome + (_countVillage * WFG_villageIncome) + (_countTown * WFG_townIncome) + (_countAirport * WFG_AirportIncome);
+_money = (missionNamespace getVariable (_sideStr + "money")) + _income;
+missionNamespace setVariable [_sideStr + "money", _money];
+_incomePerMinute = (_income * 60) / WFG_commanderCycleTime;
 
-if ((count _teamGroups) != 10) then {
-  _debug_aliveGrps = [];
-  _debug_playerGrps = [];
-  "SCRIPT ERROR! THE NUMBER OF TEAM GRPS HAS CHANGED!" remoteExec ["hint", 0];
-  diag_log "ATTENTION: SCRIPT ERROR! LOOK HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-  diag_log "THE NUMBER OF TEAM GRPS HAS CHANGED!";
-  diag_log ["time since mission started:", serverTime];
-  diag_log ["side of the groups", _side];
-  diag_log ["Number of groups that are supposed to be", 10];
-  diag_log ["Number of groups that actually are", count _teamGroups];
-  diag_log ["list of all the groups", _teamGroups];
-  diag_log ["Number of Grps with dead leaders", {alive (leader _x)} count _teamGroups];
-  {
-    if (({alive _x} count (units _x)) == 0) then {
-      _debug_aliveGrps pushBack _x;
-    };
-
-    if (isPlayer (leader _x)) then {
-      _debug_playerGrps pushBack _x;
-    };
-  } forEach _teamGroups;
-  diag_log ["List of Groups with no members", _debug_aliveGrps];
-  diag_log ["List of player groups that are still in teamGroups:", _debug_playerGrps];
+// Has income changed? Used later on in unit purchase and construction decision making
+_incomeChanged = false;
+_prevIncome = missionNamespace getVariable (_sideStr + "income");
+if (isNil "_prevIncome") then {
+  missionNamespace setVariable [_sideStr + "income", _income];
+  _incomeChanged = true;
+} else {
+  if (_income != _prevIncome) then {
+    missionNamespace setVariable [_sideStr + "income", _income];
+    _incomeChanged = true;
+  };
 };
 
-//END DEBUG
+// TEMP PLAYER MONEY!!!!!!!!
+{
+  _wallet = _x getVariable "wallet";
+  _x setVariable ["wallet", (_wallet + _income / 5)];
+} forEach _allSidePlayerGrps;
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Purchase AI
+_buildArray = [];
+_buildType = "";
+_buildQue = missionNameSpace getVariable (_sideStr + "buildQue");
+
+// Build from que or select a new type?
+if (!(_incomeChanged) and !(isNil "_buildQue")) then {
+  _buildArray = _buildQue select 0;
+  _buildType = _buildQue select 1;
+};
+
+while {!_stopPurchaseLoop} do {
+  if ((count _buildArray) == 0) then {
+    // Unit Purchase AI
+    // select best group type
+    _UC_countUnits = 0;
+    {
+      _UC_countUnits = _UC_countUnits + (count (units _x));
+    } forEach _allSideGrps;
+
+    _unitCapPortion = _UC_countUnits / WFG_unitCap;
+    _buildUnitArray = [];
+    if ((_UC_countUnits + (missionNamespace getVariable "infAIGrpLowerLimit")) <= WFG_unitCap) then {
+
+      _selectUnitsToBuild = true;
+      if !(_incomeChanged) then {
+        _unitsInQue = missionNamespace getVariable (_sideStr + "unitsInQue");
+        if !(isNil "_unitsInQue") then {
+          if ((count _unitsInQue) > 0) then {
+            _selectUnitsToBuild = false;
+            _buildUnitArray = _unitsInQue;
+          };
+        }
+      };
+
+      if (_selectUnitsToBuild) then {
+        _strTemplate = +(missionNamespace getVariable "allGrpTypes");
+        _numbTemplate = +(missionNamespace getVariable "portionTemplate");
+
+        for [{private _i = 0; private ["_temp", "_avgCost", "_size", "_minutes", "_reference", "_timeGap"]}, {_i < (count _strTemplate)}, {_i = _i + 1}] do {
+          _temp = _strTemplate select _i;
+          _avgCost = missionNamespace getVariable (_temp + _sideStr + "avgCost");
+          _size = missionNamespace getVariable (_temp + "AIGrpLowerLimit");
+
+          if (!(isNil "_avgCost") and !(isNil "_size")) then {
+            _minutes = ((_avgCost * _size) - _money) / _incomePerMinute;
+
+            if (isNil "_reference") then {
+              _reference = _minutes; // come back this I don't like the way it is handled
+            } else {
+              _timeGap = _minutes - _reference;
+              if (_timeGap > 30) then {
+                _numbTemplate set [_i, 0];
+              } else {
+                if (_timeGap > 15) then {
+                  _numbTemplate set [_i, (_numbTemplate select _i) / 2];
+                };
+              };
+            };
+          };
+        };
+
+        _grpTypePortions = [];
+        {
+          _grpTypePortions pushBack 0;
+        } forEach _numbTemplate;
+
+        {
+          private ["_type", "_index"];
+
+          _type = _x getVariable "grpType";
+          if (isNil "_type") then {
+            _x setVariable ["grpType", "other"];
+            _type = "other";
+          };
+
+          _index = _strTemplate find _type;
+          _grpTypePortions set [_index, (_grpTypePortions select _index) + 1];
+        } forEach _allSideAIGrps;
+
+        _grpTypeToBuild = _strTemplate select ([_grpTypePortions, _numbTemplate] call WF_findHighestPercentGap);
+
+        // Plan out selected group type
+        _buildUnitArray = [_grpTypeToBuild, _sideStr, _money, _incomePerMinute] call WF_AIunitSelection;
+      };
+    };
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    // Spend money on the best option
+    _bestPoints = -1;
+
+    // Unit formula
+    if ((count _buildUnitArray) > 0) then {
+      private ["_points"];
+      _points = (_buildUnitArray select 1) * _unitCapPortion * WFG_AIunitFactor;
+
+      if ((_points < _bestPoints) or (_bestPoints == -1)) then {
+        _bestPoints = _points;
+        _buildArray = _buildUnitArray;
+        _buildType = "units";
+      };
+    };
+    // Construction formula
+    // if constrcution points is < _bestPoints then _bestPoints = _constrcutionPoints and _buildType = "constrcution" and _buildArray = _construcArray
+  };
+
+  // Decide the best one
+  switch (_buildType) do {
+    case "units": {
+      _stopPurchaseLoop = [_buildArray select 0, _side, _buildArray select 2, [_allSideGrps, _allSideAIGrps]] call WF_AIBuildUnit;
+    };
+
+    case "contruction": {
+      //construct
+    };
+
+    default {
+      _stopPurchaseLoop = true;
+    };
+  };
+
+  if (_stopPurchaseLoop) then {
+    missionNamespace setVariable [_sideStr + "buildQue", [_buildArray, _buildType]];
+  } else {
+    _buildArray = [];
+    _buildType = "";
+  };
+};
+
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // SEPERATE AI GROUPS
 _teamAIGroups = [];
@@ -94,21 +225,13 @@ if !(isNil "_monitorFuncList") then {
 
 //------------------------------------------------------------------------------
 // Handels Unit Money
-_countVillage = {(_x getVariable "type") == "village"} count _allAllyTowns;
-_countTown = {(_x getVariable "type") == "town"} count _allAllyTowns;
-_countAirport = {(_x getVariable "type") == "airport"} count _allAllyTowns;
-_income = WFG_baseIncome + (_countVillage * WFG_villageIncome) + (_countTown * WFG_townIncome) + (_countAirport * WFG_AirportIncome);
-{
-  _wallet = _x getVariable "wallet";
-  _x setVariable ["wallet", (_wallet + _income)];
-} forEach _undecidedGroups;
 
 // End Unit Money
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Unit Purchase AI
-_incomePerMinut = (_income * 60) / WFG_commanderCycleTime;
+_incomePerMinute = (_income * 60) / WFG_commanderCycleTime;
 _countTeamAIGroups = count _teamAIGroups;
 if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTeamAIGroups != missionNamespace getVariable ("count" + _sideStr + "AIgrps"))) then {
 
@@ -117,7 +240,7 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
   {
     private ["_ideal", "_minutes"];
     _ideal = missionNameSpace getVariable (_x + "Portion");
-    _minutes = (missionNamespace getVariable (_x + _sideStr + "avgCost")) / _incomePerMinut;
+    _minutes = (missionNamespace getVariable (_x + _sideStr + "avgCost")) / _incomePerMinute;
     if (_minutes < 50) then {
       if (_minutes > 35) then {
         _typesAndPortions pushBack [_x, _ideal * 0.5];
@@ -309,7 +432,7 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
 };
 
 {
-  private ["_wallet", "_grpType", "_grpComposition", "_template", "_countUnits", "_index", "_highestPercentGap", "_percentGap", "_buildUnit", "_unitInQue", "_notEnoughChips"];
+  private ["_wallet", "_grpType", "_grpComposition", "_template", "_countUnits", "_index", "_highestPercentGap", "_percentGap", "_buildUnit", "_unitInQue", "_notEnoughChips", "_buildUnitArray"];
   _notEnoughChips = false;
 
   while {(!_notEnoughChips and ((count (units _x)) < WG_grpLimit))} do {
@@ -340,7 +463,7 @@ if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTe
       } forEach _grpComposition;
 
       for [{private _i = 0; private "_minutes"},{_i <= (count _buildUnitArray - 1)}, {_i = _i + 1}] do {
-        _minutes = ((missionNameSpace getVariable ("WF_cost_" + (configName (_buildUnitArray select _i)))) - _wallet) / _incomePerMinut;
+        _minutes = ((missionNameSpace getVariable ("WF_cost_" + (configName (_buildUnitArray select _i)))) - _wallet) / _incomePerMinute;
         if ((_minutes > 50) and ((count _buildUnitArray) > 1)) then {
           _buildUnitArray deleteAt _i;
           _i = _i - 1;
