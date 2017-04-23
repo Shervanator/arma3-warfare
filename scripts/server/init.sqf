@@ -420,8 +420,37 @@ missionNameSpace setVariable ["WESTarmorTemplate", [["infAP", 0, _WF_bluforInfAP
 missionNameSpace setVariable ["EASTairTemplate", [["infAP", 0, _WF_opForInfAPUnits, _WF_opForInfAPUnits_LC], ["infAT", 0, _WF_opForInfATUnits, _WF_opForInfATUnits_LC], ["infSupport", 0, _WF_opForInfSupportUnits, _WF_opForInfSupportUnits_LC], ["infSpecial", 0, _WF_opForInfSpecialUnits, _WF_opForInfSpecialUnits_LC], ["infAA", 0, _WF_opForInfAAUnits, _WF_opForInfAAUnits_LC], ["TPU", 0, _WF_opForTransportUnarmedUnits, _WF_opForTransportUnarmedUnits_LC], ["TPA", 0, _WF_opForTransportArmedUnits, _WF_opForTransportArmedUnits_LC], ["tank", 0, _WF_opForArmorTankUnits, _WF_opForArmorTankUnits_LC], ["vehicleAA", 0, _WF_opForArmorAAUnits, _WF_opForArmorAAUnits_LC], ["Heli", 1, _WF_opForAirHeliUnits, _WF_opForAirHeliUnits_LC], ["Jet", 0, _WF_opForAirJetUnits, _WF_opForAirJetUnits_LC], ["Other", 0]]];
 missionNameSpace setVariable ["WESTairTemplate", [["infAP", 0, _WF_bluforInfAPUnits, _WF_bluforInfAPUnits_LC], ["infAT", 0, _WF_bluforInfATUnits, _WF_bluforInfATUnits_LC], ["infSupport", 0, _WF_bluforInfSupportUnits, _WF_bluforInfSupportUnits_LC], ["infSpecial", 0, _WF_bluforInfSpecialUnits, _WF_bluforInfSpecialUnits_LC], ["infAA", 0, _WF_bluforInfAAUnits, _WF_bluforInfAAUnits_LC], ["TPU", 0, _WF_bluForTransportUnarmedUnits, _WF_bluForTransportUnarmedUnits_LC], ["TPA", 0, _WF_bluForTransportArmedUnits, _WF_bluForTransportArmedUnits_LC], ["tank", 0, _WF_bluForArmorTankUnits, _WF_bluForArmorTankUnits_LC], ["vehicleAA", 0, _WF_bluForArmorAAUnits, _WF_bluForArmorAAUnits_LC], ["Heli", 1, _WF_bluForAirHeliUnits, _WF_bluForAirHeliUnits_LC], ["Jet", 0, _WF_bluForAirJetUnits, _WF_bluForAirJetUnits_LC], ["Other", 0]]];
 
-missionNamespace setVariable ["allGrpTypes", ["inf", "armor", "air", "other"]]; // Infantry type should be placed at the start of this array! (matters in commander script later on)
-missionNamespace setVariable ["portionTemplate", [0.6, 0.3, 0.1, 0]]; // The order of these portions MUST correspond to the order of the array above. So for e.g. if the first element in the array above is "inf", then the first portion in this array represents the portion of "inf". These numbers MUST add up to 1!
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// AI army composition
+_aiArmyCompPreference = [["inf", 0.6], ["armor", 0.3], ["air", 0.1], ["other", 0]]; // These numbers MUST add up to 1!
+// Reorder army comp preference in order of lowest avg cost to highest (useful later in commander_determine_orders)
+{
+  private ["_sideStr", "_strArray", "_numbArray"];
+  _sideStr = str _x;
+  _strArray = [];
+  _numbArray = [];
+  for [{private _i = 0; private _array = +_aiArmyCompPreference; private ["_lowestCost", "_cheapestElement"]}, {_i < (count _aiArmyCompPreference)}, {_i = _i + 1}] do {
+    _lowestCost = -1;
+    _cheapestElement = -1;
+    for [{private _i = 0; private ["_avgCost"]}, {_i < (count _array)}, {_i = _i + 1}] do {
+      _avgCost = missionNamespace getVariable (((_array select _i) select 0) + _sideStr + "avgCost");
+      if ((_avgCost < _lowestCost) or (_lowestCost == -1)) then {
+        _lowestCost = _avgCost;
+        _cheapestElement = _i;
+      };
+    };
+
+    _strArray pushBack ((_array select _cheapestElement) select 0);
+    _numbArray pushBack ((_array select _cheapestElement) select 1);
+    _array deleteAt _cheapestElement;
+  };
+
+  missionNameSpace setVariable [_sideStr + "allGrpTypes", _strArray];
+  missionNameSpace setVariable [_sideStr + "portionTemplate", _numbArray];
+} forEach [west, east];
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 WF_createPatrolGroup = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_createPatrolGroup.sqf";
 WF_saveGroupState = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_saveGroupState.sqf";

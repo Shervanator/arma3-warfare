@@ -78,7 +78,7 @@ while {!_stopPurchaseLoop} do {
       _strTemplate = +(missionNamespace getVariable "allGrpTypes");
       _numbTemplate = +(missionNamespace getVariable "portionTemplate");
 
-      for [{private _i = 0; private ["_temp", "_avgCost", "_size", "_minutes", "_reference", "_timeGap"]}, {_i < (count _strTemplate)}, {_i = _i + 1}] do {
+      for [{private _i = 0; private _reference = -1; private ["_temp", "_avgCost", "_size", "_minutes", "_timeGap"]}, {_i < (count _strTemplate)}, {_i = _i + 1}] do {
         _temp = _strTemplate select _i;
         _avgCost = missionNamespace getVariable (_temp + _sideStr + "avgCost");
         _size = missionNamespace getVariable (_temp + "AIGrpLowerLimit");
