@@ -42,114 +42,119 @@ if (isNil "_prevIncome") then {
 } forEach _allSidePlayerGrps;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// Purchase AI
-_buildArray = [];
-_buildType = "";
-_buildQue = missionNameSpace getVariable (_sideStr + "buildQue");
+// Calculate unit cap (UC)
+_UC_countUnits = 0;
+{
+  _UC_countUnits = _UC_countUnits + (count (units _x));
+} forEach _allSideGrps;
 
-// Build from que or select a new type?
-if (!(_incomeChanged) and !(isNil "_buildQue")) then {
-  _buildArray = _buildQue select 0;
-  _buildType = _buildQue select 1;
-};
+_unitCapPortion = _UC_countUnits / WFG_unitCap; //****???????
+//------------------------------------------------------------------------------
+// PURCHASE AI
 
+_stopPurchaseLoop = false;
 while {!_stopPurchaseLoop} do {
-  if ((count _buildArray) == 0) then {
+  // Build from que or select a new type?
+  _runPurchaseAI = true;
+  _buildQue = missionNameSpace getVariable (_sideStr + "buildQue");
+  if (!(_incomeChanged) and !(isNil "_buildQue")) then {
+    if ((count _buildQue) > 0) then {
+      _runPurchaseAI = false;
+      missionNamespace setVariable [_sideStr + "buildQue", nil];
+    };
+  } else {
+    // Not sure this is necessary but the purpose is to ensure _buildQue is defined outside of the "if (_runPurchaseAI)" code bracket should it return as nil in the code above.
+    _buildQue = [];
+  };
+  //
+
+  if (_runPurchaseAI) then {
+    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     // Unit Purchase AI
-    // select best group type
-    _UC_countUnits = 0;
-    {
-      _UC_countUnits = _UC_countUnits + (count (units _x));
-    } forEach _allSideGrps;
-
-    _unitCapPortion = _UC_countUnits / WFG_unitCap;
     _buildUnitArray = [];
-    if ((_UC_countUnits + (missionNamespace getVariable "infAIGrpLowerLimit")) <= WFG_unitCap) then {
+    if (_UC_countUnits < WFG_unitCap) then {
+      // select best group type
+      _strTemplate = +(missionNamespace getVariable "allGrpTypes");
+      _numbTemplate = +(missionNamespace getVariable "portionTemplate");
 
-      _selectUnitsToBuild = true;
-      if !(_incomeChanged) then {
-        _unitsInQue = missionNamespace getVariable (_sideStr + "unitsInQue");
-        if !(isNil "_unitsInQue") then {
-          if ((count _unitsInQue) > 0) then {
-            _selectUnitsToBuild = false;
-            _buildUnitArray = _unitsInQue;
-          };
-        }
-      };
+      for [{private _i = 0; private ["_temp", "_avgCost", "_size", "_minutes", "_reference", "_timeGap"]}, {_i < (count _strTemplate)}, {_i = _i + 1}] do {
+        _temp = _strTemplate select _i;
+        _avgCost = missionNamespace getVariable (_temp + _sideStr + "avgCost");
+        _size = missionNamespace getVariable (_temp + "AIGrpLowerLimit");
 
-      if (_selectUnitsToBuild) then {
-        _strTemplate = +(missionNamespace getVariable "allGrpTypes");
-        _numbTemplate = +(missionNamespace getVariable "portionTemplate");
+        if (!(isNil "_avgCost") and !(isNil "_size")) then {
+          _minutes = ((_avgCost * _size) - _money) / _incomePerMinute;
 
-        for [{private _i = 0; private ["_temp", "_avgCost", "_size", "_minutes", "_reference", "_timeGap"]}, {_i < (count _strTemplate)}, {_i = _i + 1}] do {
-          _temp = _strTemplate select _i;
-          _avgCost = missionNamespace getVariable (_temp + _sideStr + "avgCost");
-          _size = missionNamespace getVariable (_temp + "AIGrpLowerLimit");
-
-          if (!(isNil "_avgCost") and !(isNil "_size")) then {
-            _minutes = ((_avgCost * _size) - _money) / _incomePerMinute;
-
-            if (isNil "_reference") then {
-              _reference = _minutes; // come back this I don't like the way it is handled
+          if (isNil "_reference") then {
+            _reference = _minutes; // come back this I don't like the way it is handled
+          } else {
+            _timeGap = _minutes - _reference;
+            if (_timeGap > 30) then {
+              _numbTemplate set [_i, 0];
             } else {
-              _timeGap = _minutes - _reference;
-              if (_timeGap > 30) then {
-                _numbTemplate set [_i, 0];
-              } else {
-                if (_timeGap > 15) then {
-                  _numbTemplate set [_i, (_numbTemplate select _i) / 2];
-                };
+              if (_timeGap > 15) then {
+                _numbTemplate set [_i, (_numbTemplate select _i) / 2];
               };
             };
           };
         };
-
-        _grpTypePortions = [];
-        {
-          _grpTypePortions pushBack 0;
-        } forEach _numbTemplate;
-
-        {
-          private ["_type", "_index"];
-
-          _type = _x getVariable "grpType";
-          if (isNil "_type") then {
-            _x setVariable ["grpType", "other"];
-            _type = "other";
-          };
-
-          _index = _strTemplate find _type;
-          _grpTypePortions set [_index, (_grpTypePortions select _index) + 1];
-        } forEach _allSideAIGrps;
-
-        _grpTypeToBuild = _strTemplate select ([_grpTypePortions, _numbTemplate] call WF_findHighestPercentGap);
-
-        // Plan out selected group type
-        _buildUnitArray = [_grpTypeToBuild, _sideStr, _money, _incomePerMinute] call WF_AIunitSelection;
       };
+
+      _grpTypePortions = [];
+      {
+        _grpTypePortions pushBack 0;
+      } forEach _numbTemplate;
+
+      {
+        private ["_type", "_index"];
+
+        _type = _x getVariable "grpType";
+        if (isNil "_type") then {
+          _x setVariable ["grpType", "other"];
+          _type = "other";
+        };
+
+        _index = _strTemplate find _type;
+        _grpTypePortions set [_index, (_grpTypePortions select _index) + 1];
+      } forEach _allSideAIGrps;
+
+      _grpTypeToBuild = _strTemplate select ([_grpTypePortions, _numbTemplate] call WF_findHighestPercentGap);
+
+      // Plan out selected group type
+      _buildUnitArray = [_grpTypeToBuild, _sideStr, _money, _incomePerMinute, _UC_countUnits] call WF_AIunitSelection;
     };
+
+    //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    // Other options (such as construction) go here
+
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
     // Spend money on the best option
-    _bestPoints = -1;
+    _decisionPool = [];
 
     // Unit formula
     if ((count _buildUnitArray) > 0) then {
-      private ["_points"];
-      _points = (_buildUnitArray select 1) * _unitCapPortion * WFG_AIunitFactor;
-
-      if ((_points < _bestPoints) or (_bestPoints == -1)) then {
-        _bestPoints = _points;
-        _buildArray = _buildUnitArray;
-        _buildType = "units";
-      };
+      _buildUnitArray pushBack "units";
+      _buildUnitArray pushBack ((_buildUnitArray select 1) * _unitCapPortion * WFG_AIunitFactor);
+      _decisionPool pushBack _buildUnitArray;
     };
-    // Construction formula
-    // if constrcution points is < _bestPoints then _bestPoints = _constrcutionPoints and _buildType = "constrcution" and _buildArray = _construcArray
+
+    // Other fomulae go here (e.g. construction formula)
+
+    // Find the lowest points (i.e. "best" option)
+    _bestPoints = -1;
+    _buildQue = [];
+    {
+      if (((_x select ((count _x) - 1)) < _bestPoints) or (_bestPoints == -1)) then {
+        _buildQue = _x;
+      };
+    } forEach _decisionPool;
   };
 
-  // Decide the best one
-  switch (_buildType) do {
+  // Build / purchase the best option
+  switch (_buildQue select ((count _buildQue) - 2)) do {
     case "units": {
       _stopPurchaseLoop = [_buildArray select 0, _side, _buildArray select 2, [_allSideGrps, _allSideAIGrps]] call WF_AIBuildUnit;
     };
@@ -164,11 +169,8 @@ while {!_stopPurchaseLoop} do {
   };
 
   if (_stopPurchaseLoop) then {
-    missionNamespace setVariable [_sideStr + "buildQue", [_buildArray, _buildType]];
-  } else {
-    _buildArray = [];
-    _buildType = "";
-  };
+    missionNamespace setVariable [_sideStr + "buildQue", _buildQue];
+  }
 };
 
 //------------------------------------------------------------------------------
