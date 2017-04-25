@@ -48,7 +48,7 @@ for [{private _i = 1; private _unitSize = 0; private _lowerLimitBT = -1; private
 
   if (_unitSize > (WFG_unitCap - _currentUnitCount)) exitWith {};
 
-  _totalBT = -1 * (_money / _incomePerMinute);
+  _totalBT = (_unitCost - _money) / _incomePerMinute;
   if (_totalBT < 0) then {
     _totalBT = 0;
   };
@@ -66,7 +66,7 @@ for [{private _i = 1; private _unitSize = 0; private _lowerLimitBT = -1; private
 if ((count _units) < _lowerLimit) then {
   _return = [];
 } else {
-  _return = [_units, _totalBT, _moneyOrig - _money];
+  _return = [_units, -1 * _money / _incomePerMinute, _moneyOrig - _money]; // _totalBt = -1 * (_money / _incomePerMinute)
 };
 
 _return

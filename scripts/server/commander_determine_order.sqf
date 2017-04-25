@@ -74,32 +74,49 @@ while {!_stopPurchaseLoop} do {
     // Unit Purchase AI
     _buildUnitArray = [];
     if (_UC_countUnits < WFG_unitCap) then {
+      private _excess = 0;
       // select best group type
-      _strTemplate = +(missionNamespace getVariable "allGrpTypes");
-      _numbTemplate = +(missionNamespace getVariable "portionTemplate");
+      _strTemplate = +(missionNamespace getVariable (_sideStr + "allGrpTypes"));
+      _numbTemplate = +(missionNamespace getVariable (_sideStr + "portionTemplate"));
 
-      for [{private _i = 0; private _reference = -1; private ["_temp", "_avgCost", "_size", "_minutes", "_timeGap"]}, {_i < (count _strTemplate)}, {_i = _i + 1}] do {
-        _temp = _strTemplate select _i;
-        _avgCost = missionNamespace getVariable (_temp + _sideStr + "avgCost");
-        _size = missionNamespace getVariable (_temp + "AIGrpLowerLimit");
+      for [{private _i = 0; private _reference = -1; private ["_type", "_avgCost", "_size", "_minutes", "_portion", "_timeGap"]}, {_i < (count _strTemplate)}, {_i = _i + 1}] do {
+        _type = _strTemplate select _i;
+        _avgCost = missionNamespace getVariable (_type + _sideStr + "avgCost");
+        _size = missionNamespace getVariable (_type + "AIGrpLowerLimit");
 
-        if (!(isNil "_avgCost") and !(isNil "_size")) then {
+        if (!(isNil "_avgCost") and !(isNil "_size")) then { // Accounting for types like "other" that have undef avg cost and size
           _minutes = ((_avgCost * _size) - _money) / _incomePerMinute;
+          if (_minutes < 0) then {
+            _minutes = 0;
+          };
 
-          if (isNil "_reference") then {
-            _reference = _minutes; // come back this I don't like the way it is handled
+          if (_reference == -1) then {
+            _reference = _minutes; // Since _strTemplate is already in order of lowest avg cost to highest (done in server init), the first element will be the cheapest on avg and hence the reference.
           } else {
+            _portion = _numbTemplate select _i;
             _timeGap = _minutes - _reference;
             if (_timeGap > 30) then {
+              _excess = _excess + _portion;
               _numbTemplate set [_i, 0];
             } else {
               if (_timeGap > 15) then {
-                _numbTemplate set [_i, (_numbTemplate select _i) / 2];
+                _excess = _excess + (_portion / 2);
+                _numbTemplate set [_i, _portion / 2];
               };
             };
           };
         };
       };
+
+      // Redistribute any excess portions from above ---------------------------
+      if (_excess > 0) then {
+        private _sum = 1 - _excess;
+        for [{private _i = 0; private ["_element"]}, {_i < (count _numbTemplate)}, {_i = _i + 1}] do {
+          _element = _numbTemplate select _i;
+          _numbTemplate set [_i, _element + ((_element / _sum) * _excess)];
+        };
+      };
+      //------------------------------------------------------------------------
 
       _grpTypePortions = [];
       {

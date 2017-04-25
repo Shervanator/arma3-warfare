@@ -432,12 +432,14 @@ _aiArmyCompPreference = [["inf", 0.6], ["armor", 0.3], ["air", 0.1], ["other", 0
   _numbArray = [];
   for [{private _i = 0; private _array = +_aiArmyCompPreference; private ["_lowestCost", "_cheapestElement"]}, {_i < (count _aiArmyCompPreference)}, {_i = _i + 1}] do {
     _lowestCost = -1;
-    _cheapestElement = -1;
+    _cheapestElement = 0; // If all remaining types have an undefined avg cost, then it will select the 1st (select 0) element by default.
     for [{private _i = 0; private ["_avgCost"]}, {_i < (count _array)}, {_i = _i + 1}] do {
       _avgCost = missionNamespace getVariable (((_array select _i) select 0) + _sideStr + "avgCost");
-      if ((_avgCost < _lowestCost) or (_lowestCost == -1)) then {
-        _lowestCost = _avgCost;
-        _cheapestElement = _i;
+      if !(isNil "_avgCost") then { // Covering for elements that are included but have an undefined avg cost (e.g. the "other" type)
+        if ((_avgCost < _lowestCost) or (_lowestCost == -1)) then {
+          _lowestCost = _avgCost;
+          _cheapestElement = _i;
+        };
       };
     };
 
