@@ -7,9 +7,13 @@ _total = 0;
 } forEach _comp;
 
 _portion = [];
-{
-  _portion pushBack (_x / _total);
-} forEach _comp;
+if (_total == 0) then {
+  _portion = _comp;
+} else {
+  {
+    _portion pushBack (_x / _total);
+  } forEach _comp;
+};
 
 _highestPgap = -2;
 _index = 0;

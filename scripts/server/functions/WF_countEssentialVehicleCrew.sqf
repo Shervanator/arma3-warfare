@@ -1,12 +1,11 @@
-private ["_allVehicles", "_crewCount", "_class", "_cfg", "_func"];
+private ["_allVehicles", "_crewCount", "_class", "_func"];
 params ["_allVehicles"];
 
 _crewCount = 0;
-for [{private _i = 0; private ["_vehicle"]}, {_i < (count _allVehicles)}, {_i = _i + 1}] do {
-  _vehicle = _allVehicles select _i;
-  _class = typeOf _vehicle;
+for [{private _i = 0; private ["_vehicleCfg", "_cfg"]}, {_i < (count _allVehicles)}, {_i = _i + 1}] do {
+  _vehicleCfg = _allVehicles select _i;
 
-  _cfg = configfile >> "CfgVehicles" >> _class >> "hasDriver";
+  _cfg = _vehicleCfg >> "hasDriver";
   if !(isNull _cfg) then {
     if ((getNumber _cfg) == 1) then {
       _crewCount = _crewCount + 1;
@@ -31,7 +30,7 @@ for [{private _i = 0; private ["_vehicle"]}, {_i < (count _allVehicles)}, {_i = 
     };
   };
 
-  [configfile >> "CfgVehicles" >> _class >> "Turrets"] call _func;
+  [_vehicleCfg >> "Turrets"] call _func;
 };
 
 _crewCount

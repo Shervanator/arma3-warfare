@@ -154,7 +154,7 @@ while {!_stopPurchaseLoop} do {
     // Unit formula
     if ((count _buildUnitArray) > 0) then {
       _buildUnitArray pushBack "units";
-      _buildUnitArray pushBack ((_buildUnitArray select 1) * _unitCapPortion * WFG_AIunitFactor);
+      _buildUnitArray pushBack (((_buildUnitArray select 1) + 1) * _unitCapPortion * WFG_AIunitFactor); // The +1 is to avoid a zero minut build time skewing the formula (as x 0 = 0). WFG_AIunitFactor should be relatively high to enhance the effect of _unitCapPortion.
       _decisionPool pushBack _buildUnitArray;
     };
 
@@ -173,7 +173,7 @@ while {!_stopPurchaseLoop} do {
   // Build / purchase the best option
   switch (_buildQue select ((count _buildQue) - 2)) do {
     case "units": {
-      _stopPurchaseLoop = [_buildArray select 0, _side, _buildArray select 2, [_allSideGrps, _allSideAIGrps]] call WF_AIBuildUnit;
+      _stopPurchaseLoop = [_buildQue select 0, _side, _buildQue select 2, _buildQue select 3, [_allSideGrps, _allSideAIGrps]] call WF_AIBuildUnit;
     };
 
     case "contruction": {
@@ -187,7 +187,7 @@ while {!_stopPurchaseLoop} do {
 
   if (_stopPurchaseLoop) then {
     missionNamespace setVariable [_sideStr + "buildQue", _buildQue];
-  }
+  };
 };
 
 //------------------------------------------------------------------------------

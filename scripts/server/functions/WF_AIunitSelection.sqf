@@ -1,10 +1,11 @@
-private ["_grpType", "_sideStr", "_moneyOrig", "_incomePerMinute", "_currentUnitCount", "_money", "_upperLimit", "_lowerLimit", "_template", "_numbTemplate", "_typeCount", "_idealGrpSize", "_units", "_totalBT", "_return"];
+private ["_grpType", "_sideStr", "_moneyOrig", "_incomePerMinute", "_currentUnitCount", "_money", "_upperLimit", "_lowerLimit", "_template", "_numbTemplate", "_typeCount", "_idealGrpSize", "_units", "_totalBT", "_finalBT", "_return"];
 params ["_grpType", "_sideStr", "_moneyOrig", "_incomePerMinute", "_currentUnitCount"];
 
 _money = +_moneyOrig;
 _upperLimit = missionNamespace getVariable (_grpType + "AIGrpUpperLimit");
 _lowerLimit = missionNamespace getVariable (_grpType + "AIGrpLowerLimit");
 _template = missionNamespace getVariable (_sideStr + _grpType + "Template");
+_return = [];
 
 _numbTemplate = [];
 {
@@ -46,7 +47,9 @@ for [{private _i = 1; private _unitSize = 0; private _lowerLimitBT = -1; private
     _unitSize = [_units + [_unit]] call WF_countEssentialVehicleCrew;
   };
 
-  if (_unitSize > (WFG_unitCap - _currentUnitCount)) exitWith {};
+  if (_unitSize > (WFG_unitCap - _currentUnitCount)) exitWith {
+    _units = [];
+  };
 
   _totalBT = (_unitCost - _money) / _incomePerMinute;
   if (_totalBT < 0) then {
@@ -63,10 +66,12 @@ for [{private _i = 1; private _unitSize = 0; private _lowerLimitBT = -1; private
   _money = _money - _unitCost;
 };
 
-if ((count _units) < _lowerLimit) then {
-  _return = [];
-} else {
-  _return = [_units, -1 * _money / _incomePerMinute, _moneyOrig - _money]; // _totalBt = -1 * (_money / _incomePerMinute)
+if ((count _units) >= _lowerLimit) then {
+  _finalBT = -1 * _money / _incomePerMinute; // _finalBT is the total time it takes to build this group given the money and income per minute.
+  if (_finalBT < 0) then {
+    _finalBT = 0;
+  };
+  _return = [_units, _finalBT, _moneyOrig - _money, _grpType];
 };
 
 _return

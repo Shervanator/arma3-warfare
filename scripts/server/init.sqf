@@ -482,8 +482,8 @@ WF_monitorFuncCheck = compileFinal preprocessFileLineNumbers "scripts\server\fun
 WF_onPlayerDisconnect = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_onPlayerDisconnect.sqf";
 WF_onPlayerConnect = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_onPlayerConnect.sqf";
 WF_findHighestPercentGap = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_findHighestPercentGap.sqf";
-WF_AIunitSelection = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_AIunitSelection.sqf";
 WF_countEssentialVehicleCrew = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_countEssentialVehicleCrew.sqf";
+WF_AIunitSelection = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_AIunitSelection.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;

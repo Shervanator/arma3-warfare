@@ -1,5 +1,5 @@
-private ["_unitConfigs", "_side", "_totalCost", "_type", "_parents", "_notEnoughChips", "_sideStr", "_money", "_group", "_hqPos", "_unitClass", "_price", "_safeSpawnPos", "_skill", "_vehicle"];
-params ["_unitConfigs", "_side", "_totalCost", "_type", "_parents"];
+private ["_unitConfigs", "_side", "_totalCost", "_grpType", "_parents", "_notEnoughChips", "_sideStr", "_money", "_group", "_hqPos", "_unitClass", "_price", "_safeSpawnPos", "_skill", "_vehicle"];
+params ["_unitConfigs", "_side", "_totalCost", "_grpType", "_parents"];
 
 _notEnoughChips = false;
 _sideStr = str _side;
@@ -7,7 +7,8 @@ _money = missionNamespace getVariable (_sideStr + "money");
 
 if (_money >= _totalCost) then {
   _group = createGroup _side;
-  _hqPos = missionNameSpace getVariable ((str (side _group)) + "HQPos");
+  _group setVariable ["grpType", _grpType];
+  _hqPos = missionNameSpace getVariable ((str (side _group)) + "HQPos"); // Come back to this when units need to be created at the right building.
   {
     _unitClass = configName _x;
     _price = missionNamespace getVariable ("WF_cost_" + _unitClass);
@@ -23,12 +24,11 @@ if (_money >= _totalCost) then {
       createVehicleCrew _vehicle;
       (crew _vehicle) join _group;
       _vehicle setSkill _skill;
-      _vehicle setVariable ["monitoredUnits", [leader _group]];
-      [_vehicle, _group, _side] call WF_determineVehicleLock;
+      // **** The lines below may not be necessary anymore
+      /*_vehicle setVariable ["monitoredUnits", [leader _group]];
+      [_vehicle, _group, _side] call WF_determineVehicleLock;*/
     };
   } forEach _unitConfigs;
-
-  missionNamespace setVariable [_sideStr + _type + "InQue", nil];
 
   if !(isNil "_parents") then {
     {
