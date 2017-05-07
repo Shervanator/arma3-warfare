@@ -13,6 +13,34 @@ _typesAndPortions = [["inf", 0]];
 _allAllyTowns = missionNameSpace getVariable (_sideStr + "locations");
 
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// RUN MONITOR FUNCTIONS
+_monitorFuncList = missionNamespace getVariable ("monitorFunctions" + _sideStr);
+if !(isNil "_monitorFuncList") then {
+  for [{private _i = 0; private ["_element"]}, {_i < (count _monitorFuncList)}, {_i = _i + 1}] do {
+    _element = _monitorFuncList select _i;
+    _i = [(_element select 2), _monitorFuncList, _i] call (_element select 1);
+  };
+};
+
+//------------------------------------------------------------------------------
+// RUN VEHICLE LOCK AND GET IN VEHICLE SCRIPTS
+{
+  private ["_grp"];
+  _grp = _x;
+  {
+    if (canMove _x) then {
+      if (isNil {_x getVariable "monitoredUnits"}) then {
+        _x setVariable ["monitoredUnits", [leader _grp]];
+      };
+
+      [_x, _grp, _side] call WF_determineVehicleLock;
+    };
+  } forEach ([_grp, true] call WF_getGrpVehicles);
+} forEach _teamAIGroups;
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Commander income & money
 _countVillage = {(_x getVariable "type") == "village"} count _allAllyTowns;
 _countTown = {(_x getVariable "type") == "town"} count _allAllyTowns;
@@ -191,312 +219,6 @@ while {!_stopPurchaseLoop} do {
 };
 
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-// SEPERATE AI GROUPS
-_teamAIGroups = [];
-{
-  if !(isPlayer (leader _x)) then {
-    _teamAIGroups pushBack _x;
-  };
-} forEach _undecidedGroups;
-
-//------------------------------------------------------------------------------
-// RUN ANY PROCESSES RELATING TO NEW AI GROUPS (FROM PLAYER CONTROL)
-{
-  _wasPlayer = _x getVariable "wasPlayer";
-  if !(isNil "_wasPlayer") then {
-    if (_wasPlayer) then {
-      // Necessary for vehicleLocki func
-      {
-        unassignVehicle _x;
-      } forEach (units _x);
-
-      _x setVariable ["wasPlayer", nil];
-    };
-  };
-} forEach _teamAIGroups;
-
-//------------------------------------------------------------------------------
-// RUN MONITOR FUNCTIONS
-_monitorFuncList = missionNamespace getVariable ("monitorFunctions" + _sideStr);
-if !(isNil "_monitorFuncList") then {
-  for [{private _i = 0; private ["_element"]}, {_i < (count _monitorFuncList)}, {_i = _i + 1}] do {
-    _element = _monitorFuncList select _i;
-    _i = [(_element select 2), _monitorFuncList, _i] call (_element select 1);
-  };
-};
-
-//------------------------------------------------------------------------------
-// RUN VEHICLE LOCK AND GET IN VEHICLE SCRIPTS
-{
-  private ["_grp"];
-  _grp = _x;
-  {
-    if (canMove _x) then {
-      if (isNil {_x getVariable "monitoredUnits"}) then {
-        _x setVariable ["monitoredUnits", [leader _grp]];
-      };
-
-      [_x, _grp, _side] call WF_determineVehicleLock;
-    };
-  } forEach ([_grp, true] call WF_getGrpVehicles);
-} forEach _teamAIGroups;
-
-//------------------------------------------------------------------------------
-// Handels Unit Money
-
-// End Unit Money
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Unit Purchase AI
-_incomePerMinute = (_income * 60) / WFG_commanderCycleTime;
-_countTeamAIGroups = count _teamAIGroups;
-if ((missionNamespace getVariable (_sideStr + "income") != _income) or (_countTeamAIGroups != missionNamespace getVariable ("count" + _sideStr + "AIgrps"))) then {
-
-  missionNamespace setVariable ["count" + _sideStr + "AIgrps", _countTeamAIGroups];
-  _remainingPortion = 1;
-  {
-    private ["_ideal", "_minutes"];
-    _ideal = missionNameSpace getVariable (_x + "Portion");
-    _minutes = (missionNamespace getVariable (_x + _sideStr + "avgCost")) / _incomePerMinute;
-    if (_minutes < 50) then {
-      if (_minutes > 35) then {
-        _typesAndPortions pushBack [_x, _ideal * 0.5];
-        _remainingPortion = _remainingPortion - (_ideal * 0.5);
-      } else {
-        _typesAndPortions pushBack [_x, _ideal];
-        _remainingPortion = _remainingPortion - _ideal;
-      };
-    } else {
-      _typesAndPortions pushBack [_x, 0];
-    };
-  } forEach _spcSqdTypes;
-  _typesAndPortions set [0, ["inf", _remainingPortion]];
-
-  _roundedGrpCount = 0;
-  {
-    private ["_n"];
-    _n = round (_countTeamAIGroups * (_x select 1));
-    _grpTypeNumbers pushBack [_x select 0, _n];
-    _roundedGrpCount = _roundedGrpCount + _n;
-  } forEach _typesAndPortions;
-
-  while {_roundedGrpCount != _countTeamAIGroups} do {
-    private ["_n", "_element", "_index", "_remainingGroups"];
-    _remainingGroups = _roundedGrpCount - _countTeamAIGroups;
-
-    if ((round (_remainingGroups * ((_typesAndPortions select 0) select 1)) == 0) or ((abs _remainingGroups) == 1)) then {
-
-      if (_remainingGroups > 0) then {
-        _index = (count _grpTypeNumbers) - 1;
-        while {_remainingGroups != 0} do {
-          _element = (_grpTypeNumbers select _index) select 1;
-          if (_element > 0) then {
-            _grpTypeNumbers set [_index, [(_grpTypeNumbers select _index) select 0, _element - 1]];
-          };
-          if (_index == 0) then {
-            _index = (count _grpTypeNumbers) - 1;
-          } else {
-            _index = _index - 1;
-          };
-
-          _remainingGroups = _remainingGroups - 1;
-        };
-      } else {
-        _index = 0;
-        while {_remainingGroups != 0} do {
-          _element = (_grpTypeNumbers select _index) select 1;
-          _grpTypeNumbers set [_index, [(_grpTypeNumbers select _index) select 0, _element + 1]];
-
-          if (_index == (count _grpTypeNumbers) - 1) then {
-            _index = 0;
-          } else {
-            _index = _index + 1;
-          };
-
-          _remainingGroups = _remainingGroups + 1;
-        };
-      };
-      _roundedGrpCount = _countTeamAIGroups;
-    } else {
-      _index = 0;
-      {
-        _element = (_grpTypeNumbers select _index) select 1;
-        _n = round (_remainingGroups * (_x select 1));
-        _grpTypeNumbers set [_index, [(_grpTypeNumbers select _index) select 0, _element - _n]];
-        _roundedGrpCount = _roundedGrpCount - _n;
-        _index = _index + 1;
-      } forEach _typesAndPortions;
-    };
-  };
-
-  missionNameSpace setVariable [_sideStr + "infSqds", []];
-  missionNameSpace setVariable [_sideStr + "armorSqds", []];
-  missionNameSpace setVariable [_sideStr + "airSqds", []];
-  {
-    private ["_grpType"];
-    _grpType = _x getVariable "grpType";
-    if (isNil "_grpType") then {
-      _grpType = "inf";
-      _x setVariable ["grpType", "inf"];
-    };
-    (missionNameSpace getVariable (_sideStr + _grpType + "Sqds")) pushBack _x;
-  } forEach _teamAIGroups;
-
-  _needMore = [];
-  _extraGrps = [];
-  {
-    private ["_grps"];
-    _grps = missionNamespace getVariable (_sideStr + (_x select 0) + "Sqds");
-    _grpDifference = (_x select 1) - (count _grps);
-    if (_grpDifference != 0) then {
-      if (_grpDifference > 0) then {
-        _needMore pushBack [(_x select 0), _grpDifference];
-      } else {
-        while {_grpDifference < 0} do {
-          _randomN0 = floor (random (count _grps));
-          _extraGrps pushBack (_grps select _randomN0);
-          _grps deleteAt _randomN0;  // I think since this modifies the original array i don't need to use setVar again to save the new array (?)
-          _grpDifference = _grpDifference + 1;
-        };
-      };
-    };
-  } forEach _grpTypeNumbers;
-
-  //------------------------------------------------------------------------------
-  //DEBUG
-  _debug_countNeedMore = 0;
-  {
-    _debug_countNeedMore = _debug_countNeedMore + (_x select 1);
-  } forEach _needMore;
-  if (_debug_countNeedMore != (count _extraGrps)) then {
-    _debug_aliveGrps = [];
-    "SCRIPT ERROR! needMore != extraGrps" remoteExec ["hint", 0];
-    diag_log "ATTENTION: SCRIPT ERROR! LOOK HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-    diag_log "needMore != extraGrps!";
-    diag_log ["time since mission started:", serverTime];
-    diag_log ["side of the groups", _side];
-    diag_log ["Number of needed groups", _debug_countNeedMore];
-    diag_log ["Number of extra groups available", count _extraGrps];
-    diag_log ["list of the extra groups", _extraGrps];
-    diag_log ["list of types we need more groups for", _needMore];
-    diag_log ["Number of extra grps with dead leaders", {alive (leader _x)} count _extraGrps];
-    diag_log ["Ideal grp proportions or typesAndPortions:", _typesAndPortions];
-    diag_log ["Ideal grp comp numbers or grpTypeNumbers:", _grpTypeNumbers];
-    diag_log ["List of inf sqds:", missionNameSpace getVariable (_sideStr + "infSqds")];
-    diag_log ["List of armor sqds:", missionNameSpace getVariable (_sideStr + "armorSqds")];
-    diag_log ["List of air sqds:", missionNameSpace getVariable (_sideStr + "airSqds")];
-    diag_log ["Income:", _income];
-    diag_log ["List of allied towns:", _allAllyTowns];
-    {
-      if (({alive _x} count (units _x)) == 0) then {
-        _debug_aliveGrps pushBack _x;
-      };
-    } forEach _extraGrps;
-    diag_log ["List of extra groups with no members", _debug_aliveGrps];
-  };
-
-  //END DEBUG
-  //------------------------------------------------------------------------------
-
-  if ((count _needMore) > 0) then {
-    {
-      private ["_n0GrpsNeeded", "_grps", "_grp"];
-      _n0GrpsNeeded = _x select 1;
-      _grps = missionNameSpace getVariable (_sideStr + (_x select 0) + "Sqds");
-      while {_n0GrpsNeeded > 0} do {
-        _grp = _extraGrps select 0;
-
-        //------------------------------------------------------------------------------
-        //DEBUG
-
-        if (isNil "_grp") then {
-          _debug_aliveGrps = [];
-          "SCRIPT ERROR! extraGrps select 0 is undefined!" remoteExec ["hint", 0];
-          diag_log "ATTENTION: SCRIPT ERROR! LOOK HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-          diag_log "extraGrps select 0 is undefined!";
-          diag_log ["time since mission started:", serverTime];
-          diag_log ["side of the groups", _side];
-          diag_log ["Number of extra groups available", count _extraGrps];
-          diag_log ["list of the extra groups", _extraGrps];
-          diag_log ["list of types we need more groups for", _needMore];
-          diag_log ["Number of extra grps with dead leaders", {alive (leader _x)} count _extraGrps];
-          diag_log ["Ideal grp proportions or typesAndPortions:", _typesAndPortions];
-          diag_log ["Ideal grp comp numbers or grpTypeNumbers:", _grpTypeNumbers];
-          diag_log ["List of inf sqds:", missionNameSpace getVariable (_sideStr + "infSqds")];
-          diag_log ["List of armor sqds:", missionNameSpace getVariable (_sideStr + "armorSqds")];
-          diag_log ["List of air sqds:", missionNameSpace getVariable (_sideStr + "airSqds")];
-          diag_log ["Income:", _income];
-          diag_log ["List of allied towns:", _allAllyTowns];
-          {
-            if (({alive _x} count (units _x)) == 0) then {
-              _debug_aliveGrps pushBack _x;
-            };
-          } forEach _extraGrps;
-          diag_log ["List of extra groups with no members", _debug_aliveGrps];
-        };
-
-        //END DEBUG
-        //------------------------------------------------------------------------------
-
-        _grps pushBack _grp;
-        _grp setVariable ["grpType", (_x select 0)];
-        _grp setVariable ["unitInQue", false];
-        _extraGrps deleteAt 0;
-        _n0GrpsNeeded = _n0GrpsNeeded - 1;
-      };
-    } forEach _needMore;
-  };
-};
-
-{
-  private ["_wallet", "_grpType", "_grpComposition", "_template", "_countUnits", "_index", "_highestPercentGap", "_percentGap", "_buildUnit", "_unitInQue", "_notEnoughChips", "_buildUnitArray"];
-  _notEnoughChips = false;
-
-  while {(!_notEnoughChips and ((count (units _x)) < WG_grpLimit))} do {
-    _unitInQue = _x getVariable "unitInQue";
-    if (isNil "_unitInQue") then {
-      _unitInQue = false;
-      _x setVariable ["unitInQue", false];
-    };
-
-    if (_unitInQue isEqualTo false) then {
-      _wallet = _x getVariable "wallet";
-      _grpType = _x getVariable "grpType";
-      _grpComposition = [units _x] call WF_getGrpCompNumbers;
-      _countUnits = count (units _x);
-      _template = missionNameSpace getVariable (_sideStr + _grpType + "Template");
-      _buildUnitArray = +((_template select 0) select 2);
-      _highestPercentGap = 0;
-      _index = 0;
-      {
-        _portion = (_x select 1) / _countUnits;
-        _percentGap = ((_template select _index) select 1) - _portion;
-        if (_percentGap > _highestPercentGap) then {
-          _highestPercentGap = _percentGap;
-          _buildUnitArray = +((_template select _index) select 2);
-        };
-
-        _index = _index + 1;
-      } forEach _grpComposition;
-
-      for [{private _i = 0; private "_minutes"},{_i <= (count _buildUnitArray - 1)}, {_i = _i + 1}] do {
-        _minutes = ((missionNameSpace getVariable ("WF_cost_" + (configName (_buildUnitArray select _i)))) - _wallet) / _incomePerMinute;
-        if ((_minutes > 50) and ((count _buildUnitArray) > 1)) then {
-          _buildUnitArray deleteAt _i;
-          _i = _i - 1;
-        };
-      };
-
-      _buildUnit = _buildUnitArray select (floor (random (count _buildUnitArray)));
-    } else {
-      _buildUnit = _unitInQue;
-    };
-
-    _notEnoughChips = [_buildUnit, _x, _side] call WF_AIBuildUnit;
-  };
-} forEach _teamAIGroups;
 //------------------------------------------------------------------------------
 
 {
