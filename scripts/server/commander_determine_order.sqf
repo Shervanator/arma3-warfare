@@ -2,30 +2,25 @@ private ["_hqMarker", "_towns", "_side", "_allSideGrps", "_allSidePlayerGrps", "
 params ["_hqMarker", "_towns", "_side", "_allSideGrps", "_allSidePlayerGrps", "_allSideAIGrps"];
 
 _sideStr = str _side;
-_undecidedGroups = +_allSideGrps;
-_allObjectives = [];
-_enemyTowns = [];
 _hqPos = getMarkerPos _hqMarker;
 _grpTypeNumbers = [];
 _enemySides = [_side] call WF_getEnemySides;
-_spcSqdTypes = ["armor", "air"]; // MUST be in the same order as WFG_squadTypes in init.sqf! (except no first element, in this case "infantry")
-_typesAndPortions = [["inf", 0]];
 _allAllyTowns = missionNameSpace getVariable (_sideStr + "locations");
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // RUN MONITOR FUNCTIONS
-_monitorFuncList = missionNamespace getVariable ("monitorFunctions" + _sideStr);
+/*_monitorFuncList = missionNamespace getVariable ("monitorFunctions" + _sideStr);
 if !(isNil "_monitorFuncList") then {
   for [{private _i = 0; private ["_element"]}, {_i < (count _monitorFuncList)}, {_i = _i + 1}] do {
     _element = _monitorFuncList select _i;
     _i = [(_element select 2), _monitorFuncList, _i] call (_element select 1);
   };
-};
+};*/
 
 //------------------------------------------------------------------------------
 // RUN VEHICLE LOCK AND GET IN VEHICLE SCRIPTS
-{
+/*{
   private ["_grp"];
   _grp = _x;
   {
@@ -37,7 +32,7 @@ if !(isNil "_monitorFuncList") then {
       [_x, _grp, _side] call WF_determineVehicleLock;
     };
   } forEach ([_grp, true] call WF_getGrpVehicles);
-} forEach _teamAIGroups;
+} forEach _teamAIGroups;*/
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -66,7 +61,11 @@ if (isNil "_prevIncome") then {
 // TEMP PLAYER MONEY!!!!!!!!
 {
   _wallet = _x getVariable "wallet";
+  if (isNil "_wallet") then {
+    _x setVariable ["wallet", 500];
+  } else {
   _x setVariable ["wallet", (_wallet + _income / 5)];
+  };
 } forEach _allSidePlayerGrps;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -76,7 +75,7 @@ _UC_countUnits = 0;
   _UC_countUnits = _UC_countUnits + (count (units _x));
 } forEach _allSideGrps;
 
-_unitCapPortion = _UC_countUnits / WFG_unitCap; //****???????
+_unitCapPortion = _UC_countUnits / WFG_unitCap;
 //------------------------------------------------------------------------------
 // PURCHASE AI
 
@@ -88,6 +87,7 @@ while {!_stopPurchaseLoop} do {
   if (!(_incomeChanged) and !(isNil "_buildQue")) then {
     if ((count _buildQue) > 0) then {
       _runPurchaseAI = false;
+      diag_log "diag!!! building from que";
       missionNamespace setVariable [_sideStr + "buildQue", nil];
     };
   } else {
@@ -144,6 +144,8 @@ while {!_stopPurchaseLoop} do {
           _numbTemplate set [_i, _element + ((_element / _sum) * _excess)];
         };
       };
+      diag_log "diag!!! _numbTemplate";
+      diag_log _numbTemplate;
       //------------------------------------------------------------------------
 
       _grpTypePortions = [];
@@ -165,9 +167,13 @@ while {!_stopPurchaseLoop} do {
       } forEach _allSideAIGrps;
 
       _grpTypeToBuild = _strTemplate select ([_grpTypePortions, _numbTemplate] call WF_findHighestPercentGap);
+      diag_log "diag!!! _grpTypeToBuild";
+      diag_log _grpTypeToBuild;
 
       // Plan out selected group type
       _buildUnitArray = [_grpTypeToBuild, _sideStr, _money, _incomePerMinute, _UC_countUnits] call WF_AIunitSelection;
+      diag_log "diag!!! _buildUnitArray";
+      diag_log _buildUnitArray;
     };
 
     //------------------------------------------------------------------------------
@@ -198,6 +204,8 @@ while {!_stopPurchaseLoop} do {
     } forEach _decisionPool;
   };
 
+  diag_log "diag!!! _buildQue";
+  diag_log _buildQue;
   // Build / purchase the best option
   switch (_buildQue select ((count _buildQue) - 2)) do {
     case "units": {
@@ -214,93 +222,126 @@ while {!_stopPurchaseLoop} do {
   };
 
   if (_stopPurchaseLoop) then {
+    diag_log "diag!!! no money!";
     missionNamespace setVariable [_sideStr + "buildQue", _buildQue];
   };
 };
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+_allObjectivesOrig = [];
 
+// Determine defensive objectives
 {
+  private ["_enemyForces", "_enemyStrength"];
   if ((_x getVariable "WF_townState") == "alert") then {
     _enemyForces = [list (_x getVariable "alertZone"), _enemySides] call WF_unitSideFilter;
 
     _friendlyForces = [];
     {
-      _friendlyForces append (units _x);
+      {
+        if (alive _x) then {
+          _friendlyForces pushBack _x;
+        };
+      } forEach (units _x);
     } forEach (_x getVariable "patrolForces");
 
     _enemyStrength = [_enemyForces] call WF_estimateForceStrength;
     _friendlyStrength = [_friendlyForces] call WF_estimateForceStrength;
+    // If _enemyStrength > strength of Patrol forces, then the town will be considered as a potential defensive objective.
     if (_enemyStrength > _friendlyStrength) then {
-      _allObjectives pushBack [_x, ((getPos _x) distanceSqr _hqPos) / 3, (_enemyStrength - _friendlyStrength) * 1.2];
+      _allObjectivesOrig pushBack [_x, ((getPos _x) distanceSqr _hqPos) / 3, (_enemyStrength - _friendlyStrength) * 1.2]; // The third element in the objective array is the strenght thershold that must be overcome in order to deal with the objective.
     };
   };
 } forEach _allAllyTowns;
 
-_enemyTowns append (missionNameSpace getVariable ((str (_enemySides select 0)) + "locations"));
+// Determine offensive objectives
+_enemyTowns = [];
+_enemyTowns append (missionNameSpace getVariable ((str (_enemySides select 0)) + "locations")); // These location vars are defined in gameManager, initially as an empty array and then each town a side owns is added to it.
 _enemyTowns append (missionNameSpace getVariable ((str (_enemySides select 1)) + "locations"));
 {
-  _enemyStrength = 0;
+  private ["_enemyForces"];
+  private _enemyStrength = 0;
   if ((_x getVariable "WF_townState") == "alert") then {
     _enemyForces = [list (_x getVariable "alertZone"), _enemySides] call WF_unitSideFilter;
     _enemyStrength = [_enemyForces] call WF_estimateForceStrength;
   } else {
     _enemyForces = [list (_x getVariable "alertZone"), _enemySides] call WF_unitSideFilter;
-    _enemyStrength = ([_enemyForces] call WF_estimateForceStrength) + (_x getVariable "patrolForceStrength");
+    _enemyStrength = ([_enemyForces] call WF_estimateForceStrength) + (_x getVariable "patrolForceStrength"); // When a patrol squad is despawned (despawnTownPatrol.sqf), it's strength is calculated and saved on the town as a var for easy access.
   };
 
-  _allObjectives pushBack [_x, ((getPos _x) distanceSqr _hqPos) / 3, (_enemyStrength) * 2];
+  _allObjectivesOrig pushBack [_x, ((getPos _x) distanceSqr _hqPos) / 3, (_enemyStrength) * 2];
 } forEach _enemyTowns;
 
 {
   (_x select 0) setVariable [(_sideStr + "preferredGroups"), []];
-} forEach _allObjectives;
+} forEach _allObjectivesOrig;
 
+_undecidedGroups = +_allSideGrps;
+_allObjectivesCopy = +_allObjectivesOrig;
+diag_log "diag!!! _undecidedGroups";
+diag_log _undecidedGroups;
 while {(count _undecidedGroups) > 0} do {
 
-_preferredObjectives = [];
+  private _preferredObjectives = [];
+  private _objtvList = _allObjectivesCopy;
+  if ((count _allObjectivesCopy) <= 0) then { // If all available objectives have reached thershold, this will ensure that any remaining groups do not stand around idle and instead go to whatever objective they prefer.
+    _objtvList = _allObjectivesOrig;
+  };
 
+  diag_log "diag!!! _undecidedGroups in loop";
+  diag_log _undecidedGroups;
   {
-    _preferredObjectives pushBackUnique ([_x, _allObjectives, _side] call WF_findBestObjective);
+    diag_log ["diag!!! GRP", _x];
+    _preferredObjectives pushBackUnique ([_x, _objtvList, _side] call WF_findBestObjective);
   } forEach _undecidedGroups;
 
   _undecidedGroups = [];
-
   {
-    private ["_objective", "_thershold", "_forceStrength", "_grp", "_objectivePos"];
+    private ["_objective", "_thershold", "_forceStrength", "_grpsAndPoints", "_newObjective", "_currentObjective", "_objectivePos"];
+    private _grp = grpNull;
     _objective = _x select 0;
     _thershold = _x select 2;
     _forceStrength = 0;
-    _allPreferredgroups = _objective getVariable (_sideStr + "preferredGroups");
-    //if thershold has not been reached???
+    _grpsAndPoints = _objective getVariable (_sideStr + "preferredGroups");
+    diag_log ["diag!!! objective and prefGrps", _objective, _grpsAndPoints];
 
-    while {(count _allPreferredgroups) > 0} do {
-      if ((count _allObjectives > 1) and (_forceStrength > _thershold)) exitWith {
-        _allObjectives = _allObjectives - [_x];
-        _undecidedGroups append _allPreferredgroups;
+    while {(count _grpsAndPoints) > 0} do {
+      if (((count _allObjectivesCopy) > 0) and (_forceStrength > _thershold)) exitWith { // *** If the number of objectives left reaches 0 but we have not assigned all our grps it will have a problem!
+        diag_log ["diag!!! Thershold reached", _objective, _side];
+        _allObjectivesCopy = _allObjectivesCopy - [_x];
+        {
+          _undecidedGroups pushBack (_x select 0);
+        } forEach _grpsAndPoints;
       };
 
       _minPoints = -1;
       {
-        if (((_x getVariable "objectivePoints") < _minPoints) or (_minPoints == -1)) then {
-          _minPoints = _x getVariable "objectivePoints";
-          _grp = _x;
+        if (((_x select 1) < _minPoints) or (_minPoints == -1)) then {
+          _minPoints = _x select 1;
+          _grp = _x select 0;
         };
-      } forEach _allPreferredgroups;
+      } forEach _grpsAndPoints;
 
-      if ((_grp getVariable "currentObjective") == _objective) then {
-        if (count (waypoints _grp) <= 1) then {
+      _newObjective = true;
+      _currentObjective = _grp getVariable "currentObjective";
+      if !(isNil "_currentObjective") then {
+        if ((_currentObjective == _objective) and (count (waypoints _grp) <= 1)) then {
           [_grp, _objective] call WF_reassignWaypoint;
+          _newObjective = false;
         };
-      } else {
+      };
+
+      if (_newObjective) then {
         _grp setVariable ["currentObjective", _objective];
         _objectivePos = getPos _objective;
         [_grp, _objectivePos, 10] call WF_setWaypoint;
       };
 
+      diag_log ["diag!!! grp and decided objective", _objective];
       _forceStrength = _forceStrength + ([units _grp] call WF_estimateForceStrength);
-      _allPreferredgroups = _allPreferredgroups - [_grp];
+      _grpsAndPoints deleteAt (_grpsAndPoints find [_grp, _minPoints]);
+      diag_log _grpsAndPoints;
     };
   } forEach _preferredObjectives;
 };

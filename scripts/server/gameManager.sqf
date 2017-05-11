@@ -42,6 +42,4 @@ missionNameSpace setVariable ["WESTHQPos", getMarkerPos _blueForMarker];
 } forEach _towns;
 
 sleep 20; // this sleep time needs to be increased as town scripts now take longer than 10 seconds to execute (running in background). Alternatively come up with a better way
-missionNamespace setVariable ["EASTincome", 0];
-missionNamespace setVariable ["WESTincome", 0];
 [[_blueForMarker, _towns, west], [_opForMarker, _towns, east]] execFSM "scripts\server\fsm\commander.fsm";

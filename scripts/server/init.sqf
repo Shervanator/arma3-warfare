@@ -29,8 +29,8 @@ WFG_unitCap = 120;
 //------------------------------------------------------------------------------
 // Important mission variables to be set:
 // Money
-missionNamespace setVariable ["EASTmoney", 1000];
-missionNamespace setVariable ["WESTmoney", 1000];
+missionNamespace setVariable ["EASTmoney", 3500];
+missionNamespace setVariable ["WESTmoney", 3500];
 
 //------------------------------------------------------------------------------
 // Unit type definitions

@@ -12,7 +12,7 @@ link2[] = {2,3};
 link3[] = {3,4};
 link4[] = {4,1};
 globals[] = {0.000000,0,0,0,0,640,480,1,9,6316128,1,-193.749710,217.497757,109.078056,-203.767075,886,674,1};
-window[] = {0,-1,-1,-1,-1,1002,156,1686,156,1,904};
+window[] = {0,-1,-1,-1,-1,898,52,1582,52,1,904};
 *//*%FSM</HEAD>*/
 class FSM
 {
@@ -52,7 +52,8 @@ class FSM
                         itemno = 2;
                         init = /*%FSM<STATEINIT""">*/"_cycleTimer = time + 30;" \n
                          "" \n
-                         "_handle = [_westArray, _eastArray] execVM ""scripts\server\procedures\preCommander.sqf"";"/*%FSM</STATEINIT""">*/;
+                         "// The line below does not properly check if commander_determine_orders is complete. Come back to this." \n
+                         "_commanderHandle = [_westArray, _eastArray] execVM ""scripts\server\procedures\preCommander.sqf"";"/*%FSM</STATEINIT""">*/;
                         precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
                         class Links
                         {

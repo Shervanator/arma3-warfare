@@ -3,6 +3,7 @@
 private ["_westArray", "_eastArray", "_westVars", "_eastVars", "_isP", "_allWestGrps", "_allWestPlayerSqds", "_allWestAISqds", "_allEastGrps", "_allEastPlayerSqds", "_allEastAISqds", "_westCommanderHandle", "_eastCommanderHandle"];
 params ["_westArray", "_eastArray"];
 
+diag_log serverTime;
 _westVars = +_westArray;
 _eastVars = +_eastArray;
 
