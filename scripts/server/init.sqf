@@ -484,6 +484,9 @@ WF_onPlayerConnect = compileFinal preprocessFileLineNumbers "scripts\server\func
 WF_findHighestPercentGap = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_findHighestPercentGap.sqf";
 WF_countEssentialVehicleCrew = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_countEssentialVehicleCrew.sqf";
 WF_AIunitSelection = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_AIunitSelection.sqf";
+WF_requestTransport = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_requestTransport.sqf";
+WF_getNearRoadOrSafePos = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getNearRoadOrSafePos.sqf";
+kyf_WF_getZones = compileFinal preprocessFileLineNumbers "scripts\server\functions\kyf_WF_getZones.sqf";
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;

@@ -1,0 +1,98 @@
+/*%FSM<COMPILE "C:\Program Files (x86)\Steam\steamapps\common\Arma 3 Tools\FSMEditor\scriptedFSM.cfg, monitorPosFSM">*/
+/*%FSM<HEAD>*/
+/*
+item0[] = {"init",0,250,-29.799652,-244.981766,60.200348,-194.981766,0.000000,"init"};
+item1[] = {"check_time",4,218,-30.627838,-151.039459,59.372162,-101.039459,0.000000,"check time"};
+item2[] = {"run_code",2,4346,-31.886292,-47.088318,58.113724,2.911682,0.000000,"run code"};
+item3[] = {"script_Done_",4,218,119.652489,-47.088348,209.652496,2.911652,0.000000,"script Done?"};
+item4[] = {"empty_state",2,250,121.109589,-151.271286,211.109604,-101.271294,0.000000,"empty state"};
+link0[] = {0,1};
+link1[] = {1,2};
+link2[] = {2,3};
+link3[] = {3,4};
+link4[] = {4,1};
+globals[] = {0.000000,0,0,0,0,640,480,1,6,6316128,1,-331.606812,331.606262,22.871643,-354.362854,1032,587,1};
+window[] = {0,-1,-1,-1,-1,889,130,1570,130,1,1050};
+*//*%FSM</HEAD>*/
+class FSM
+{
+        fsmName = "monitorPosFSM";
+        class States
+        {
+                /*%FSM<STATE "init">*/
+                class init
+                {
+                        name = "init";
+                        itemno = 0;
+                        init = /*%FSM<STATEINIT""">*/"_cycleTimer = 0;"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "check_time">*/
+                                class check_time
+                                {
+                                        itemno = 1;
+                                        priority = 0.000000;
+                                        to="run_code";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"time > _cycleTimer"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "run_code">*/
+                class run_code
+                {
+                        name = "run_code";
+                        itemno = 2;
+                        init = /*%FSM<STATEINIT""">*/"_cycleTimer = time + 15;" \n
+                         "_scriptHandle = execVM ""scripts\server\procedures\WP_monitorPos.sqf"";"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "script_Done_">*/
+                                class script_Done_
+                                {
+                                        itemno = 3;
+                                        priority = 0.000000;
+                                        to="empty_state";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"scriptDone _scriptHandle"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "empty_state">*/
+                class empty_state
+                {
+                        name = "empty_state";
+                        itemno = 4;
+                        init = /*%FSM<STATEINIT""">*/""/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "check_time">*/
+                                class check_time
+                                {
+                                        itemno = 1;
+                                        priority = 0.000000;
+                                        to="run_code";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"time > _cycleTimer"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+        };
+        initState="init";
+        finalStates[] =
+        {
+        };
+};
+/*%FSM</COMPILE>*/

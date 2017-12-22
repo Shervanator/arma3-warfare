@@ -41,5 +41,15 @@ missionNameSpace setVariable ["WESTHQPos", getMarkerPos _blueForMarker];
   [_x] execVM "scripts\server\town\townManager.sqf";
 } forEach _towns;
 
+//------------------------------------------------------------------------------
+// Defining variables
+{
+  _str = str _x;
+
+  missionNamespace setVariable [_str + "caution_TPQue", []]; // used for vehicle tp in commander_determine_orders
+  missionNamespace setVariable [_str + "caution_transportVehicles", []]; // same as above
+} forEach [east, west];
+//------------------------------------------------------------------------------
+
 sleep 20; // this sleep time needs to be increased as town scripts now take longer than 10 seconds to execute (running in background). Alternatively come up with a better way
 [[_blueForMarker, _towns, west], [_opForMarker, _towns, east]] execFSM "scripts\server\fsm\commander.fsm";
