@@ -2,6 +2,7 @@ private ["_hqMarker", "_towns", "_side", "_allSideGrps", "_allSidePlayerGrps", "
 params ["_hqMarker", "_towns", "_side", "_allSideGrps", "_allSidePlayerGrps", "_allSideAIGrps"];
 
 _sideStr = str _side;
+diag_log [_sideStr + "STARTTIME",serverTime];
 _hqPos = getMarkerPos _hqMarker;
 _grpTypeNumbers = [];
 _enemySides = [_side] call WF_getEnemySides;
@@ -345,3 +346,41 @@ while {(count _undecidedGroups) > 0} do {
     };
   } forEach _preferredObjectives;
 };
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Transport AI
+// currently only availalble to the AI
+/*
+_TPQue = missionNamespace getVariable (_sideStr + "TPQue");
+{
+  _needSeats = 0;
+  _needTP = [];
+  _objectivePos = getPos (_x getVariable "currentObjective");
+  {
+    if (((getPos _x) distanceSqr _objectivePos) > 2250000) then {
+      _needSeats = _needSeats + 1;
+      _needTP pushBack _x;
+    };
+  } forEach (units _x);
+
+  _index = _TPQue find _x;
+  if (_index == -1) then {
+    if (_needSeats > 0) then {
+      _TPQue pushBack _x;
+    };
+  } else {
+    if (_needSeats <= 0) then {
+      _TPQue deleteAt _index; // ***This may need to be removed as I think I delete them from tpq in a monitoring func???
+    } else {
+      // set new needSeat
+    };
+  };
+} forEach _allSideAIGrps;
+
+{
+  ** call WF_determineTransport;
+  // where do we pass on the needSeats and _needTP to the array?????*******
+} forEach _TPQue;*/
+
+diag_log [_sideStr + "ENDTIME",serverTime];
