@@ -1,8 +1,17 @@
-_connectedZones = [[], [], []];
+// ***TO DO!!!
+ /*AT some point the exit point info defined in missionConstructionResources on missionNamespace need to be removed as they no longer will be
+ necessary. Perhaps in some sort of kyf_WF_missionConstructionCleanup file or something like that. In the following form:
 
-// Initialize the global variable
+{
+  missionNamespace setVariable [_markerName + _x, nil];
+} forEach ["_Link", "_LinkD2", "_LinkD"];*/
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/*Initialize the global zones var. This var will be used here because some of the ncessary
+mission construction functions (namely findZone) require this global var. During the execution
+of the actual mission however, the mission construction files will not run and hence this var
+will contain the finished version of the zone info.*/
 kyf_WG_allZones = [];
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Function for adding important zone info to the zone array for future use
@@ -29,7 +38,7 @@ _addBasicZoneInfo = {
   //----------------------------------------------------------------------------
   // now add exit point information
 
-  _exitPoints = [];
+  _exitPointInfo = [];
 
   for [{private _i = 0}, {_i < (count _exitPointsUnsorted)}, {_i = _i + 1}] do {
     // see if the exit point belongs this zone (i.e. has the same zone number)
@@ -38,13 +47,14 @@ _addBasicZoneInfo = {
 
     // The zone number in format kyf_zone12 can be aquired by selecting between 8 and (count _zone) - 8
     if ([_zone select [8, (count _zone) - 8], _zep, _start] call kyf_WF_compareIntToNestedStr) then {
-      _exitPoints pushBack _zep;
-      // *** what about where each exit point connects to and such???
+      // format [exit point pos, exit point link pos, distance between them squared, distance between them]
+      // Defined in kyf_WF_missionConstructionResources.sqf
+      _exitPointInfo pushBack [getMarkerPos _zep, getMarkerPos (missionNamespace getVariable [_zep + "_Link"]), missionNamespace getVariable [_zep + "_LinkD2"], missionNamespace getVariable [_zep + "_LinkD"]];
     };
   };
   //----------------------------------------------------------------------------
 
-  [_i, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints], _exitPoints];
+  [_i, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints], _exitPointInfo];
 };
 
 //------------------------------------------------------------------------------
@@ -93,6 +103,7 @@ _createDivisions = {
       _line2c = (_x select 1) select 1;
       _line2Seg = _x select 0;
 
+      // Find the intersection point of the segment perpendicular lines
       _xVal = (_line2c - _line1c) / (_line1m - _line2m); // *** SHOW WORKING OUT
       _yVal = _line1m * _xVal + _line1c; // point _xVal, _yVal is where the segment lines intersect
 
@@ -100,7 +111,7 @@ _createDivisions = {
       _isIn = [_centreX, _centreY, _rotation, _sizeA, _sizeB, [_xVal, _yVal]] call kyf_WF_isPointInEllipse;
 
       if (_isIn or _hasReachedElipse) then {
-        // Find intersection point of midway lines to find the pos of the centre of the division
+        // Find intersection point of midway perpendicular lines to find the pos of the centre of the division
         _line2Midm = (_x select 2) select 0;
         _line2Midc = (_x select 2) select 1;
 
@@ -209,18 +220,28 @@ _zoneCount = 0;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Sort the zones in order and add their info and segments
-
+_allZones = [];
 for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
   for [{private _n = 0; private ["_zone"]}, {_n < (count _zonesUnsorted)}, {_n = _n + 1}] do {
     _zone = _zonesUnsorted select _n;
 
     if ([str _i, _zone, 8] call kyf_WF_compareIntToNestedStr) exitWith {
-      kyf_WG_allZones pushBack ([_zone] call _addBasicZoneInfo);
+      _allZones pushBack ([_zone] call _addBasicZoneInfo);
       _zonesUnsorted deleteAt _n;
     };
   };
 };
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Now pre-calculate all optimal land routs for each division and save them in the zone array
+{
+  private _zone = _x;
+
+  {
+    private [];
+  } forEach (_zone select 3);
+} forEach _allZones;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
