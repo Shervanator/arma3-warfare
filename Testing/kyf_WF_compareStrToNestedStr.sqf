@@ -1,4 +1,6 @@
-/* Function for comparing an integer string to an integer that is nested/ part of a larger string
+/*
+*** UPDATE INCORRECT DESCRIPTION
+Function for comparing an integer string to an integer that is nested/ part of a larger string
  (e.g. "12" to "zone12"). The number in the string strats from a specific pos and can either end at
 the end of the string or at a given "end symbol" (for example a "_").
 

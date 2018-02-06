@@ -1,6 +1,6 @@
 /*function for taking a position and returning its parent zone.
 
-parameters:
+Parameters:
 _pos: position - The position to check
 _returnFullZone: boolean - If true the full zone array will be reutrned, otherwise only the zone index
 is returned.

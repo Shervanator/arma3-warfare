@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 /*Initialize the global zones var. This var will be used here because some of the ncessary
-mission construction functions (namely findZone) require this global var. During the execution
+mission construction functions (namely findZone and findShortestPath) require this global var. During the execution
 of the actual mission however, the mission construction files will not run and hence this var
 will contain the finished version of the zone info.*/
 kyf_WG_allZones = [];
@@ -40,16 +40,19 @@ _addBasicZoneInfo = {
 
   _exitPointInfo = [];
 
-  for [{private _i = 0}, {_i < (count _exitPointsUnsorted)}, {_i = _i + 1}] do {
+  for [{private _i = 0; private _zoneNumberStr = _zone select [8, (count _zone) - 8]}, {_i < (count _exitPointsUnsorted)}, {_i = _i + 1}] do {
     // see if the exit point belongs this zone (i.e. has the same zone number)
     _zep = _exitPointsUnsorted select _i;
     _start = ([_zep, "z", 2] call kyf_WF_findSymbolInStr) + 1; // in format kyf_zep12_z2, the second instance of "z" is our start point
 
     // The zone number in format kyf_zone12 can be aquired by selecting between 8 and (count _zone) - 8
-    if ([_zone select [8, (count _zone) - 8], _zep, _start] call kyf_WF_compareIntToNestedStr) then {
-      // format [exit point pos, exit point link pos, distance between them squared, distance between them]
+    if ([_zoneNumberStr, _zep, _start] call kyf_WF_compareStrToNestedStr) then {
+      // format [exit point pos, exit point link pos, next zone, distance between them squared, distance between them]
       // Defined in kyf_WF_missionConstructionResources.sqf
-      _exitPointInfo pushBack [getMarkerPos _zep, getMarkerPos (missionNamespace getVariable [_zep + "_Link"]), missionNamespace getVariable [_zep + "_LinkD2"], missionNamespace getVariable [_zep + "_LinkD"]];
+      _zepIndex = _zepIndex + 1; // This exit point now has a unique number of _zepIndex which corresponds to the index it occupies in the _hashTable array.
+      _hashTable pushBack []; // _hashTable select _zepIndex will now provide us with an array unique to this exit point, where we can store paths in our A* algorithm
+      _linkPos = getMarkerPos (missionNamespace getVariable [_zep + "_Link"]);
+      _exitPointInfo pushBack [_zepIndex, getMarkerPos _zep, [[_linkPos, false] call kyf_WF_findZone, _linkPos], missionNamespace getVariable [_zep + "_LinkD2"], missionNamespace getVariable [_zep + "_LinkD"]];
     };
   };
   //----------------------------------------------------------------------------
@@ -221,16 +224,42 @@ _zoneCount = 0;
 //------------------------------------------------------------------------------
 // Sort the zones in order and add their info and segments
 _allZones = [];
+_zepIndex = -1; // Used to give each exit point a unique number, which will come very usefull in creating a hash table-like data structure later on
+missionNamespace setVariable ["kyf_zepHashTable", []];
+_hashTable = missionNamespace getVariable "kyf_zepHashTable"; // zep are organised based on _zepIndex in this table.
+
 for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
   for [{private _n = 0; private ["_zone"]}, {_n < (count _zonesUnsorted)}, {_n = _n + 1}] do {
     _zone = _zonesUnsorted select _n;
 
-    if ([str _i, _zone, 8] call kyf_WF_compareIntToNestedStr) exitWith {
+    if ([str _i, _zone, 8] call kyf_WF_compareStrToNestedStr) exitWith {
       _allZones pushBack ([_zone] call _addBasicZoneInfo);
       _zonesUnsorted deleteAt _n;
     };
   };
 };
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Complete exit point information
+// Add the unique index of the link to the linkInfo array within the exit point
+{
+  private ["_linkInfo", "_linkPos", "_linkZone"];
+
+  {
+    _linkInfo = _x select 2;
+    _linkPos = _linkInfo select 1;
+    _linkZone = _linkInfo select 0;
+
+    {
+      if (_linkPos isEqualTo (_x select 1)) exitWith {
+         _linkInfo pushBack (_x select 0);
+      };
+    } forEach ((_allZones select _linkZone) select 2);
+
+  } forEach (_x select 2);
+
+} forEach _allZones;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
