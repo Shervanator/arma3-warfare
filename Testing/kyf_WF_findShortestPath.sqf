@@ -47,16 +47,15 @@ if (isNil "_endZoneInfo") then {
 // Now path with an A* algorithm
 
 _hashTable = +(missionNamespace getVariable "kyf_zepHashTable");
-_bestPath = [[_startPos, _endPos], _startPos distanceSqr _endPos]; // The default return vale, as a straight path between startPos and endPos
+_bestPath = []; // Initialize return value
 
 if !((_startZone == _endZone) or (_startZone == -1) or (_endZone == -1)) then {  /*If the destination and start pos are both in the same zone, or if either the _startZone or _endZone are undefined (kyf_WF_findZone returned -1),
   then the script won't bother pathing zones and instead will keep _bestPath (the return value) as a straight course between startPos and endPos.*/
 
-  private _bestCompletedPath = [];
   private _pathQue = [[-1, _startPos, [_startPos], _startZone, 0, 0, 0]]; // path format: [path identifier number, current pos, [path], current zone, total path cost so far, distSqr form endPos, path cost + remaining dist]
 
   while {(count _pathQue) > 0} do {
-    // select the highest priority oath in que and expand
+    // select the highest priority path in que and expand
     private _currentPath = +(_pathQue select 0); // Copy because we are about to delete _pathQue select 0 shortly
     private _curentPosIndex = _currentPath select 0; // i.e. _zepIndex = unique number representing our path. start inex = -1 and endpos inex = -2
     private _currentPos = _currentPath select 1;
@@ -94,8 +93,8 @@ if !((_startZone == _endZone) or (_startZone == -1) or (_endZone == -1)) then { 
         };
 
         // If a completed path exists, check if we have not already exceeded the path cost of that to prevent wasting time
-        if !(_bestCompletedPath isEqualTo []) then {
-          if ((_bestCompletedPath select 1) <= (_pathCost + _remainingDist)) then {
+        if !(_bestPath isEqualTo []) then {
+          if ((_bestPath select 1) <= (_pathCost + _remainingDist)) then {
             // i.e. This path has already exceeded the current shortest completed path and should not be considered anymore
             _addPath = false;
           };
@@ -112,7 +111,7 @@ if !((_startZone == _endZone) or (_startZone == -1) or (_endZone == -1)) then { 
             // We already know that there is no completed path shorter than this, and that we have not reached this point through a quicker path
             // So this is the new shortest path
             _pathHistory pushBack _endPos;
-            _bestCompletedPath = [_pathHistory, _totalCost];
+            _bestPath = [_pathHistory, _totalCost];
 
           } else {
             // Find the correct ranking for this path in pathQue by comparing its _pathCost + _remainingDist to that of other paths
@@ -130,6 +129,10 @@ if !((_startZone == _endZone) or (_startZone == -1) or (_endZone == -1)) then { 
       };
     } forEach ((kyf_WG_allZones select (_currentPath select 3)) select 2); // forEach exitPoint in the _exitPointInfo array of the zone
   };
+};
+
+if (_bestPath isEqualTo []) then {
+  _bestPath = [[_startPos, _endPos], _startPos distanceSqr _endPos]; // The default return vale, as a straight path between startPos and endPos
 };
 
 _bestPath
