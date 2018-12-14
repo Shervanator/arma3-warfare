@@ -5,6 +5,12 @@
 {
   missionNamespace setVariable [_markerName + _x, nil];
 } forEach ["_Link", "_LinkD2", "_LinkD"];*/
+
+//------------------------------------------------------------------------------
+#define ZONE_TAG "kyf_zone"
+#define ZEP_TAG "kyf_zep"
+
+#define HASH_TABLE_NAME "kyf_zepHashTable"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Function for adding important zone info to the zone array for future use
@@ -215,11 +221,11 @@ _zonesUnsorted = [];
 _exitPointsUnsorted = [];
 _zoneCount = 0;
 {
-  if ((_x select [0, 8]) isEqualTo "kyf_zone") then {
+  if ((_x select [0, 8]) isEqualTo ZONE_TAG) then {
     _zonesUnsorted pushBack _x;
     _zoneCount = _zoneCount + 1;
   } else {
-    if ((_x select [0, 7]) isEqualTo "kyf_zep") then { // zep = zone exit point
+    if ((_x select [0, 7]) isEqualTo ZEP_TAG) then { // zep = zone exit point
       _exitPointsUnsorted pushBack _x;
     };
   };
@@ -234,8 +240,8 @@ mission construction functions (namely findZone and findShortestPath) require th
 construction files will not run and hence this var will contain the finished version of the zone info.*/
 
 _zepIndex = -1; // Used to give each exit point a unique number, which will come very usefull in creating a hash table-like data structure later on
-missionNamespace setVariable ["kyf_zepHashTable", []];
-_hashTable = missionNamespace getVariable "kyf_zepHashTable"; // zep are organised based on _zepIndex in this table.
+missionNamespace setVariable [HASH_TABLE_NAME, []];
+_hashTable = missionNamespace getVariable HASH_TABLE_NAME; // zep are organised based on _zepIndex in this table.
 
 for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
   for [{private _n = 0; private ["_zone"]}, {_n < (count _zonesUnsorted)}, {_n = _n + 1}] do {
