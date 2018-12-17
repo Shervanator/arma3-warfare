@@ -7,6 +7,13 @@
 } forEach ["_Link", "_LinkD2", "_LinkD"];*/
 
 //------------------------------------------------------------------------------
+#include "scripts\debug\debug_settings.sqf"
+
+//------------------------------------------------------------------------------
+// DEBUG
+#define FILE_NAME "missionSetup.sqf"
+
+//------------------------------------------------------------------------------
 #define ZONE_TAG "kyf_zone"
 #define ZEP_TAG "kyf_zep"
 
@@ -25,14 +32,17 @@ _addBasicZoneInfo = {
   _size = markerSize _zone;
   _sizeA = _size select 0;
   _sizeB = _size select 1;
+
+  // Standardize rotation angle of the marker
   _rotation = [markerDir _zone] call kyf_WF_stndAngle; // ***is standardizing the angle necessary?
 
+  // These are the four corner points of the elipse marker (where the major and minor axis intersect the parameter),
+  // translated so that the centre of the elipse is at the origin, and unrotated
+  // so that the elipse is at a 0 degree rotation. See diagram elipse rotation 1.
   _cornerPoints = [];
   {
-    _cornerPoints pushBack (_x call _rotateAndTranslate);
-  } forEach [[-_sizeA, 0], [_sizeA, 0], [0, -_sizeB], [0, _sizeB]]; // These are the four corner points of the elipse marker
-  // (where the major and minor axis intersect the parameter), translated so that the centre of the elipse is at the origin, and unrotated
-  // so that the elipse is at a 0 degree rotation. See diagram elipse rotation 1.
+    _cornerPoints pushBack (_x call _getElipseCornerPoints);
+  } forEach [[-_sizeA, 0], [_sizeA, 0], [0, -_sizeB], [0, _sizeB]];
 
   //----------------------------------------------------------------------------
   // now add exit point information
@@ -63,18 +73,16 @@ _addBasicZoneInfo = {
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// Function for taking the ALREADY TRANSLATED and unrotated corner points of an elipse about the origin, and the rotating
-// and un-translating them back to their original position
-// The points are rotated as if the centre of the elipse is at the origin, then we un-translate them to their original pos
-// This allows us to find the coordinates of the corner points of the original elipse
+// Function for finding the corner points of an elipse
+/* The centre of the elipse is placed on the origin and the rotation of the elipse set to 0. The corner points are then found easiliy. From there, the corner points are rotated
+based on the angle of the elipse, and then translated to the elipse's original position to obtain the true corner points of the elipse.
+Based on the formula for rotation of a point around the origin with (x1, y1) and a rotation of @ degrees: x2 = x1Cos@ - y1Sin@, y2 = y1Cos@ + x1Sin@*/
 
-_rotateAndTranslate = {
+_getElipseCornerPoints = {
   private ["_xVal", "_yVal"];
   params ["_xVal", "_yVal"];
 
   [(_xVal * (Cos _rotation)) - (_yVal * (sin _rotation)) + _centreX, (_yVal * (cos _rotation)) + (_xVal * (sin _rotation)) + _centreY]
-  // Based on the formula for rotation of a point around the origin with (x1, y1) and a rotation of @ degrees
-  // x2 = x1Cos@ - y1Sin@, y2 = y1Cos@ + x1Sin@
 };
 
 //------------------------------------------------------------------------------
@@ -235,14 +243,19 @@ _zoneCount = 0;
 //------------------------------------------------------------------------------
 // Sort the zones in order and add their basic info and segments
 
-kyf_WG_allZones = []; /*Initialize the global zones var. This var will be used here (instead of a local var) because some of the ncessary
+/*Initialize the global zones var. This var will be used here (instead of a local var) because some of the ncessary
 mission construction functions (namely findZone and findShortestPath) require this global var. During mission runtime however, the mission
 construction files will not run and hence this var will contain the finished version of the zone info.*/
+kyf_WG_allZones = [];
 
-_zepIndex = -1; // Used to give each exit point a unique number, which will come very usefull in creating a hash table-like data structure later on
+// Used to give each exit point a unique number, which will come very usefull in creating a hash table-like data structure later on
+_zepIndex = -1;
 missionNamespace setVariable [HASH_TABLE_NAME, []];
-_hashTable = missionNamespace getVariable HASH_TABLE_NAME; // zep are organised based on _zepIndex in this table.
 
+// zep's are organised based on _zepIndex in this table.
+_hashTable = missionNamespace getVariable HASH_TABLE_NAME;
+
+// Index sort and place zones in kyf_WG_allZones based on their name. So "kyf_zone0" will be at index 0 while "kyf_zone2" will be at index 2
 for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
   for [{private _n = 0; private ["_zone"]}, {_n < (count _zonesUnsorted)}, {_n = _n + 1}] do {
     _zone = _zonesUnsorted select _n;
