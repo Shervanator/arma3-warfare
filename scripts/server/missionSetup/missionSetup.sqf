@@ -41,9 +41,21 @@ _addBasicZoneInfo = {
   // so that the elipse is at a 0 degree rotation. See diagram elipse rotation 1.
   _cornerPoints = [];
   {
-    _cornerPoints pushBack (_x call _getElipseCornerPoints);
+    _cornerPoints pushBack (_x call _getElipseCornerPoint);
   } forEach [[-_sizeA, 0], [_sizeA, 0], [0, -_sizeB], [0, _sizeB]];
 
+  // DEBUG
+  #ifdef MAJOR_DEBUG
+    createMarker [str _centre, _centre];
+
+    {
+      private _corner = createMarker [str _x, _x];
+      _corner setMarkerShape "ICON";
+      _corner setMarkerType "hd_dot";
+      _corner setMarkerColor "ColorBlack";
+    } forEach _cornerPoints;
+  // END DEBUG
+  
   //----------------------------------------------------------------------------
   // now add exit point information
 
@@ -58,8 +70,10 @@ _addBasicZoneInfo = {
     if ([_zoneNumberStr, _zep, _start] call kyf_WF_compareStrToNestedStr) then {
       // format [exit point pos, exit point link pos, next zone, distance between them squared, distance between them]
       // Defined in kyf_WF_missionConstructionResources.sqf
-      _zepIndex = _zepIndex + 1; // This exit point now has a unique number of _zepIndex which corresponds to the index it occupies in the _hashTable array.
-      _hashTable pushBack []; // _hashTable select _zepIndex will now provide us with an array unique to this exit point, where we can store paths in our A* algorithm
+      _zepIndex = _zepIndex + 1; // This exit point now has a unique number of _zepIndex which corresponds to the index it occupies in the hash table array.
+
+      // Hash table where zep's are organized based on _zepIndex. Table select _zepIndex will now provide us with an array unique to this exit point, where we can store paths in our A* algorithm
+      (missionNamespace getVariable HASH_TABLE_NAME) pushBack [];
       _linkPos = getMarkerPos (missionNamespace getVariable [_zep + "_Link"]);
       _exitPointInfo pushBack [_zepIndex, getMarkerPos _zep, [[_linkPos, false] call kyf_WF_findZone, _linkPos], missionNamespace getVariable [_zep + "_LinkD2"], missionNamespace getVariable [_zep + "_LinkD"]];
       // exit point format [index identifier, pos, [link zone, link pos], distance from pos to linkPos squared, distance from pos to linkPos]
@@ -78,7 +92,7 @@ _addBasicZoneInfo = {
 based on the angle of the elipse, and then translated to the elipse's original position to obtain the true corner points of the elipse.
 Based on the formula for rotation of a point around the origin with (x1, y1) and a rotation of @ degrees: x2 = x1Cos@ - y1Sin@, y2 = y1Cos@ + x1Sin@*/
 
-_getElipseCornerPoints = {
+_getElipseCornerPoint = {
   private ["_xVal", "_yVal"];
   params ["_xVal", "_yVal"];
 
@@ -252,9 +266,6 @@ kyf_WG_allZones = [];
 _zepIndex = -1;
 missionNamespace setVariable [HASH_TABLE_NAME, []];
 
-// zep's are organised based on _zepIndex in this table.
-_hashTable = missionNamespace getVariable HASH_TABLE_NAME;
-
 // Index sort and place zones in kyf_WG_allZones based on their name. So "kyf_zone0" will be at index 0 while "kyf_zone2" will be at index 2
 for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
   for [{private _n = 0; private ["_zone"]}, {_n < (count _zonesUnsorted)}, {_n = _n + 1}] do {
@@ -267,6 +278,15 @@ for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
     };
   };
 };
+
+// DEBUG
+#ifdef MAJOR_DEBUG
+  diag_log DEBUG_TITLE;
+  diag_log format ["%1 %2", FILE_INTRO, FILE_NAME];
+  diag_log format ["kyf_WG_allZones: %1", kyf_WG_allZones];
+  diag_log DEBUG_END;
+#endif
+// END DEBUG
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
