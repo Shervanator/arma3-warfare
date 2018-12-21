@@ -23,8 +23,8 @@
 // Function for adding important zone info to the zone array for future use
 
 _addBasicZoneInfo = {
-  private ["_zone"];
-  params ["_zone"];
+  private ["_zone", "_zoneIndex"];
+  params ["_zone", "_zoneIndex"];
 
   _centre = markerPos _zone;
   _centreX = _centre select 0;
@@ -33,27 +33,39 @@ _addBasicZoneInfo = {
   _sizeA = _size select 0;
   _sizeB = _size select 1;
 
-  // Standardize rotation angle of the marker
-  _rotation = [markerDir _zone] call kyf_WF_stndAngle; // ***is standardizing the angle necessary?
+  // Standardize rotation angle of the marker. Rotation has to be negated for some reason for calculations to work properly
+  _rotation = -([markerDir _zone] call kyf_WF_stndAngle); // ***is standardizing the angle necessary?
 
   // These are the four corner points of the elipse marker (where the major and minor axis intersect the parameter),
   // translated so that the centre of the elipse is at the origin, and unrotated
   // so that the elipse is at a 0 degree rotation. See diagram elipse rotation 1.
   _cornerPoints = [];
   {
-    _cornerPoints pushBack (_x call _getElipseCornerPoint);
+    _cornerPoints pushBack ([_x select 0, _x select 1, _rotation, _centreX, _centreY] call _getElipseCornerPoint);
   } forEach [[-_sizeA, 0], [_sizeA, 0], [0, -_sizeB], [0, _sizeB]];
 
   // DEBUG
+  // Create debug markers to show the position of the zones
   #ifdef MAJOR_DEBUG
-    createMarker [str _centre, _centre];
+    private _zoneMarker = createMarker [(str _centre) + "Area", _centre];
+    _zoneMarker setMarkerShape "ELLIPSE";
+    _zoneMarker setMarkerDir _rotation;
+    _zoneMarker setMarkerSize [_sizeA, _sizeB];
+    _zoneMarker setMarkerColor "ColorRed";
+    _zoneMarker setMarkerAlpha 0.4;
+
+    private _centreMarker = createMarker [str _centre, _centre];
+    _centreMarker setMarkerShape "ICON";
+    _centreMarker setMarkerType "hd_dot";
+    _centreMarker setMarkerColor "ColorRed";
 
     {
       private _corner = createMarker [str _x, _x];
       _corner setMarkerShape "ICON";
       _corner setMarkerType "hd_dot";
-      _corner setMarkerColor "ColorBlack";
+      _corner setMarkerColor "ColorRed";
     } forEach _cornerPoints;
+  #endif
   // END DEBUG
   
   //----------------------------------------------------------------------------
@@ -81,7 +93,7 @@ _addBasicZoneInfo = {
   };
   //----------------------------------------------------------------------------
 
-  [_i, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints], _exitPointInfo] // Return val. This is what a zone looks like after this function has run.
+  [_zoneIndex, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints], _exitPointInfo] // Return val. This is what a zone looks like after this function has run.
   // format: [zone index identifier, [basic geometrical info], array containing all exit points]
 };
 
@@ -93,8 +105,8 @@ based on the angle of the elipse, and then translated to the elipse's original p
 Based on the formula for rotation of a point around the origin with (x1, y1) and a rotation of @ degrees: x2 = x1Cos@ - y1Sin@, y2 = y1Cos@ + x1Sin@*/
 
 _getElipseCornerPoint = {
-  private ["_xVal", "_yVal"];
-  params ["_xVal", "_yVal"];
+  private ["_xVal", "_yVal", "_rotation", "_centreX", "_centreY"];
+  params ["_xVal", "_yVal", "_rotation", "_centreX", "_centreY"];
 
   [(_xVal * (Cos _rotation)) - (_yVal * (sin _rotation)) + _centreX, (_yVal * (cos _rotation)) + (_xVal * (sin _rotation)) + _centreY]
 };
@@ -272,7 +284,7 @@ for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
     _zone = _zonesUnsorted select _n;
 
     if ([str _i, _zone, 8] call kyf_WF_compareStrToNestedStr) exitWith {
-      kyf_WG_allZones pushBack ([_zone] call _addBasicZoneInfo);
+      kyf_WG_allZones pushBack ([_zone, _i] call _addBasicZoneInfo);
       // Each zone now looks like the following format: [zone index identifier, [basic geometrical info], exit point info]
       _zonesUnsorted deleteAt _n;
     };
