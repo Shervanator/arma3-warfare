@@ -16,6 +16,10 @@
 //------------------------------------------------------------------------------
 #define ZONE_TAG "kyf_zone"
 #define ZEP_TAG "kyf_zep"
+#define ZN_LETCOUNT 8
+
+// Ideal size of zone axis segments in meters
+#define IDEAL_SEGMENT_SIZE 2000
 
 #define HASH_TABLE_NAME "kyf_zepHashTable"
 //------------------------------------------------------------------------------
@@ -23,23 +27,23 @@
 // Function for adding important zone info to the zone array for future use
 
 _addBasicZoneInfo = {
-  private ["_zone", "_zoneIndex"];
-  params ["_zone", "_zoneIndex"];
+  private ["_zone", "_zoneIndex", "_zepIndex", "_exitPointsUnsorted"];
+  params ["_zone", "_zoneIndex", "_zepIndex", "_exitPointsUnsorted"];
 
-  _centre = markerPos _zone;
-  _centreX = _centre select 0;
-  _centreY = _centre select 1;
-  _size = markerSize _zone;
-  _sizeA = _size select 0;
-  _sizeB = _size select 1;
+  private _centre = markerPos _zone;
+  private _centreX = _centre select 0;
+  private _centreY = _centre select 1;
+  private _size = markerSize _zone;
+  private _sizeA = _size select 0;
+  private _sizeB = _size select 1;
 
   // Standardize rotation angle of the marker. Rotation has to be negated for some reason for calculations to work properly
-  _rotation = -([markerDir _zone] call kyf_WF_stndAngle); // ***is standardizing the angle necessary?
+  private _rotation = -([markerDir _zone] call kyf_WF_stndAngle); // ***is standardizing the angle necessary?
 
   // These are the four corner points of the elipse marker (where the major and minor axis intersect the parameter),
   // translated so that the centre of the elipse is at the origin, and unrotated
   // so that the elipse is at a 0 degree rotation. See diagram elipse rotation 1.
-  _cornerPoints = [];
+  private _cornerPoints = [];
   {
     _cornerPoints pushBack ([_x select 0, _x select 1, _rotation, _centreX, _centreY] call _getElipseCornerPoint);
   } forEach [[-_sizeA, 0], [_sizeA, 0], [0, -_sizeB], [0, _sizeB]];
@@ -71,30 +75,56 @@ _addBasicZoneInfo = {
   //----------------------------------------------------------------------------
   // now add exit point information
 
-  _exitPointInfo = [];
+  // DEBUG
+  #ifdef MAJOR_DEBUG
+    diag_log DEBUG_TITLE;
+    diag_log format ["Parent Zone: %1", _zone];
+  #endif
+  //END DEBUG
 
-  for [{private _i = 0; private _zoneNumberStr = _zone select [8, (count _zone) - 8]}, {_i < (count _exitPointsUnsorted)}, {_i = _i + 1}] do {
-    // see if the exit point belongs this zone (i.e. has the same zone number)
+  private _exitPointInfo = [];
+
+  for [{private _i = 0; private _zoneNumberStr = _zone select [ZN_LETCOUNT, (count _zone) - ZN_LETCOUNT]; private ["_linkPos", "_zep", "_start"]}, {_i < (count _exitPointsUnsorted)}, {_i = _i + 1}] do {
     _zep = _exitPointsUnsorted select _i;
-    _start = ([_zep, "z", 2] call kyf_WF_findSymbolInStr) + 1; // in format kyf_zep12_z2, the second instance of "z" is our start point
 
-    // The zone number in format kyf_zone12 can be aquired by selecting between 8 and (count _zone) - 8
+    // Isolate the name of the owning zone from the name of the zep. In format kyf_zep12_z2, the second instance of "z" is our start point
+    _start = ([_zep, "z", 2] call kyf_WF_findSymbolInStr) + 1;
+
+    // See if the exit point belongs this zone (i.e. has the same zone number). The zone number in format kyf_zone12 can be aquired by selecting between ZN_LETCOUNT and (count _zone) - ZN_LETCOUNT
     if ([_zoneNumberStr, _zep, _start] call kyf_WF_compareStrToNestedStr) then {
-      // format [exit point pos, exit point link pos, next zone, distance between them squared, distance between them]
-      // Defined in kyf_WF_missionConstructionResources.sqf
-      _zepIndex = _zepIndex + 1; // This exit point now has a unique number of _zepIndex which corresponds to the index it occupies in the hash table array.
+      // Assign exit point a unique number _zepIndex which corresponds to the index it occupies in the hash table array.
+      _zepIndex = _zepIndex + 1;
 
-      // Hash table where zep's are organized based on _zepIndex. Table select _zepIndex will now provide us with an array unique to this exit point, where we can store paths in our A* algorithm
+      /* Hash table where zep's are organized based on _zepIndex. Table select _zepIndex will now provide us with an array unique to this exit point, where we can store paths in our A* algorithm,
+      although the array is empty at this point */
       (missionNamespace getVariable HASH_TABLE_NAME) pushBack [];
       _linkPos = getMarkerPos (missionNamespace getVariable [_zep + "_Link"]);
-      _exitPointInfo pushBack [_zepIndex, getMarkerPos _zep, [[_linkPos, false] call kyf_WF_findZone, _linkPos], missionNamespace getVariable [_zep + "_LinkD2"], missionNamespace getVariable [_zep + "_LinkD"]];
+
       // exit point format [index identifier, pos, [link zone, link pos], distance from pos to linkPos squared, distance from pos to linkPos]
+      _exitPointInfo pushBack [_zepIndex, getMarkerPos _zep, [[_linkPos, false] call kyf_WF_findZone, _linkPos], missionNamespace getVariable [_zep + "_LinkD2"], missionNamespace getVariable [_zep + "_LinkD"]];
+
+      // DEBUG
+      #ifdef MAJOR_DEBUG
+        diag_log _exitPointInfo;
+      #endif
+      // END DEBUG
     };
   };
   //----------------------------------------------------------------------------
 
-  [_zoneIndex, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints], _exitPointInfo] // Return val. This is what a zone looks like after this function has run.
-  // format: [zone index identifier, [basic geometrical info], array containing all exit points]
+  // Return val. This is what a zone looks like after this function has run. Format: [zone index identifier, [basic geometrical info], array containing all exit points]
+  private _ret = [_zoneIndex, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints], _exitPointInfo];
+
+  // DEBUG
+  // Print individual zone info to rpt file
+  #ifdef MAJOR_DEBUG
+    diag_log "Overall zone info: ";
+    diag_log _ret;
+    diag_log DEBUG_END;
+  #endif
+  // END DEBUG
+
+  _ret
 };
 
 //------------------------------------------------------------------------------
@@ -115,41 +145,41 @@ _getElipseCornerPoint = {
 //------------------------------------------------------------------------------
 // Divide the zone into segments
 // See exhibit elipse segmentation 1 for a good illustration of this function
-#define idealSegmentSize 2000 // Size of segments in meters that the function will try to divide each axis in
 
 _segmentZoneAxis = {
-  private ["_point1", "_point2", "_point3", "_point4", "_allLineSegments", "_pointA", "_pointB", "_length", "_pointAX", "_pointAY", "_pointBX", "_pointBY", "_segmentCount", "_segmentLength", "_normalizedX", "_normalizedY", "_lineEquation", "_m", "_c", "_lineSegments"];
+  private ["_point1", "_point2", "_point3", "_point4"];
   params ["_point1", "_point2", "_point3", "_point4"]; // The four corner points of the elipse
 
   //----------------------------------------------------------------------------
   // Break up the axis into equal segemnts
-  _allLineSegments = [];
+  private _allLineSegments = [];
 
   {
-    _pointA = _x select 0;
-    _pointB = _x select 1;
-    _length = 2 * (_x select 2); // length here represents the length of the axis, in meters (i.e. 2 * _sizeA or 2 * _sizeB)
+    private _pointA = _x select 0;
+    private _pointB = _x select 1;
+    private _length = 2 * (_x select 2); // length here represents the length of the axis, in meters (i.e. 2 * _sizeA or 2 * _sizeB)
 
-    _pointAX = _pointA select 0;
-    _pointAY = _pointA select 1;
-    _pointBX = _pointB select 0;
-    _pointBY = _pointB select 1;
+    private _pointAX = _pointA select 0;
+    private _pointAY = _pointA select 1;
+    private _pointBX = _pointB select 0;
+    private _pointBY = _pointB select 1;
 
-    _segmentCount = floor (_length / idealSegmentSize);
-    _segmentLength = _length / _segmentCount; // see exhibit elipse segmentation 1 for explanation
+    // Find the segment length closest to IDEAL_SEGMENT_SIZE that divides the lenghts of the axis into equal segments
+    private _segmentCount = floor (_length / IDEAL_SEGMENT_SIZE);
+    private _segmentLength = _length / _segmentCount; // see exhibit elipse segmentation 1 for explanation
 
     //--------------------------------------------------------------------------
     // Normalize the line (assume point A is the start and point B is the end)
     // Normalization formula: distance traveled in x or y or z, divided by the lenght of the line
-    _normalizedX = _segmentLength * (_pointBX - _pointAX) / _length; // When normalized, 1 unit represents 1 meter of movement. Thus in order to advance at the correct segment length every time we add x or y, we must multiply by _segmentLength
-    _normalizedY = _segmentLength * (_pointBY - _pointAY) / _length; // i.e. every time we add _normalized x and y, we move the appropriate segment Length (which is somewhere around idealSegmentSize) down the line, breaking the line up into roughly idealSegmentSize segments.
+    private _normalizedX = _segmentLength * (_pointBX - _pointAX) / _length; // When normalized, 1 unit represents 1 meter of movement. Thus in order to advance at the correct segment length every time we add x or y, we must multiply by _segmentLength
+    private _normalizedY = _segmentLength * (_pointBY - _pointAY) / _length; // i.e. every time we add _normalized x and y, we move the appropriate segment Length (which is somewhere around IDEAL_SEGMENT_SIZE) down the line, breaking the line up into roughly IDEAL_SEGMENT_SIZE segments.
     //--------------------------------------------------------------------------
 
-    _lineEquation = [_pointA, _pointB] call kyf_WF_getSLEqn;
-    _m = _lineEquation select 0; // _m = gradient
-    _c = _lineEquation select 1; // _c = y-int
+    private _lineEquation = [_pointA, _pointB] call kyf_WF_getSLEqn;
+    private _m = _lineEquation select 0; // _m = gradient
+    private _c = _lineEquation select 1; // _c = y-int
 
-    _lineSegments = [];
+    private _lineSegments = [];
     for [{private _i = 1; private _startX = _pointA select 0; private _startY = _pointA select 1; private ["_xValSeg", "_yValSeg", "_xValMid", "_yValMid"]}, {_i <= _segmentCount}, {_i = _i + 1}] do {
 
       // Get x and y val of the segment point to get the equation of the perpendicular segment line
@@ -160,13 +190,41 @@ _segmentZoneAxis = {
       _xValMid = _xValSeg - (_normalizedX / 2);
       _yValMid = _yValSeg - (_normalizedY / 2);
 
-      _lineSegments pushBack [_i * _segmentLength, [-1 / _m, _yValSeg + (_xValSeg / _m)], [-1 / _m, _yValMid + (_xValMid / _m)]]; // The second element is the equation of the line representing this segment, which runs perpendicular to the line connecting points A and B (hence mPerp = -1 / mAB),
-      //while the third element is the equation of the line running perpendicular to AB at the midway point of the segment. See Perpendicular segment line Equation 1
-      // With this method the very first point is not included (pointA) but the very last one is (pointB). The idea here is that we use the <= _distance method to distinguish the segments from one another.
+      // DEBUG
+      // Place a marker for both segment points and the middle of each segment
+      #ifdef MAJOR_DEBUG
+        private _segMarker = createMarker [str ([_xValSeg, _yValSeg]), [_xValSeg, _yValSeg]];
+        _segMarker setMarkerShape "ICON";
+        _segMarker setMarkerType "hd_dot";
+        _segMarker setMarkerColor "ColorBlue";
+
+        private _midSegMarker = createMarker [str ([_xValMid, _yValMid]),[_xValMid, _yValMid]];
+        _midSegMarker setMarkerShape "ICON";
+        _midSegMarker setMarkerType "hd_dot";
+        _midSegMarker setMarkerColor "ColorGreen";
+      #endif
+      // END DEBUG
+
+      /* The second element is the equation of the line representing this segment, which runs perpendicular to the line connecting points A and B (hence mPerp = -1 / mAB),
+      while the third element is the equation of the line running perpendicular to AB at the midway point of the segment. See Perpendicular segment line Equation 1.
+      With this method the very first point is not included (pointA) but the very last one is (pointB). The idea here is that we use the <= _distance method to distinguish the segments from one another.*/
+      _lineSegments pushBack [_i * _segmentLength, [-1 / _m, _yValSeg + (_xValSeg / _m)], [-1 / _m, _yValMid + (_xValMid / _m)]];
     };
 
     _allLineSegments pushBack _lineSegments;
   } forEach [[_point1, _point2, _sizeA], [_point3, _point4, _sizeB]]; // Each array represents a major axis of the elipse.
+
+  // DEBUG
+  // Print out all line segment info to rpt file
+  #ifdef MAJOR_DEBUG
+    diag_log DEBUG_TITLE;
+    diag_log FILE_INTRO;
+    diag_log FILE_NAME;
+    diag_log "All line segments:";
+    diag_log _allLineSegments;
+    diag_log DEBUG_END;
+  #endif
+  // END DEBUG
 
   /* _allLineSegments format: [_axisASegments, _axisBSegments]
   Where each _axisSegments array is [[seg1, perpLineEqn, perpHalfwayLineEqn], [seg2, perpLineEqn, perpHalfwayLineEqn], ...] */
@@ -284,7 +342,7 @@ for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
     _zone = _zonesUnsorted select _n;
 
     if ([str _i, _zone, 8] call kyf_WF_compareStrToNestedStr) exitWith {
-      kyf_WG_allZones pushBack ([_zone, _i] call _addBasicZoneInfo);
+      kyf_WG_allZones pushBack ([_zone, _i, _zepIndex, _exitPointsUnsorted] call _addBasicZoneInfo);
       // Each zone now looks like the following format: [zone index identifier, [basic geometrical info], exit point info]
       _zonesUnsorted deleteAt _n;
     };
