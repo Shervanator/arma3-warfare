@@ -24,6 +24,14 @@ params ["_pos", "_returnFullZone"];
 _zone = [];
 _return = -1;
 
+// DEBUG
+  #ifdef EXTREME_DEBUG
+    DEBUG_LOG_START(__FILE__);
+    diag_log "Finding the zone of a given position";
+    diag_log format ["Checking zone %1", _x select 0];
+  #endif
+// END DEBUG
+
 {
   private ["_zoneBasicInfo", "_zoneCentre"];
 
@@ -32,7 +40,6 @@ _return = -1;
 
   // DEBUG
     #ifdef EXTREME_DEBUG
-      diag_log format ["Checking file %1", __FILE__];
       diag_log format ["Checking zone %1", _x select 0];
     #endif
   // END DEBUG
@@ -54,5 +61,11 @@ _return = -1;
     };
   };
 } forEach kyf_WG_allZones;
+
+// DEBUG
+#ifdef EXTREME_DEBUG
+  DEBUG_LOG_END(__FILE__);
+#endif
+// END DEBUG
 
 _return
