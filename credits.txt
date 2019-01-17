@@ -1,0 +1,3 @@
+Thanks to the following great people for making this mission possible:
+
+code34 (Nicolas BOITEUX) for the iniDBI2 addon

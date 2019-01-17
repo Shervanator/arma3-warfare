@@ -6,10 +6,6 @@
   missionNamespace setVariable [_markerName + _x, nil];
 } forEach ["_Link", "_LinkD2", "_LinkD"];
 
-- Test if a very small zone (smaller than IDEAL_SEGMENT_SIZE) is segmented into just 1 segment properly as it should be
-
-- Make sure that a zone that cannot be pathed to from another zoen does not break the pathing system
-
 - What happens if a point is overlapped by two zones? */
 
 //------------------------------------------------------------------------------
@@ -29,26 +25,29 @@
 // Pressing buttons will increase/decrease the speed at which the pathfinding function runs
 #ifdef DEBUG_SETUP_ZONES_SLOW_MODE
   if !(isDedicated) then {
+
+    hint format ["Zone Setup Debug: Slow mode enabled. Press DOWNARROW/UPARROW to increase/deacrese the speed of debug markers appearing on the map by %1 seconds", DEBUG_SETUP_SM_INCREMENT_AMOUNT];
+
     kyf_WG_DEBUG_SETUP_smVal = DEBUG_SETUP_SM_DEFAULT_VAL;
 
     private _processKeyPress = {
       private _key = _this select 1;
 
       switch (_key) do {
-        case 200: { 
+        case UPARROWKEY_DIK: { 
           if (kyf_WG_DEBUG_SETUP_smVal >= DEBUG_SETUP_SM_SLOWEST) then {
             hint "Already at slowest setting";
           } else {
-            kyf_WG_DEBUG_SETUP_smVal = kyf_WG_DEBUG_SETUP_smVal + 5;
+            kyf_WG_DEBUG_SETUP_smVal = kyf_WG_DEBUG_SETUP_smVal + DEBUG_SETUP_SM_INCREMENT_AMOUNT;
             hint format ["Delay increased to %1 seconds", kyf_WG_DEBUG_SETUP_smVal];
           };
         };
 
-        case 208: {
+        case DOWNARROW_DIK: {
           if (kyf_WG_DEBUG_SETUP_smVal <= DEBUG_SETUP_SM_FASTEST) then {
             hint "Already at fastest setting";
           } else {
-            kyf_WG_DEBUG_SETUP_smVal = kyf_WG_DEBUG_SETUP_smVal - 5;
+            kyf_WG_DEBUG_SETUP_smVal = kyf_WG_DEBUG_SETUP_smVal - DEBUG_SETUP_SM_INCREMENT_AMOUNT;
             hint format ["Delay reduced to %1 seconds", kyf_WG_DEBUG_SETUP_smVal];
           };
         };
@@ -74,7 +73,7 @@
 //------------------------------------------------------------------------------
 // Function for adding basic exit point information to a zone
 
-_add_zep_info = {
+private _add_zep_info = {
   private ["_zepIndex", "_exitPointsUnsorted", "_zoneInfo"];
   params ["_zepIndex", "_exitPointsUnsorted", "_zoneInfo"];
 
@@ -83,7 +82,7 @@ _add_zep_info = {
   // DEBUG
   #ifdef SETUP_ZONE_DEBUG_MAJOR
     DEBUG_LOG_START("_add_zep_info");
-    diag_log "Cheking zone exit point information - _add_zep_info";
+    diag_log "Checking zone exit point information - _add_zep_info";
     diag_log format ["Parent Zone: %1", _zoneName];
   #endif
   //END DEBUG
@@ -145,7 +144,7 @@ _add_zep_info = {
 based on the angle of the elipse, and then translated to the elipse's original position to obtain the true corner points of the elipse.
 Based on the formula for rotation of a point around the origin with (x1, y1) and a rotation of @ degrees: x2 = x1Cos@ - y1Sin@, y2 = y1Cos@ + x1Sin@*/
 
-_getElipseCornerPoint = {
+private _getElipseCornerPoint = {
   private ["_xVal", "_yVal", "_rotation", "_centreX", "_centreY"];
   params ["_xVal", "_yVal", "_rotation", "_centreX", "_centreY"];
 
@@ -156,7 +155,7 @@ _getElipseCornerPoint = {
 //------------------------------------------------------------------------------
 // Function for adding important zone info to the zone array for future use
 
-_addBasicZoneInfo = {
+private _addBasicZoneInfo = {
   private ["_zone", "_zoneIndex"];
   params ["_zone", "_zoneIndex"];
 
@@ -211,7 +210,7 @@ _addBasicZoneInfo = {
 // Divide the zone into segments
 // See exhibit elipse segmentation 1 for a good illustration of this function
 
-_segmentZoneAxis = {
+private _segmentZoneAxis = {
   private ["_point1", "_point2", "_point3", "_point4", "_sizeA", "_sizeB"];
   params ["_point1", "_point2", "_point3", "_point4", "_sizeA", "_sizeB"]; // The four corner points of the elipse and half the length of the two axis
 
@@ -222,7 +221,7 @@ _segmentZoneAxis = {
   {
     private _pointA = _x select 0;
     private _pointB = _x select 1;
-    private _length = 2 * (_x select 2); // length here represents the length of the axis, in meters (i.e. 2 * _sizeA or 2 * _sizeB)
+    private _length = _x select 2; // length here represents the length of the axis, in meters (i.e. _sizeA or _sizeB)
 
     private _pointAX = _pointA select 0;
     private _pointAY = _pointA select 1;
@@ -230,15 +229,10 @@ _segmentZoneAxis = {
     private _pointBY = _pointB select 1;
 
     // Find the segment length closest to IDEAL_SEGMENT_SIZE that divides the lenghts of the axis into equal segments
-    private _segmentCount = floor (_length / IDEAL_SEGMENT_SIZE);
+    private _segmentCount = (floor (_length / IDEAL_SEGMENT_SIZE)) + 1; // The "+1" protects against a zero divisor later on should IDEAL_SEGMENT_SIZE be greater than _length, resultin in a zero from the floor
 
-    // Make the entire zone just one segment by default, in case the IDEAL_SEGMENT_SIZE is larger than the dimensions of the zone (protect against zero divisor)
-    private _segmentLength = _length;
-
-    // If IDEAL_SEGMENT_SIZE is smaller than the zone, then break the zone up into multiple segments
-    if (_segmentCount > 0) then {
-      _segmentLength = _length / _segmentCount; // see exhibit elipse segmentation 1 for explanation
-    };
+    // Find the lenght of an individual segement
+    private _segmentLength = _length / _segmentCount;
 
     //--------------------------------------------------------------------------
     // Normalize the line (assume point A is the start and point B is the end)
@@ -317,15 +311,9 @@ _segmentZoneAxis = {
 of resources. This is because divisions are created in a rectangular pattern while the zone is an elipse. Improve later on if 
 time permits. */
 
-_createDivisions = {
-  private ["_lineSegments", "_zoneGeoInfo"];
-  params ["_lineSegments", "_zoneGeoInfo"];
-
-  private _centreX = (_zoneGeoInfo select 0) select 0;
-  private _centreY = (_zoneGeoInfo select 0) select 1;
-  private _sizeA = _zoneGeoInfo select 1;
-  private _sizeB = _zoneGeoInfo select 2;
-  private _rotation = _zoneGeoInfo select 3;
+private _createDivisions = {
+  private ["_lineSegments"];
+  params ["_lineSegments"];
 
   private _divisions = [];
 
@@ -504,7 +492,7 @@ for [{private _i = 0; private _elipseInfo = []}, {_i < (count kyf_WG_allZones)},
 
   /*Because these zone divisions are created in the same order as zones in the allZones array, the index of a zone in the allZones array
   corresponds to its index in the zoneDivisions array*/
-  kyf_WG_zoneDivisions pushBack ([_segmentInfo, _zone select 1] call _createDivisions);
+  kyf_WG_zoneDivisions pushBack ([_segmentInfo] call _createDivisions);
 };
 
 // DEBUG

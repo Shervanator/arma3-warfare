@@ -1,0 +1,5 @@
+This mod is dependent on the following addons:
+
+- iniDBI2: https://forums.bohemia.net/forums/topic/186131-inidbi2-save-and-load-data-to-the-server-or-your-local-computer-without-databases/
+    
+    Enables the missions to read and write files. Necessary for initial mission setup (to export setup data) and for using the saving/ loading functions

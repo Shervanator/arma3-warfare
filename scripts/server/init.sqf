@@ -488,6 +488,12 @@ WF_requestTransport = compileFinal preprocessFileLineNumbers "scripts\server\fun
 WF_getNearRoadOrSafePos = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getNearRoadOrSafePos.sqf";
 kyf_WF_getZones = compileFinal preprocessFileLineNumbers "scripts\server\functions\kyf_WF_getZones.sqf";
 
+
+// Addon functions --------------------------------------------------------------------------------------
+
+// iniDB
+//-------------------------------------------------------------------------------------------------------
+
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
 [west, "WEST2"] call BIS_fnc_addRespawnInventory;
 

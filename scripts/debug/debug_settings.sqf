@@ -8,7 +8,7 @@
 
 #define DEBUG_LOG_START(FUNC) diag_log format ["----------------------------- DEBUG START: %1 -----------------------------", FUNC]
 #define FILE_INTRO "File:"
-#define DEBUG_LOG_END(FUNC) diag_log format ["----------------------------- DEBUG END: %1 -----------------------------\n", FUNC]
+#define DEBUG_LOG_END(FUNC) diag_log format ["----------------------------- DEBUG END: %1 -----------------------------", FUNC]
 
 //------------------------------------------------------------------------------
 // Zone setup debug
@@ -28,4 +28,8 @@ map the best path determined. Note that command only works when running on a cli
   #define DEBUG_SETUP_SM_MEDIUM 5
   #define DEBUG_SETUP_SM_FASTEST 0
   #define DEBUG_SETUP_SM_DEFAULT_VAL DEBUG_SETUP_SM_SLOWEST
+  #define DEBUG_SETUP_SM_INCREMENT_AMOUNT 0.5
+
+  #define UPARROWKEY_DIK 200
+  #define DOWNARROW_DIK 208
 #endif
