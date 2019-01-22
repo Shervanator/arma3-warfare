@@ -33,3 +33,6 @@ map the best path determined. Note that command only works when running on a cli
   #define UPARROWKEY_DIK 200
   #define DOWNARROW_DIK 208
 #endif
+
+// Creating paths between zones divisions and saving them to a database
+#define DEBUG_SETUP_PREDEF_PATHS 1

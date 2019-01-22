@@ -476,7 +476,8 @@ for [{private _i = 0; private _zepIndex = -1}, {_i < (count kyf_WG_allZones)}, {
 //------------------------------------------------------------------------------
 // Divide the zone into divisions
 
-// Initialize necessary array containing geometrical data for divisions of each zone. A zone's index in the kyf_WG_allZones array corresponds to it's index in this array
+/* Initialize necessary array containing geometrical data for divisions of each zone. A zone's index in the kyf_WG_allZones array corresponds to it's index in this array. 
+Format: [zone0 divisions, zone1 divisions, ...]*/
 kyf_WG_zoneDivisions = [];
 
 // Fill up _zoneDivisions
@@ -518,11 +519,21 @@ kyf_WG_zoneDivisionPaths = []; // containing all pre-calculated land paths for e
 #ifdef SETUP_ZONE_DEBUG_MAJOR
   hint "SETUP DEBUG: Satrting zone division creation";
 #endif
+
+#ifdef DEBUG_SETUP_PREDEF_PATHS
+  diag_log DEBUG_LOG_START("Predefined paths");
+#endif
 //END DEBUG
 
 // Loop through each zone and create paths for each of its divisions. _zoneIndex represents the zone currently being processed
 for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; private ["_zoneDivs", "_zonePaths"]}, {_zoneIndex < _countZones}, {_zoneIndex = _zoneIndex + 1}] do {
   _zoneDivs = kyf_WG_zoneDivisions select _zoneIndex; // = all divisions for that zone = [div1, div2, div3, ...]
+
+  // DEBUG
+  #ifdef DEBUG_SETUP_PREDEF_PATHS
+    diag_log format ["Creating paths for zone %1", _zoneIndex];
+  #endif
+  // END DEBUG
 
   /* _zonePaths will contain all paths for all divisions of this zone. Each element is the set of paths for a division. The index of each element corresponds to the index of 
   the division it's paths represent in the _zoneDivs array */
@@ -534,16 +545,34 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
     private _divPaths = []; /*All paths of this div. They are arranged in the same order as the zones in kyf_WG_allZones. So using the index of a zone,
     we can find the shortest path to it from this division */
 
+    // DEBUG
+    #ifdef DEBUG_SETUP_PREDEF_PATHS
+      diag_log "Creating a paths for the next division";
+    #endif
+    // END DEBUG
+
     // Loop through each zone and create paths to each division on that zone
     for [{private _i = 0}, {_i < _countZones}, {_i = _i + 1}] do {
       if (_i != _zoneIndex) then { // Make sure we are not creating paths to our own zone
-        private _targetZone = kyf_WG_zoneDivisions select _i; // _targetZone = array of all the diviions of the zone we are targeting
+        private _targetZone = kyf_WG_zoneDivisions select _i; // _targetZone = array of all the divisions of the zone we are targeting
         private _targetPaths = []; // Will contain paths to all divisions of _targetZone
+
+        // DEBUG
+        #ifdef DEBUG_SETUP_PREDEF_PATHS
+          diag_log format ["Target Zone (TZ): %1. N0 of divs of TZ: %2", _i, count _targetZone];
+        #endif
+        // END DEBUG
 
         /* Do a random pathing test to make sure that we can path to this zone, and not waste time trying to find a path to a zone we cannot reach division by division. 
         if the resulting test path only has two elements, it means that it was not able to path through zones to get from start to end, instead returning just a straight 
         path from start to destination. */
         if ((count (([_centre, ((_targetZone select 0) select 2), _zoneIndex, _i] call kyf_WF_findShortestPath) select 0)) != 2) then {
+
+          // DEBUG
+          #ifdef DEBUG_SETUP_PREDEF_PATHS
+            diag_log "Can successfully path to this zone";
+          #endif
+          // END DEBUG
 
           // Loop through each division of target zone and create a path to it
           for [{private _n = 0}, {_n < (count _targetZone)}, {_n = _n + 1}] do {
@@ -551,11 +580,22 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
 
             /* Find shortest path between the centre of the two divisions and place it in the paths array, in the same order as the divisions are arranged in the target zone, 
             so that using that divisions index we can find the quickest path to it from various divisions around the map.*/
-            _targetPaths pushBack ([_centre, (_targetDiv select 2), _zoneIndex, _i] call kyf_WF_findShortestPath);
+            private _path = [_centre, (_targetDiv select 2), _zoneIndex, _i] call kyf_WF_findShortestPath;
+
+            /* For some reason, the return value of findShortestPath must be stored in a variable before using pushback, as pushback-ing the return value of this function 
+            directly into _targetPaths has been causing issues */
+            _targetPaths pushBack _path;
           };
 
           _divPaths pushBack _targetPaths;
         } else { // i.e. we cannot path to this zone
+
+          // DEBUG
+          #ifdef DEBUG_SETUP_PREDEF_PATHS
+            diag_log "Cannot path to this zone";
+          #endif
+          // END DEBUG
+
           _divPaths pushBack [];
         };
       } else { // i.e. this is our own zone and there is no need to create a path to it
@@ -587,21 +627,13 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+// Now store all important information in an external database file for future use
+call kyf_WF_saveSetupInfoToDatabase;
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // DEBUG
 
 #ifdef SETUP_ZONE_DEBUG_NORMAL
   DEBUG_LOG_END(__FILE__);
 #endif
-
-
-
-/*xVal = ((getMarkerPos "start") select 0) + 100;
-yVal = (getMarkerPos "start") select 1;
-
-while {xVal < ((getMarkerPos "end") select 0)} do {
-  _marker = createMarker [str xVal, [xVal, yVal]];
-  _marker setMarkerShape "ICON";
-  _marker setMarkerType "hd_dot";
-  _marker setMarkerColor "ColorGreen";
-  xVal = xVal + 100;
-};*/
