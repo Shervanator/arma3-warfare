@@ -9,11 +9,11 @@ Returns:
 
 Author: kyfohatl */
 
-#include "scripts\server\missionSetup\setup_settings\zone_settings.sqf"
+#include "..\missionSetup\setup_settings\zone_settings.sqf"
 
 // DEBUG
-#include "scripts\server\debug\error_handling.sqf"
-#include "scripts\server\debug\zones\test_zone_paths.sqf"
+#include "..\debug\error_handling.sqf"
+#include "..\debug\zones\test_zone_paths.sqf"
 // END DEBUG
 
 // Zones -----------------------------------------------------------------

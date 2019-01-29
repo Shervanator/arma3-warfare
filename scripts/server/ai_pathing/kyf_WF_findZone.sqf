@@ -15,7 +15,7 @@ If the position is not inside any zone, -1 is returned.
 Author: kyfohatl*/
 
 // DEBUG
-//#include "scripts\server\debug\debug_settings.sqf"
+//#include "..\debug\debug_settings.sqf"
 // END DEBUG
 
 private ["_pos", "_returnFullZone", "_zone", "_return"];

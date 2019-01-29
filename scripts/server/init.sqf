@@ -5,6 +5,16 @@ WFG_townIncome = 20;
 WFG_AirportIncome = 30;
 
 //------------------------------------------------------------------------------
+// Read setup information from external database
+
+// Compile necessary functions
+kyf_WF_readSetupInfo = compileFinal preprocessFileLineNumbers "scripts\server\missionInit\kyf_WF_readSetupInfo.sqf";
+kyf_WF_readPredPaths = compileFinal preprocessFileLineNumbers "scripts\server\missionInit\kyf_WF_readPredPaths.sqf";
+
+// Now run them
+call kyf_WF_readSetupInfo;
+
+//------------------------------------------------------------------------------
 // AI behaviour modifying factors:
 
 // Unit Factor. LOWER value means the AI will opt to spend money on units more so than other avenues. Default is 5, recommended range is 3 - 7

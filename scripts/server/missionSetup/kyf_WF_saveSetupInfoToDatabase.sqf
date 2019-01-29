@@ -9,7 +9,7 @@ Returns: None
 Author: kyfohatl
 */
 
-#include "scripts\server\missionSetup\setup_settings\zone_settings.sqf"
+#include "setup_settings\zone_settings.sqf"
 
 // Create new database
 private _inidbi = ["new", EXTERNAL_DATABASE_NAME] call OO_INIDBI;
@@ -34,7 +34,7 @@ if ("exists" call _inidbi) then {
 
 // Number of divisions of each zone
 for [{private _i = 0}, {_i < (count kyf_WG_allZones)}, {_i = _i + 1}] do {
-  ["write", ["Zones", "countDivs_Z" + str _i, count (kyf_WG_allZones select _i)]] call _inidbi;
+  ["write", ["Zones", "countDivs_Z" + str _i, count (kyf_WG_zoneDivisions select _i)]] call _inidbi;
 };
 
 // Zone predefined paths

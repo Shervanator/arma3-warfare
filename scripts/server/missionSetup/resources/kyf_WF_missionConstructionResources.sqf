@@ -4,4 +4,4 @@ section.
 */
 
 // Zone creation and setup
-#include "scripts\server\missionSetup\resources\kyf_WF_zoneResources.sqf"
+#include "kyf_WF_zoneResources.sqf"

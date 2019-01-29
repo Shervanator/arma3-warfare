@@ -1,7 +1,7 @@
 #include "settings\global_settings.sqf"
 
 // Check if mission setup is to be run, or if the mission is to run normally
-if (isServer and !isDedicated and ENABLE_MISSION_SETUP) then {
+if (isServer and !isDedicated and (ENABLE_MISSION_SETUP isEqualTo 1)) then {
   // Run mission setup init
   [] execVM "scripts\server\missionSetup\setup_init.sqf";
 } else {

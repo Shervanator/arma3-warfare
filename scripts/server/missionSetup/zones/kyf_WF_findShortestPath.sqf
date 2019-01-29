@@ -14,15 +14,10 @@ Parameters:
  Author: kyfohatl*/
 
 // DEBUG
-#include "scripts\server\debug\debug_settings.sqf"
-
-// Slow mode related debug. Ensure DEBUG_SETUP_ZONES_SLOW_MODE is defined to use
-// Pressing buttons will increase/decrease the speed at which the pathfinding function runs
-#include "scripts\server\debug\zones\slow_mode.sqf"
-
+#include "..\..\debug\debug_settings.sqf"
 // END DEBUG
 
-#include "scripts\server\missionSetup\setup_settings\zone_settings.sqf"
+#include "..\setup_settings\zone_settings.sqf"
 
 private ["_startPos", "_endPos", "_startZoneInfo", "_endZoneInfo", "_startZone", "_endZone", "_hashTable", "_bestPath"];
 params ["_startPos", "_endPos", "_startZoneInfo", "_endZoneInfo"];
@@ -209,7 +204,7 @@ if (_bestPath isEqualTo []) then {
   };
 
   // Delay marker deletion by an appropriate amount based on chosen setting
-  sleep _kyf_WG_DEBUG_SETUP_smVal;
+  sleep kyf_WG_DEBUG_SETUP_smVal;
 
   // Now delete pathfinding debug markers
   {

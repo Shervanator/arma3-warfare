@@ -15,11 +15,15 @@ Author: kyfohatl */
 //------------------------------------------------------------------------------
 // Resources
 
-#include "scripts\server\missionSetup\setup_settings\zone_settings.sqf"
+#include "..\setup_settings\zone_settings.sqf"
 
 //------------------------------------------------------------------------------
 // DEBUG
-#include "scripts\server\debug\debug_settings.sqf"
+#include "..\..\debug\debug_settings.sqf"
+
+// Slow mode related debug. Ensure DEBUG_SETUP_ZONES_SLOW_MODE is defined to use
+// Pressing buttons will increase/decrease the speed at which the pathfinding function runs. Related to kyf_WF_findShortestPath.sqf
+#include "..\..\debug\zones\slow_mode.sqf"
 
 #ifdef SETUP_ZONE_DEBUG_NORMAL
   DEBUG_LOG_START(__FILE__);

@@ -10,7 +10,7 @@ Author: kyfohatl */
 
 // Slow mode, to allow markers to be displayed for custom amounts of time before moving on to the next set of merkers
 // Ensure DEBUG_SETUP_ZONES_SLOW_MODE is defined to use
-#include "scripts\server\debug\zones\slow_mode.sqf"
+#include "slow_mode.sqf"
 
 #ifdef DEBUG_ZONE_PATHS
   #define DEBUG_RUN_ZONE_PATH_TEST\
@@ -43,7 +43,7 @@ Author: kyfohatl */
             };\
 
             \// Wait for appropriate amount of time based on slow mode settings
-            sleep _kyf_WG_DEBUG_SETUP_smVal;\
+            sleep kyf_WG_DEBUG_SETUP_smVal;\
 
             \// Now delete pathfinding debug markers
             {\
