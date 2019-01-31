@@ -24,17 +24,21 @@ if ("exists" call _inidbi) then {
 // Zones
 
 // General zone information: Zone geometrical data and exit point information
-["write", ["Zones", "kyf_WG_allZones", kyf_WG_allZones]] call _inidbi;
+for [{private _i = 0}, {_i < (count kyf_WG_allZones)}, {_i = _i + 1}] do {
+  ["write", ["Zone Basic Info", "zone" + str _i, kyf_WG_allZones select _i]] call _inidbi;
+};
 
 // Zone divisions
-["write", ["Zones", "kyf_WG_zoneDivisions", kyf_WG_zoneDivisions]] call _inidbi;
+for [{private _i = 0}, {_i < (count kyf_WG_allZones)}, {_i = _i + 1}] do {
+  ["write", ["Zones Divisions", "zone" + str _i + "_divisions", kyf_WG_zoneDivisions select _i]] call _inidbi;
+};
 
 // Number of zones
-["write", ["Zones", "countZones", count kyf_WG_allZones]] call _inidbi;
+["write", ["Zones General Info", "countZones", count kyf_WG_allZones]] call _inidbi;
 
 // Number of divisions of each zone
 for [{private _i = 0}, {_i < (count kyf_WG_allZones)}, {_i = _i + 1}] do {
-  ["write", ["Zones", "countDivs_Z" + str _i, count (kyf_WG_zoneDivisions select _i)]] call _inidbi;
+  ["write", ["Zones General Info", "countDivs_Z" + str _i, count (kyf_WG_zoneDivisions select _i)]] call _inidbi;
 };
 
 // Zone predefined paths

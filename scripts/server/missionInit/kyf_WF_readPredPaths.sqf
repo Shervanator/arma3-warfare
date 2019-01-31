@@ -12,7 +12,7 @@ private ["_inidbi"];
 params ["_inidbi"];
 
 // Read the total number of zones
-private _countZones = ["read", ["Zones", "countZones"]] call _inidbi;
+private _countZones = ["read", ["Zones General Info", "countZones"]] call _inidbi;
 
 // Declare the global variable that will store all paths
 kyf_WG_zoneDivisionPaths = [];
@@ -22,7 +22,7 @@ for [{private _zone = 0}, {_zone < _countZones}, {_zone = _zone + 1}] do {
   kyf_WG_zoneDivisionPaths pushBack [];
 
   // Read division count of this zone
-  private _divCount = ["read", ["Zones", "countDivs_Z" + str _zone]] call _inidbi;
+  private _divCount = ["read", ["Zones General Info", "countDivs_Z" + str _zone]] call _inidbi;
 
   // Read paths for each division of this zone
   for [{private _div = 0}, {_div < _divCount}, {_div = _div + 1}] do {
@@ -45,7 +45,7 @@ for [{private _zone = 0}, {_zone < _countZones}, {_zone = _zone + 1}] do {
         (((kyf_WG_zoneDivisionPaths select _zone) select _div) select _targetZone) pushBack _path;
 
         // Read the division count of this target zone
-        private _tgtDivCount = ["read", ["Zones", "countDivs_Z" + str _targetZone]] call _inidbi;
+        private _tgtDivCount = ["read", ["Zones General Info", "countDivs_Z" + str _targetZone]] call _inidbi;
 
         // Cycle through the remaining divisions of this target zone and read paths to it
         for [{private _targetDiv = 1}, {_targetDiv < _tgtDivCount}, {_targetDiv = _targetDiv + 1}] do {

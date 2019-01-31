@@ -27,11 +27,22 @@ try {!(assert ("exists" call _inidbi))} catch {
   ERROR_LOG_END(__FILE__);
 };
 
-// Read general zone info
-kyf_WG_allZones = ["read", ["Zones", "kyf_WG_allZones"]] call _inidbi;
+// Read basic zone info
+kyf_WG_allZones = [];
+private _countZones = ["read", ["Zones General Info", "countZones"]] call _inidbi;
+
+for [{private _i = 0}, {_i < _countZones}, {_i = _i + 1}] do {
+  private _zoneInfo = ["read", ["Zone Basic Info", "zone" + str _i]] call _inidbi;
+  kyf_WG_allZones pushBack _zoneInfo;
+};
 
 // Read zone divisions
-kyf_WG_zoneDivisions = ["read", ["Zones", "kyf_WG_zoneDivisions"]] call _inidbi;
+kyf_WG_zoneDivisions = [];
+
+for [{private _i = 0}, {_i < _countZones}, {_i = _i + 1}] do {
+  private _zoneDivs = ["read", ["Zones Divisions", "zone" + str _i + "_divisions"]] call _inidbi;
+  kyf_WG_zoneDivisions pushBack _zoneDivs;
+};
 
 // Read zone paths
 [_inidbi] call kyf_WF_readPredPaths;
