@@ -13,7 +13,6 @@ Author: kyfohatl */
 
 // DEBUG
 #include "..\debug\error_handling.sqf"
-#include "..\debug\zones\test_zone_paths.sqf"
 // END DEBUG
 
 // Zones -----------------------------------------------------------------
@@ -39,5 +38,5 @@ kyf_WG_zoneDivisions = ["read", ["Zones", "kyf_WG_zoneDivisions"]] call _inidbi;
 
 // DEBUG
 // Will cycle through all paths and display them as markers on the screen. Make sure DEBUG_RUN_ZONE_PATH_TEST is defined to use
-DEBUG_RUN_ZONE_PATH_TEST
+#include "..\debug\zones\test_zone_paths.sqf"
 // END DEBUG
