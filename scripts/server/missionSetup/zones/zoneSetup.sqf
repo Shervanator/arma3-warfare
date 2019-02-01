@@ -169,8 +169,12 @@ private _addBasicZoneInfo = {
   #endif
   // END DEBUG
 
+  // Get the equation of the major and minor axis of the zone. Required for finding the division of a given point within the zone
+  private _axis1Eqn = [_cornerPoints select 0, _cornerPoints select 1] call kyf_WF_getSLEqn;
+  private _axis2Eqn = [_cornerPoints select 2, _cornerPoints select 3] call kyf_WF_getSLEqn;
+
   // Return val. This is what a zone looks like after this function has run. Format: [zone index identifier, [basic geometrical info], zone marker name]
-  [_zoneIndex, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints], _zone]
+  [_zoneIndex, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints, _axis1Eqn, _axis2Eqn], _zone]
 };
 
 //------------------------------------------------------------------------------

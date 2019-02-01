@@ -498,6 +498,12 @@ WF_requestTransport = compileFinal preprocessFileLineNumbers "scripts\server\fun
 WF_getNearRoadOrSafePos = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getNearRoadOrSafePos.sqf";
 kyf_WF_getZones = compileFinal preprocessFileLineNumbers "scripts\server\functions\kyf_WF_getZones.sqf";
 
+// AI pathfinding and distance functions -----------------------------------------------------------------
+kyf_WF_findZone = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_findZone.sqf";
+kyf_WF_getAngBetLines = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_getAngBetLines.sqf";
+kyf_WF_getZoneDiv = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_getZoneDiv.sqf";
+kyf_WF_getPath = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_getPath.sqf";
+
 
 // Addon functions --------------------------------------------------------------------------------------
 
