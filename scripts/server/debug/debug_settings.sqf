@@ -13,3 +13,6 @@
 //------------------------------------------------------------------------------
 // Zone setup debug
 #include "zones\zone_debug_settings.sqf"
+
+// AI pathing settings
+#include "ai_pathing\ai_pathing_settings.sqf"

@@ -49,4 +49,5 @@ if (_simplePath) then {
   _path = (((kyf_WG_zoneDivisionPaths select _startZone) select _startDiv) select _tgtZone) select _tgtDiv;
 };
 
+// Format: [start, pos1, pos2, ..., end]
 _path

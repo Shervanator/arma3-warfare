@@ -1,18 +1,11 @@
+// Include resources
+#include "debug\debug_settings.sqf"
+
 WFG_commanderCycleTime = 30;
 WFG_baseIncome = 20;
 WFG_villageIncome = 10;
 WFG_townIncome = 20;
 WFG_AirportIncome = 30;
-
-//------------------------------------------------------------------------------
-// Read setup information from external database
-
-// Compile necessary functions
-kyf_WF_readSetupInfo = compileFinal preprocessFileLineNumbers "scripts\server\missionInit\kyf_WF_readSetupInfo.sqf";
-kyf_WF_readPredPaths = compileFinal preprocessFileLineNumbers "scripts\server\missionInit\kyf_WF_readPredPaths.sqf";
-
-// Now run them
-call kyf_WF_readSetupInfo;
 
 //------------------------------------------------------------------------------
 // AI behaviour modifying factors:
@@ -498,16 +491,37 @@ WF_requestTransport = compileFinal preprocessFileLineNumbers "scripts\server\fun
 WF_getNearRoadOrSafePos = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getNearRoadOrSafePos.sqf";
 kyf_WF_getZones = compileFinal preprocessFileLineNumbers "scripts\server\functions\kyf_WF_getZones.sqf";
 
+// General functions -----------------------------------------------------------------------------------
+kyf_WF_make_marker = compileFinal preprocessFileLineNumbers "scripts\server\general\make_marker.sqf";
+
 // AI pathfinding and distance functions -----------------------------------------------------------------
 kyf_WF_findZone = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_findZone.sqf";
 kyf_WF_getAngBetLines = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_getAngBetLines.sqf";
 kyf_WF_getZoneDiv = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_getZoneDiv.sqf";
 kyf_WF_getPath = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_getPath.sqf";
 
+// Debug functions -------------------------------------------------------------------------------------
 
-// Addon functions --------------------------------------------------------------------------------------
+// General debug
 
-// iniDB
+// AI Pathing
+kyf_DF_showPath = compileFinal preprocessFileLineNumbers "scripts\server\debug\ai_pathing\show_path.sqf";
+
+#ifdef DEBUG_TEST_AI_PATHING
+  kyf_DF_test_AI_pathing = compileFinal preprocessFileLineNumbers "scripts\server\debug\ai_pathing\test_ai_pathing.sqf";
+#endif
+
+
+//-------------------------------------------------------------------------------------------------------
+// Read setup information from external database
+
+// Compile necessary functions
+kyf_WF_readSetupInfo = compileFinal preprocessFileLineNumbers "scripts\server\missionInit\kyf_WF_readSetupInfo.sqf";
+kyf_WF_readPredPaths = compileFinal preprocessFileLineNumbers "scripts\server\missionInit\kyf_WF_readPredPaths.sqf";
+
+// Now run them
+call kyf_WF_readSetupInfo;
+
 //-------------------------------------------------------------------------------------------------------
 
 [west, "WEST1"] call BIS_fnc_addRespawnInventory;
