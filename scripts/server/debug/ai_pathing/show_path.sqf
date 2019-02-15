@@ -18,8 +18,11 @@ Author: kyfohatl
 #define MARKER_TYPE_SPECIAL "mil_triangle"
 #define MARKER_COLOUR_DEFAULT "ColorPink"
 
-private ["_path", "_color"];
-params ["_path", "_color"];
+private ["_pathData", "_color"];
+params ["_pathData", "_color"];
+
+// Take only the position data of the path and discard the distance data
+private _path = _pathData select 0;
 
 private _markerColor = MARKER_COLOUR_DEFAULT;
 
@@ -31,7 +34,7 @@ if !(isNil "_color") then {
   _markerColor = _color;
 };
 
-for [{private _i = 0}, {_i < (count _path)}, {_path = _path + 1}] do {
+for [{private _i = 0}, {_i < (count _path)}, {_i = _i + 1}] do {
   private _pos = _path select _i;
   private _markerName = MARKER_NAME_BASE;
   private _markerType = MARKER_TYPE_DEFAULT;

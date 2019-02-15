@@ -19,7 +19,7 @@ map the best path determined. Note that command only works when running on a cli
 #endif
 
 // Import key codes required for slow mode
-#include "..\..\..\settings\script_settings\button_codes.sqf"
+#include "..\..\..\..\settings\script_settings\button_codes.sqf"
 
 // Creating paths between zones divisions and saving them to a database
 #define DEBUG_SETUP_PREDEF_PATHS 1

@@ -9,6 +9,11 @@ Returns:
   
 Author: kyfohatl */
 
+// DEBUG
+#include "..\debug\ai_pathing\ai_pathing_settings.sqf"
+#include "..\debug\debug_settings.sqf"
+// END DEBUG
+
 private ["_pos", "_zone"];
 params ["_pos", "_zone"];
 
@@ -35,6 +40,23 @@ private _angle2 = [_line2Eqn select 0, _axis2Eqn select 0, 1] call kyf_WF_getAng
 _ax1Coordinate = (_point1 distance2D _pos) * (cos _angle1);
 _ax2Coordinate = (_point2 distance2D _pos) * (cos _angle2);
 
+// DEBUG
+// Log debug information
+#ifdef DEBUG_LOG_AI_PATHING_GET_ZONE_DIV
+  DEBUG_LOG_START(__FILE__);
+  diag_log format ["Finding the division of pos %1 in zone %2", _pos, _zone select 0];
+  diag_log format ["Angle1: %1, Angle2: %2", _angle1, _angle2];
+  diag_log format ["Axis 1 coordinate: %1, Axis 2 coordinate: %2", _ax1Coordinate, _ax2Coordinate];
+  diag_log format ["Line1 length: %1, Line2 Length: %2", _point1 distance2D _pos, _point2 distance2D _pos];
+#endif
+
+// Visualize debug information
+#ifdef DEBUG_VISUAL_AI_PATHING_GET_ZONE_DIV
+  // Hand over parameters to the debug manager currently running and it will organize a time for them to be shown
+  kyf_DG_aiPathing_VisPathManager_params pushBack [_pos, _zone, _point1, _point2, _angle1, _angle2, _ax1Coordinate, _ax2Coordinate];
+#endif
+// END DEBUG
+
 // Now find the division using aquired axis coordinates
 // In order to do so, we must go up each axis and find the first instance where our axis coordinates are less than the segment value
 private _zoneDivs = kyf_WG_zoneDivisions select (_zone select 0); // The zone's index corresponds to which element in the kyf_WG_zoneDivisions contains the divisions for this zone
@@ -42,26 +64,38 @@ private _zoneDivs = kyf_WG_zoneDivisions select (_zone select 0); // The zone's 
 // Initiate the division variable
 private _div = [];
 
+// DEBUG
+// Show debug information
+#ifdef DEBUG_LOG_AI_PATHING_GET_ZONE_DIV
+  diag_log format ["Divisions to be tested: %1", _zoneDivs];
+#endif
+// END DEBUG
+
 /* Line segements start from the smallest value and increase on both axis. Hence the first instance the pos aixs coordinates is <= to both axis segemtns is 
 the correct division for the pos */
-{
-  private _axis1Segment = _x select 0;
-  private _axis2Segment = _x select 1;
-
-  if ((_ax1Coordinate <= _axis1Segment) and (_ax2Coordinate <= _axis2Segment)) exitWith {
-    _div = [];
-  };
-} forEach _zoneDivs;
-
 for [{private _i = 0}, {_i < (count _zoneDivs)}, {_i = _i + 1}] do {
   private _currentDiv = _zoneDivs select _i;
   private _axis1Segment = _currentDiv select 0;
   private _axis2Segment = _currentDiv select 1;
 
+  // DEBUG
+  // Log debug information
+  #ifdef DEBUG_LOG_AI_PATHING_GET_ZONE_DIV
+    diag_log format ["Testing division: %1", _currentDiv];
+  #endif
+  // END DEBUG
+
   if ((_ax1Coordinate <= _axis1Segment) and (_ax2Coordinate <= _axis2Segment)) exitWith {
     _div = [_i, +_currentDiv];
   };
 };
+
+// DEBUG
+#ifdef DEBUG_LOG_AI_PATHING_GET_ZONE_DIV
+  diag_log format ["Chosen division: %1", _div];
+  DEBUG_LOG_END(__FILE__);
+#endif
+// END DEBUG
 
 // Return value format: [division index, [_line1Seg, _line2Seg, centre point of the division]]
 _div

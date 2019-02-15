@@ -5,3 +5,4 @@
 // Keyboard
 #define UPARROWKEY_DIK 200
 #define DOWNARROW_DIK 208
+#define KEY_J 36

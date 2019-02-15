@@ -193,7 +193,7 @@ private _segmentZoneAxis = {
   {
     private _pointA = _x select 0;
     private _pointB = _x select 1;
-    private _length = _x select 2; // length here represents the length of the axis, in meters (i.e. _sizeA or _sizeB)
+    private _length = (_x select 2) * 2; // length here represents the length of the axis, in meters (_sizeA * 2 or _sizeB * 2)
 
     private _pointAX = _pointA select 0;
     private _pointAY = _pointA select 1;
@@ -201,7 +201,7 @@ private _segmentZoneAxis = {
     private _pointBY = _pointB select 1;
 
     // Find the segment length closest to IDEAL_SEGMENT_SIZE that divides the lenghts of the axis into equal segments
-    private _segmentCount = (floor (_length / IDEAL_SEGMENT_SIZE)) + 1; // The "+1" protects against a zero divisor later on should IDEAL_SEGMENT_SIZE be greater than _length, resultin in a zero from the floor
+    private _segmentCount = (floor (_length / IDEAL_SEGMENT_SIZE)) + 1; // The "+1" protects against a zero divisor later on should IDEAL_SEGMENT_SIZE be greater than _length, resulting in a zero from the floor
 
     // Find the lenght of an individual segement
     private _segmentLength = _length / _segmentCount;

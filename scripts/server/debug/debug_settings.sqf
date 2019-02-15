@@ -1,4 +1,5 @@
-// Controls main debug settings
+/* The "all in one" debug file. Include all debug settings from various categories in this one file so that when it is in turn included in a file, 
+all debug settings will be loaded onto that file */
 
 // General debug
 #define LIGHT_DEBUG 1

@@ -489,12 +489,13 @@ WF_countEssentialVehicleCrew = compileFinal preprocessFileLineNumbers "scripts\s
 WF_AIunitSelection = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_AIunitSelection.sqf";
 WF_requestTransport = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_requestTransport.sqf";
 WF_getNearRoadOrSafePos = compileFinal preprocessFileLineNumbers "scripts\server\functions\WF_getNearRoadOrSafePos.sqf";
-kyf_WF_getZones = compileFinal preprocessFileLineNumbers "scripts\server\functions\kyf_WF_getZones.sqf";
 
 // General functions -----------------------------------------------------------------------------------
 kyf_WF_make_marker = compileFinal preprocessFileLineNumbers "scripts\server\general\make_marker.sqf";
 
 // AI pathfinding and distance functions -----------------------------------------------------------------
+kyf_WF_getSLEqn = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_getSLEqn.sqf";
+kyf_WF_isPointInEllipse = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_isPointInEllipse.sqf";
 kyf_WF_findZone = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_findZone.sqf";
 kyf_WF_getAngBetLines = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_getAngBetLines.sqf";
 kyf_WF_getZoneDiv = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathing\kyf_WF_getZoneDiv.sqf";
@@ -507,11 +508,6 @@ kyf_WF_getPath = compileFinal preprocessFileLineNumbers "scripts\server\ai_pathi
 // AI Pathing
 kyf_DF_showPath = compileFinal preprocessFileLineNumbers "scripts\server\debug\ai_pathing\show_path.sqf";
 
-#ifdef DEBUG_TEST_AI_PATHING
-  kyf_DF_test_AI_pathing = compileFinal preprocessFileLineNumbers "scripts\server\debug\ai_pathing\test_ai_pathing.sqf";
-#endif
-
-
 //-------------------------------------------------------------------------------------------------------
 // Read setup information from external database
 
@@ -521,6 +517,12 @@ kyf_WF_readPredPaths = compileFinal preprocessFileLineNumbers "scripts\server\mi
 
 // Now run them
 call kyf_WF_readSetupInfo;
+
+// Run debug function to allow paths to be tested (if relevant setting is enabled)
+#ifdef DEBUG_TEST_AI_PATHING
+  kyf_DF_test_AI_pathing = compileFinal preprocessFileLineNumbers "scripts\server\debug\ai_pathing\test_ai_pathing.sqf";
+  call kyf_DF_test_AI_pathing;
+#endif
 
 //-------------------------------------------------------------------------------------------------------
 
