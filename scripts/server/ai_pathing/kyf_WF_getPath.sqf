@@ -70,11 +70,8 @@ private _simplePath = false;
 // Initialize return value
 private _path = [];
 
-// Now get the correct path
-if (_simplePath) then {
-  // Make a straight path from start to end
-  _path = [_start, _end];
-} else {
+// Get proper path if possible
+if !(_simplePath) then {
   // DEBUG
   #ifdef DEBUG_AI_PATHING_GETPATH
     diag_log format ["Full data is: %1", _data];
@@ -85,8 +82,21 @@ if (_simplePath) then {
   private _startDiv = _data select 1;
   private _tgtZone = _data select 2;
   private _tgtDiv = _data select 3;
-  
-  _path = (((kyf_WG_zoneDivisionPaths select _startZone) select _startDiv) select _tgtZone) select _tgtDiv;
+
+  // Make sure that a path between these zones exists
+  if ((((kyf_WG_zoneDivisionPaths select _startZone) select _startDiv) select _tgtZone) isEqualTo []) then {
+    // Path between zones does not exist. Make a straight path
+    _simplePath = true;
+  } else {
+    // Path exists. Find the right path
+    _path = (((kyf_WG_zoneDivisionPaths select _startZone) select _startDiv) select _tgtZone) select _tgtDiv;
+  };
+};
+
+// Either at least one of the positions is not in a zone, or a path between the zones that contain the positions do not exist
+if (_simplePath) then {
+  // Make a straight path from start to end
+  _path = [[_start, _end], _start distanceSqr _end];
 };
 
 // DEBUG
