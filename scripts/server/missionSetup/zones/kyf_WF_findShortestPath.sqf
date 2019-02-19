@@ -69,7 +69,7 @@ if !((_startZone == _endZone) or (_startZone == -1) or (_endZone == -1)) then { 
   while {(count _pathQue) > 0} do {
     // select the highest priority path in que and expand
     private _currentPath = +(_pathQue select 0); // Copy because we are about to delete _pathQue select 0 shortly
-    private _curentPosIndex = _currentPath select 0; // i.e. _zepIndex = unique number representing our path. start inex = -1 and endpos inex = -2
+    private _curentPosIndex = _currentPath select 0; // i.e. _zepIndex = unique number representing our path. start index = -1 and endpos index = -2
     private _currentPos = _currentPath select 1;
 
     _pathQue deleteAt 0;
