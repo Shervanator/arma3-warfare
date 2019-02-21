@@ -15,6 +15,7 @@ Author: kyfohatl */
 kyf_WF_compareStrToNestedStr = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_compareStrToNestedStr.sqf";
 kyf_WF_findShortestPath = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_findShortestPath.sqf";
 kyf_WF_findSymbolInStr = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_findSymbolInStr.sqf";
+kyf_WF_addZepInfo = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\addZepInfo.sqf";
 kyf_WF_getSL_intersection = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_getSL_intersection.sqf";
 kyf_WF_getSLEqn = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_getSLEqn.sqf";
 kyf_WF_isPointInEllipse = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_isPointInEllipse.sqf";

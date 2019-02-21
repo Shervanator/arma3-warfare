@@ -31,8 +31,13 @@ Author: kyfohatl */
 
 //------------------------------------------------------------------------------
 #define ZONE_TAG "kyf_zone"
+#define WATER_ZONE_TAG "kyf_wZone"
 #define ZEP_TAG "kyf_zep"
+
+// Number of letters in a marker name tag
 #define ZN_LETCOUNT 8
+#define WZ_LETCOUNT 9
+#define ZEP_LETCOUNT 7
 
 // Ideal size of zone axis segments in meters
 #define IDEAL_SEGMENT_SIZE 1000
@@ -42,8 +47,8 @@ Author: kyfohatl */
 // Function for adding basic exit point information to a zone
 
 private _add_zep_info = {
-  private ["_zepIndex", "_exitPointsUnsorted", "_zoneInfo"];
-  params ["_zepIndex", "_exitPointsUnsorted", "_zoneInfo"];
+  private ["_zepIndex", "_exitPointsUnsorted", "_zoneInfo", "_letterCount"];
+  params ["_zepIndex", "_exitPointsUnsorted", "_zoneInfo", "_letterCount"];
 
   private _zoneName = _zoneInfo select 2;
 
@@ -57,13 +62,13 @@ private _add_zep_info = {
 
   private _exitPointInfo = [];
 
-  for [{private _i = 0; private _zoneNumberStr = _zoneName select [ZN_LETCOUNT, (count _zoneName) - ZN_LETCOUNT]; private ["_linkPos", "_zep", "_start"]}, {_i < (count _exitPointsUnsorted)}, {_i = _i + 1}] do {
+  for [{private _i = 0; private _zoneNumberStr = _zoneName select [_letterCount, (count _zoneName) - _letterCount]; private ["_linkPos", "_zep", "_start"]}, {_i < (count _exitPointsUnsorted)}, {_i = _i + 1}] do {
     _zep = _exitPointsUnsorted select _i;
 
     // Isolate the name of the owning zone from the name of the zep. In format kyf_zep12_z2, the second instance of "z" is our start point
     _start = ([_zep, "z", 2] call kyf_WF_findSymbolInStr) + 1;
 
-    // See if the exit point belongs this zone (i.e. has the same zone number). The zone number in format kyf_zone12 can be aquired by selecting between ZN_LETCOUNT and (count _zoneName) - ZN_LETCOUNT
+    // See if the exit point belongs this zone (i.e. has the same zone number). The zone number in format kyf_zone12 can be aquired by selecting between _letterCount and (count _zoneName) - _letterCount
     if ([_zoneNumberStr, _zep, _start] call kyf_WF_compareStrToNestedStr) then {
       // Assign exit point a unique number _zepIndex which corresponds to the index it occupies in the hash table array.
       _zepIndex = _zepIndex + 1;
@@ -175,6 +180,39 @@ private _addBasicZoneInfo = {
 
   // Return val. This is what a zone looks like after this function has run. Format: [zone index identifier, [basic geometrical info], zone marker name]
   [_zoneIndex, [_centre, _sizeA, _sizeB, _rotation, _cornerPoints, _axis1Eqn, _axis2Eqn], _zone]
+};
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+/* Function will index sort and place zones in kyf_WG_allZones based on their name. So "kyf_zone0" will be at index 0 while "kyf_zone2" will be at index 2. 
+Additionally, the creation of the basic form of a zone will be initiated by this function */
+
+private _sortAndFormZones = {
+  private ["_zoneCount", "_unsortedArray", "_sortedArray", "_letterCount", "_isWater"];
+  params ["_zoneCount", "_unsortedArray", "_sortedArray", "_letterCount", "_isWater"];
+
+  for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
+    for [{private _n = 0; private ["_zone"]}, {_n < (count _unsortedArray)}, {_n = _n + 1}] do {
+      _zone = _unsortedArray select _n;
+
+      if ([str _i, _zone, _letterCount] call kyf_WF_compareStrToNestedStr) exitWith {
+
+        if (_isWater) then {
+          // Each water zone will have the following format: [zone index identifier, [EMPTY ARRAY], Zone marker name]
+          /* Water Zones are on purpose made in the same structure as normal zones, to make interactions with already existing scripts easier (as water functionally was 
+          added retrospectively), despite the fact this means there will be some redundant elements (such as the empty array, as water zones do not need to store their 
+          geometrical information) */
+          _sortedArray pushBack [_i, [], _zone];
+        } else {
+          // Is a land zone
+          // Each land zone will have the following format: [zone index identifier, [basic geometrical info], Zone marker name]
+          _sortedArray pushBack ([_zone, _i] call _addBasicZoneInfo);
+        };
+
+        _unsortedArray deleteAt _n;
+      };
+    };
+  };
 };
 
 //------------------------------------------------------------------------------
@@ -335,15 +373,26 @@ private _createDivisions = {
 // Take all zone and exit point markers and put them in their corresponding array
 
 private _zonesUnsorted = [];
-private _exitPointsUnsorted = [];
 private _zoneCount = 0;
+private _wZonesUnsorted = [];
+private _wZoneCount = 0;
+private _exitPointsUnsorted = [];
+
 {
-  if ((_x select [0, 8]) isEqualTo ZONE_TAG) then {
+  if ((_x select [0, ZN_LETCOUNT]) isEqualTo ZONE_TAG) then {
+    // Marker is a regular zone
     _zonesUnsorted pushBack _x;
     _zoneCount = _zoneCount + 1;
   } else {
-    if ((_x select [0, 7]) isEqualTo ZEP_TAG) then { // zep = zone exit point
-      _exitPointsUnsorted pushBack _x;
+    if ((_x select [0, WZ_LETCOUNT]) isEqualTo WATER_ZONE_TAG) then {
+      // Marker is a water zone
+      _wZonesUnsorted pushBack _x;
+      _wZoneCount = _wZoneCount + 1;
+    } else {
+      if ((_x select [0, ZEP_LETCOUNT]) isEqualTo ZEP_TAG) then {
+        // zep = zone exit point. Marker is a zone exit point
+        _exitPointsUnsorted pushBack _x;
+      };
     };
   };
 } forEach allMapMarkers;
@@ -352,48 +401,47 @@ private _zoneCount = 0;
 //------------------------------------------------------------------------------
 // Sort the zones in order and add their basic info
 
-/*Initialize the global zones var. This var will be used here (instead of a local var) because some of the ncessary
-mission construction functions (namely findZone and findShortestPath) require this global var. During mission runtime however, the mission
-construction files will not run and hence this var will contain the finished version of the zone info.*/
+// Initialize global vars to store the finished zones
 kyf_WG_allZones = [];
+kyf_WG_allWaterZones = [];
 
-missionNamespace setVariable [HASH_TABLE_NAME, []];
-
-// Index sort and place zones in kyf_WG_allZones based on their name. So "kyf_zone0" will be at index 0 while "kyf_zone2" will be at index 2
-for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
-  for [{private _n = 0; private ["_zone"]}, {_n < (count _zonesUnsorted)}, {_n = _n + 1}] do {
-    _zone = _zonesUnsorted select _n;
-
-    if ([str _i, _zone, 8] call kyf_WF_compareStrToNestedStr) exitWith {
-
-      // Each zone will have the following format: [zone index identifier, [basic geometrical info], Zone marker name]
-      kyf_WG_allZones pushBack ([_zone, _i] call _addBasicZoneInfo);
-
-      _zonesUnsorted deleteAt _n;
-    };
-  };
-};
+{
+  _x call _sortAndFormZones;
+} forEach [[_zoneCount, _zonesUnsorted, kyf_WG_allZones, ZN_LETCOUNT, false], [_wZoneCount, _wZonesUnsorted, kyf_WG_allWaterZones, WZ_LETCOUNT, true]];
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Now add basic exit point information to each zone
 
-// _zepIndex is used to give each exit point a unique number, which will come very usefull in creating a hash table-like data structure later on
-for [{private _i = 0; private _zepIndex = -1}, {_i < (count kyf_WG_allZones)}, {_i = _i + 1}] do {
+// Initialize "hash table" var to collect exit point indexes
+missionNamespace setVariable [HASH_TABLE_NAME, []];
 
-  // After adding exit point info, a zone will have the following format: [zone index, [basic geometrical info], zone marker name, exit point information]
-  _zepIndex = [_zepIndex, _exitPointsUnsorted, kyf_WG_allZones select _i] call _add_zep_info;
-};
+{
+  // _zepIndex is used to give each exit point a unique number, which will come very usefull in creating a hash table-like data structure later on
+  for [{private _i = 0; private _zepIndex = -1}, {_i < (count (_x select 0))}, {_i = _i + 1}] do {
 
+    // After adding exit point info, a zone will have the following format: [zone index, [basic geometrical info / OR empty array], zone marker name, exit point information]
+    _zepIndex = [_zepIndex, _exitPointsUnsorted, (_x select 0) select _i, _x select 1] call _add_zep_info;
+  };
+} forEach [[kyf_WG_allZones, ZN_LETCOUNT], [kyf_WG_allWaterZones, WZ_LETCOUNT]];
 
 // DEBUG
 #ifdef SETUP_ZONE_DEBUG_MAJOR
   DEBUG_LOG_START("All Zones after adding zep info");
+  private _landZ_format = "[zone index identifier, [basic geometrical info], zone marker name, exit point info]";
+  private _waterZ_format = "[zone index identifier, [EMPTY ARRAY], zone marker name, exit point info]";
 
   {
-    diag_log "Zone format: [zone index identifier, [basic geometrical info], zone marker name, exit point info]";
-    diag_log _x;
-  } forEach kyf_WG_allZones;
+    private _format = _x select 0;
+    private _zoneArray = _x select 1;
+
+    diag_log (_x select 2);
+
+    {
+      diag_log ("Zone format: " + _format);
+      diag_log _x;
+    } forEach _zoneArray;
+  } forEach [[_landZ_format, kyf_WG_allZones, "LAND ZONES --------------------------"], [_waterZ_format, kyf_WG_allWaterZones, "WATER ZONES --------------------------"]];
 
   DEBUG_LOG_END("All Zones after adding zep info");
 #endif
@@ -405,48 +453,87 @@ for [{private _i = 0; private _zepIndex = -1}, {_i < (count kyf_WG_allZones)}, {
 // Add the unique index of the link to the linkInfo array within the exit point. This allows identification of the link by comparing a single number, rather than positions.
 
 {
-  private ["_linkInfo", "_linkPos", "_linkZone"];
-
+  private _allZones = _x;
   {
-    // exit point format [index identifier, pos, [link zone index, link pos], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]
-    _linkInfo = _x select 2;
-    _linkPos = _linkInfo select 1;
-    _linkZone = _linkInfo select 0;
+    private ["_linkInfo", "_linkPos", "_linkZone"];
 
     {
-      if (_linkPos isEqualTo (_x select 1)) exitWith {
-         _linkInfo pushBack (_x select 0);
-         // exit point format after this: [index identifier, pos, [link zone index, link pos, link index identifier], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]
-      };
-    } forEach ((kyf_WG_allZones select _linkZone) select 3); // = each exit point of the link zone
+      // exit point format [index identifier, pos, [link zone index, link pos], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]
+      _linkInfo = _x select 2;
+      _linkPos = _linkInfo select 1;
+      _linkZone = _linkInfo select 0;
 
-  } forEach (_x select 3) // = _exitPointInfo;
+      {
+        if (_linkPos isEqualTo (_x select 1)) exitWith {
+          _linkInfo pushBack (_x select 0);
+          // exit point format after this: [index identifier, pos, [link zone index, link pos, link index identifier], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]
+        };
+      } forEach ((_allZones select _linkZone) select 3); // = each exit point of the link zone
 
-} forEach kyf_WG_allZones;
+    } forEach (_x select 3) // = _exitPointInfo;
+
+  } forEach _allZones;
+} forEach [kyf_WG_allZones, kyf_WG_allWaterZones];
 
 // DEBUG
+// Log exit point information for all land and water zones after detail additions
 #ifdef SETUP_ZONE_DEBUG_MAJOR
   DEBUG_LOG_START("ZEPs after detail additions");
   diag_log "Exit point and link index identifier debug: Each zep should have the index identifier of their link in their link info array";
 
   {
-    diag_log format ["---------------- %1 ----------------", _x select 2];
+    diag_log (_x select 1);
 
     {
-      diag_log "Exit point format: [index identifier, pos, [link zone index, link pos, link index identifier], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]";
-      diag_log _x;
-    } forEach (_x select 3); // _exitPointInfo
+      diag_log format ["---------------- %1 ----------------", _x select 2];
 
-  } forEach kyf_WG_allZones;
+      {
+        diag_log "Exit point format: [index identifier, pos, [link zone index, link pos, link index identifier], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]";
+        diag_log _x;
+      } forEach (_x select 3); // _exitPointInfo
+
+    } forEach (_x select 0);
+  } forEach [[kyf_WG_allZones, "LAND ZONES --------------------------"], [kyf_WG_allWaterZones, "WATER ZONES --------------------------"]];
   
   DEBUG_LOG_END("ZEPs after detail additions");
 #endif
 // END DEBUG
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Tag zones with a boolean to tell water zones from land zones aprat easily
+
+{
+  // Water zones will have a true as the last element of the zone array, while land zones will have a false
+  private _isWater = _x select 1;
+
+  {
+    _x pushBack _isWater;
+  } forEach (_x select 0);
+} forEach [[kyf_WG_allZones, false], [kyf_WG_allWaterZones, true]];
+
+// DEBUG
+// Log zone arrays after previous additions
+#ifdef SETUP_ZONE_DEBUG_MAJOR
+  DEBUG_LOG_START("Completed zone arrays after all additions");
+
+  {
+    diag_log (_x select 1);
+
+    {
+      diag_log ((_x select 2) + ":");
+      diag_log _x;
+    } forEach (_x select 0);
+  } forEach [[kyf_WG_allZones, "LAND ZONES --------------------------"], [kyf_WG_allWaterZones, "WATER ZONES --------------------------"]];
+
+  DEBUG_LOG_END("Completed zone arrays after all additions");
+#endif
+// END DEBUG
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Divide the zone into divisions
+// Note that zone division and segmentation only occur for land zones
 
 /* Initialize necessary array containing geometrical data for divisions of each zone. A zone's index in the kyf_WG_allZones array corresponds to it's index in this array. 
 Format: [zone0 divisions, zone1 divisions, ...]*/
