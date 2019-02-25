@@ -31,12 +31,14 @@ Author: kyfohatl */
 
 //------------------------------------------------------------------------------
 #define ZONE_TAG "kyf_zone"
-#define WATER_ZONE_TAG "kyf_wZone"
 #define ZEP_TAG "kyf_zep"
+
+// Marker color is used to tell water and land zones apart
+#define LAND_Z_COLOR "ColorBlack"
+#define WATER_Z_COLOR "ColorBlue"
 
 // Number of letters in a marker name tag
 #define ZN_LETCOUNT 8
-#define WZ_LETCOUNT 9
 #define ZEP_LETCOUNT 7
 
 // Ideal size of zone axis segments in meters
@@ -188,27 +190,16 @@ private _addBasicZoneInfo = {
 Additionally, the creation of the basic form of a zone will be initiated by this function */
 
 private _sortAndFormZones = {
-  private ["_zoneCount", "_unsortedArray", "_sortedArray", "_letterCount", "_isWater"];
-  params ["_zoneCount", "_unsortedArray", "_sortedArray", "_letterCount", "_isWater"];
+  private ["_zoneCount", "_unsortedArray", "_sortedArray"];
+  params ["_zoneCount", "_unsortedArray", "_sortedArray"];
 
   for [{private _i = 0}, {_i < _zoneCount}, {_i = _i + 1}] do {
     for [{private _n = 0; private ["_zone"]}, {_n < (count _unsortedArray)}, {_n = _n + 1}] do {
       _zone = _unsortedArray select _n;
 
-      if ([str _i, _zone, _letterCount] call kyf_WF_compareStrToNestedStr) exitWith {
-
-        if (_isWater) then {
-          // Each water zone will have the following format: [zone index identifier, [EMPTY ARRAY], Zone marker name]
-          /* Water Zones are on purpose made in the same structure as normal zones, to make interactions with already existing scripts easier (as water functionally was 
-          added retrospectively), despite the fact this means there will be some redundant elements (such as the empty array, as water zones do not need to store their 
-          geometrical information) */
-          _sortedArray pushBack [_i, [], _zone];
-        } else {
-          // Is a land zone
-          // Each land zone will have the following format: [zone index identifier, [basic geometrical info], Zone marker name]
-          _sortedArray pushBack ([_zone, _i] call _addBasicZoneInfo);
-        };
-
+      if ([str _i, _zone, ZN_LETCOUNT] call kyf_WF_compareStrToNestedStr) exitWith {
+        // Each zone will have the following format: [zone index identifier, [basic geometrical info], Zone marker name]
+        _sortedArray pushBack ([_zone, _i] call _addBasicZoneInfo);
         _unsortedArray deleteAt _n;
       };
     };
@@ -374,25 +365,16 @@ private _createDivisions = {
 
 private _zonesUnsorted = [];
 private _zoneCount = 0;
-private _wZonesUnsorted = [];
-private _wZoneCount = 0;
 private _exitPointsUnsorted = [];
 
 {
   if ((_x select [0, ZN_LETCOUNT]) isEqualTo ZONE_TAG) then {
-    // Marker is a regular zone
     _zonesUnsorted pushBack _x;
     _zoneCount = _zoneCount + 1;
   } else {
-    if ((_x select [0, WZ_LETCOUNT]) isEqualTo WATER_ZONE_TAG) then {
-      // Marker is a water zone
-      _wZonesUnsorted pushBack _x;
-      _wZoneCount = _wZoneCount + 1;
-    } else {
-      if ((_x select [0, ZEP_LETCOUNT]) isEqualTo ZEP_TAG) then {
-        // zep = zone exit point. Marker is a zone exit point
-        _exitPointsUnsorted pushBack _x;
-      };
+    if ((_x select [0, ZEP_LETCOUNT]) isEqualTo ZEP_TAG) then {
+      // zep = zone exit point. Marker is a zone exit point
+      _exitPointsUnsorted pushBack _x;
     };
   };
 } forEach allMapMarkers;
@@ -401,13 +383,10 @@ private _exitPointsUnsorted = [];
 //------------------------------------------------------------------------------
 // Sort the zones in order and add their basic info
 
-// Initialize global vars to store the finished zones
+// Initialize global var to store the finished zones
 kyf_WG_allZones = [];
-kyf_WG_allWaterZones = [];
 
-{
-  _x call _sortAndFormZones;
-} forEach [[_zoneCount, _zonesUnsorted, kyf_WG_allZones, ZN_LETCOUNT, false], [_wZoneCount, _wZonesUnsorted, kyf_WG_allWaterZones, WZ_LETCOUNT, true]];
+[_zoneCount, _zonesUnsorted, kyf_WG_allZones] call _sortAndFormZones;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -416,32 +395,21 @@ kyf_WG_allWaterZones = [];
 // Initialize "hash table" var to collect exit point indexes
 missionNamespace setVariable [HASH_TABLE_NAME, []];
 
-{
-  // _zepIndex is used to give each exit point a unique number, which will come very usefull in creating a hash table-like data structure later on
-  for [{private _i = 0; private _zepIndex = -1}, {_i < (count (_x select 0))}, {_i = _i + 1}] do {
+// _zepIndex is used to give each exit point a unique number, which will come very usefull in creating a hash table-like data structure later on
+for [{private _i = 0; private _zepIndex = -1}, {_i < (count kyf_WG_allZones)}, {_i = _i + 1}] do {
 
-    // After adding exit point info, a zone will have the following format: [zone index, [basic geometrical info / OR empty array], zone marker name, exit point information]
-    _zepIndex = [_zepIndex, _exitPointsUnsorted, (_x select 0) select _i, _x select 1] call _add_zep_info;
-  };
-} forEach [[kyf_WG_allZones, ZN_LETCOUNT], [kyf_WG_allWaterZones, WZ_LETCOUNT]];
+  // After adding exit point info, a zone will have the following format: [zone index, [basic geometrical info], zone marker name, exit point information]
+  _zepIndex = [_zepIndex, _exitPointsUnsorted, kyf_WG_allZones select _i, ZN_LETCOUNT] call _add_zep_info;
+};
 
 // DEBUG
 #ifdef SETUP_ZONE_DEBUG_MAJOR
   DEBUG_LOG_START("All Zones after adding zep info");
-  private _landZ_format = "[zone index identifier, [basic geometrical info], zone marker name, exit point info]";
-  private _waterZ_format = "[zone index identifier, [EMPTY ARRAY], zone marker name, exit point info]";
 
   {
-    private _format = _x select 0;
-    private _zoneArray = _x select 1;
-
-    diag_log (_x select 2);
-
-    {
-      diag_log ("Zone format: " + _format);
-      diag_log _x;
-    } forEach _zoneArray;
-  } forEach [[_landZ_format, kyf_WG_allZones, "LAND ZONES --------------------------"], [_waterZ_format, kyf_WG_allWaterZones, "WATER ZONES --------------------------"]];
+    diag_log "Zone format: [zone index identifier, [basic geometrical info], zone marker name, exit point info]";
+    diag_log _x;
+  } forEach kyf_WG_allZones;
 
   DEBUG_LOG_END("All Zones after adding zep info");
 #endif
@@ -453,27 +421,23 @@ missionNamespace setVariable [HASH_TABLE_NAME, []];
 // Add the unique index of the link to the linkInfo array within the exit point. This allows identification of the link by comparing a single number, rather than positions.
 
 {
-  private _allZones = _x;
+  private ["_linkInfo", "_linkPos", "_linkZone"];
+
   {
-    private ["_linkInfo", "_linkPos", "_linkZone"];
+    // exit point format [index identifier, pos, [link zone index, link pos], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]
+    _linkInfo = _x select 2;
+    _linkPos = _linkInfo select 1;
+    _linkZone = _linkInfo select 0;
 
     {
-      // exit point format [index identifier, pos, [link zone index, link pos], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]
-      _linkInfo = _x select 2;
-      _linkPos = _linkInfo select 1;
-      _linkZone = _linkInfo select 0;
+      if (_linkPos isEqualTo (_x select 1)) exitWith {
+        _linkInfo pushBack (_x select 0);
+        // exit point format after this: [index identifier, pos, [link zone index, link pos, link index identifier], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]
+      };
+    } forEach ((kyf_WG_allZones select _linkZone) select 3); // = each exit point of the link zone
 
-      {
-        if (_linkPos isEqualTo (_x select 1)) exitWith {
-          _linkInfo pushBack (_x select 0);
-          // exit point format after this: [index identifier, pos, [link zone index, link pos, link index identifier], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]
-        };
-      } forEach ((_allZones select _linkZone) select 3); // = each exit point of the link zone
-
-    } forEach (_x select 3) // = _exitPointInfo;
-
-  } forEach _allZones;
-} forEach [kyf_WG_allZones, kyf_WG_allWaterZones];
+  } forEach (_x select 3) // = _exitPointInfo;
+} forEach kyf_WG_allZones;
 
 // DEBUG
 // Log exit point information for all land and water zones after detail additions
@@ -482,18 +446,14 @@ missionNamespace setVariable [HASH_TABLE_NAME, []];
   diag_log "Exit point and link index identifier debug: Each zep should have the index identifier of their link in their link info array";
 
   {
-    diag_log (_x select 1);
+    diag_log format ["---------------- %1 ----------------", _x select 2];
 
     {
-      diag_log format ["---------------- %1 ----------------", _x select 2];
+      diag_log "Exit point format: [index identifier, pos, [link zone index, link pos, link index identifier], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]";
+      diag_log _x;
+    } forEach (_x select 3); // _exitPointInfo
 
-      {
-        diag_log "Exit point format: [index identifier, pos, [link zone index, link pos, link index identifier], distance from pos to linkPos squared, distance from pos to linkPos, exit point marker name]";
-        diag_log _x;
-      } forEach (_x select 3); // _exitPointInfo
-
-    } forEach (_x select 0);
-  } forEach [[kyf_WG_allZones, "LAND ZONES --------------------------"], [kyf_WG_allWaterZones, "WATER ZONES --------------------------"]];
+  } forEach kyf_WG_allZones;
   
   DEBUG_LOG_END("ZEPs after detail additions");
 #endif
@@ -504,13 +464,16 @@ missionNamespace setVariable [HASH_TABLE_NAME, []];
 // Tag zones with a boolean to tell water zones from land zones aprat easily
 
 {
-  // Water zones will have a true as the last element of the zone array, while land zones will have a false
-  private _isWater = _x select 1;
+  private _zoneMarker = _x select 2;
 
-  {
-    _x pushBack _isWater;
-  } forEach (_x select 0);
-} forEach [[kyf_WG_allZones, false], [kyf_WG_allWaterZones, true]];
+  if ((getMarkerColor _zoneMarker) isEqualTo WATER_Z_COLOR) then {
+    // Is a water zone. Place true at the end of the zone array
+    _x pushBack true;
+  } else {
+    // Is a land zone. Place false at the end of the array
+    _x pushBack false;
+  }
+} forEach kyf_WG_allZones;
 
 // DEBUG
 // Log zone arrays after previous additions
@@ -518,13 +481,9 @@ missionNamespace setVariable [HASH_TABLE_NAME, []];
   DEBUG_LOG_START("Completed zone arrays after all additions");
 
   {
-    diag_log (_x select 1);
-
-    {
-      diag_log ((_x select 2) + ":");
-      diag_log _x;
-    } forEach (_x select 0);
-  } forEach [[kyf_WG_allZones, "LAND ZONES --------------------------"], [kyf_WG_allWaterZones, "WATER ZONES --------------------------"]];
+    diag_log ((_x select 2) + ":");
+    diag_log _x;
+  } forEach kyf_WG_allZones;
 
   DEBUG_LOG_END("Completed zone arrays after all additions");
 #endif
@@ -542,17 +501,24 @@ kyf_WG_zoneDivisions = [];
 // Fill up _zoneDivisions
 for [{private _i = 0; private _elipseInfo = []}, {_i < (count kyf_WG_allZones)}, {_i = _i + 1}] do {
   private _zone = kyf_WG_allZones select _i;
-  private _zoneGeoInfo = _zone select 1;
 
-  _elipseInfo = +(_zoneGeoInfo select 4);
-  _elipseInfo pushBack (_zoneGeoInfo select 1);
-  _elipseInfo pushBack (_zoneGeoInfo select 2);
+  if (_zone select 4) then {
+    // Is water zone. No need to create divisions, simply add placeholder element
+    kyf_WG_zoneDivisions pushBack [];
+  } else {
+    // Is land zone. Create divisions
+    private _zoneGeoInfo = _zone select 1;
 
-  _segmentInfo = _elipseInfo call _segmentZoneAxis;
+    _elipseInfo = +(_zoneGeoInfo select 4);
+    _elipseInfo pushBack (_zoneGeoInfo select 1);
+    _elipseInfo pushBack (_zoneGeoInfo select 2);
 
-  /*Because these zone divisions are created in the same order as zones in the allZones array, the index of a zone in the allZones array
-  corresponds to its index in the zoneDivisions array*/
-  kyf_WG_zoneDivisions pushBack ([_segmentInfo] call _createDivisions);
+    _segmentInfo = _elipseInfo call _segmentZoneAxis;
+
+    /*Because these zone divisions are created in the same order as zones in the allZones array, the index of a zone in the allZones array
+    corresponds to its index in the zoneDivisions array*/
+    kyf_WG_zoneDivisions pushBack ([_segmentInfo] call _createDivisions);
+  };
 };
 
 // DEBUG
@@ -612,7 +578,7 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
 
     // Loop through each zone and create paths to each division on that zone
     for [{private _i = 0}, {_i < _countZones}, {_i = _i + 1}] do {
-      if (_i != _zoneIndex) then { // Make sure we are not creating paths to our own zone
+      if ((_i != _zoneIndex) and !((kyf_WG_allZones select _i) select 4)) then { // Make sure we are not creating paths to our own zone or a water zone
         private _targetZone = kyf_WG_zoneDivisions select _i; // _targetZone = array of all the divisions of the zone we are targeting
         private _targetPaths = []; // Will contain paths to all divisions of _targetZone
 
@@ -657,7 +623,7 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
 
           _divPaths pushBack [];
         };
-      } else { // i.e. this is our own zone and there is no need to create a path to it
+      } else { // i.e. this is our own zone or a water zone and there is no need to create paths to it
         _divPaths pushBack [];
       };
     };
@@ -679,7 +645,7 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
   // DEBUG
   #ifdef SETUP_ZONE_DEBUG_MAJOR
     diag_log format ["--------------------------- Zone %1 Complete ---------------------------", _zoneIndex];
-    hint format ["Zone %1 divisions created", _zoneIndex];
+    hint format ["Zone %1 paths created", _zoneIndex];
   #endif
   // END DEBUG
 };
