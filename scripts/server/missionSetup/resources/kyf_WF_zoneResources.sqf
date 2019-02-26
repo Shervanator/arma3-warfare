@@ -10,7 +10,7 @@ Example: If zone0 connects to zone1 via exit point "kyf_zep0_z0" to exit point "
 "kyf_zep0_z3", then we would have: _exitPointPairs = [["kyf_zep0_z0", "kyf_zep0_z1"], ["kyf_zep1_z0", "kyf_zep0_z3"]] */
 
 // PLACE EXIT POINT PAIRS IN THIS ARRAY
-private _exitPointPairs = [["kyf_zep0_z0", "kyf_zep0_z1"], ["kyf_zep1_z1", "kyf_zep0_z2"], ["kyf_zep1_z2", "kyf_zep1_z3"], ["kyf_zep1_z0", "kyf_zep0_z3"], ["kyf_zep2_z3", "kyf_zep0_z5"], ["kyf_zep0_z4", "kyf_zep1_z5"], ["kyf_zep2_z2", "kyf_zep1_z6"], ["kyf_zep1_z4", "kyf_zep0_z6"]];
+private _exitPointPairs = [["kyf_zep0_z0", "kyf_zep0_z1"], ["kyf_zep1_z1", "kyf_zep0_z2"], ["kyf_zep1_z2", "kyf_zep1_z3"], ["kyf_zep1_z0", "kyf_zep0_z3"], ["kyf_zep2_z3", "kyf_zep0_z5"], ["kyf_zep0_z4", "kyf_zep1_z5"], ["kyf_zep2_z2", "kyf_zep1_z6"], ["kyf_zep1_z4", "kyf_zep0_z6"], ["kyf_zep2_z0", "kyf_zep0_z7"], ["kyf_zep1_z7", "kyf_zep0_z8"], ["kyf_zep1_z8", "kyf_zep0_z9"], ["kyf_zep3_z2", "kyf_zep1_z9"]];
 
 // Associated code
 {

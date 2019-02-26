@@ -461,7 +461,7 @@ for [{private _i = 0; private _zepIndex = -1}, {_i < (count kyf_WG_allZones)}, {
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// Tag zones with a boolean to tell water zones from land zones aprat easily
+// Tag zones with a boolean to tell water zones from land zones apart easily
 
 {
   private _zoneMarker = _x select 2;
@@ -591,7 +591,7 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
         /* Do a random pathing test to make sure that we can path to this zone, and not waste time trying to find a path to a zone we cannot reach division by division. 
         if the resulting test path only has two elements, it means that it was not able to path through zones to get from start to end, instead returning just a straight 
         path from start to destination. */
-        if ((count (([_centre, ((_targetZone select 0) select 2), _zoneIndex, _i] call kyf_WF_findShortestPath) select 0)) != 2) then {
+        if ((count (([_centre, ((_targetZone select 0) select 2), true, _zoneIndex, _i] call kyf_WF_findShortestPath) select 0)) != 2) then {
 
           // DEBUG
           #ifdef DEBUG_SETUP_PREDEF_PATHS
@@ -605,11 +605,25 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
 
             /* Find shortest path between the centre of the two divisions and place it in the paths array, in the same order as the divisions are arranged in the target zone, 
             so that using that divisions index we can find the quickest path to it from various divisions around the map.*/
-            private _path = [_centre, (_targetDiv select 2), _zoneIndex, _i] call kyf_WF_findShortestPath;
+            private _path = [_centre, (_targetDiv select 2), true, _zoneIndex, _i] call kyf_WF_findShortestPath;
+            private _fullPathArray = [_path];
 
             /* For some reason, the return value of findShortestPath must be stored in a variable before using pushback, as pushback-ing the return value of this function 
             directly into _targetPaths has been causing issues */
-            _targetPaths pushBack _path;
+            _targetPaths pushBack _fullPathArray;
+
+            // Check if path requires crossing water
+            if (_path select 2) then {
+              // The path contains water zones
+              // If possible, construct an alternate land-only path for cases where water paths are not desired
+              _path = [_centre, (_targetDiv select 2), false, _zoneIndex, _i] call kyf_WF_findShortestPath;
+
+              // Check if a land-only path is possible
+              if ((count (_path select 0)) != 2) then {
+                // Land only path is possible
+                _fullPathArray pushBack _path
+              };
+            };
           };
 
           _divPaths pushBack _targetPaths;

@@ -31,7 +31,7 @@ Author: kyfohatl */
         // Cycle through each target division of the target zone
         {
           private _tgtDiv = _x;
-          private _path = _tgtDiv select 0;
+          private _path = (_tgtDiv select 0) select 0;
           private _debugMarkers = [];
 
           // Now create a marker for each position on the path, wait some time depending on slow mode, and then delete the markers

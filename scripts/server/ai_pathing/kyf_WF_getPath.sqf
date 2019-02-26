@@ -3,6 +3,8 @@ between them is returned.
 
 Parameters:
 	- _start and _end: Position 2D or 3D of the starting and ending position
+  - _noWater: Boolean. If true water paths can be returned, while if false only land paths will be returned. In the case that a land-only path does not exits, 
+  then the water path will be returned
   
 Returns:
   - _path: Array of positions, indicating the path that must be travelled
@@ -36,8 +38,8 @@ Author: kyfohatl */
 #endif
 // END DEBUG
 
-private ["_start", "_end"];
-params ["_start", "_end"];
+private ["_start", "_end", "_noWater"];
+params ["_start", "_end", "_noWater"];
 
 private _data = [];
 private _simplePath = false;
@@ -68,6 +70,7 @@ private _simplePath = false;
 } forEach [_start, _end];
 
 // Initialize return value
+private _pathArray = [];
 private _path = [];
 
 // Get proper path if possible
@@ -89,14 +92,27 @@ if !(_simplePath) then {
     _simplePath = true;
   } else {
     // Path exists. Find the right path
-    _path = (((kyf_WG_zoneDivisionPaths select _startZone) select _startDiv) select _tgtZone) select _tgtDiv;
+    _pathArray = (((kyf_WG_zoneDivisionPaths select _startZone) select _startDiv) select _tgtZone) select _tgtDiv;
+
+    // By default, the first element in the _pathArray will be the shortest path. However it may require crossing water zones
+    _path = _pathArray select 0;
+
+    // Check water pathing
+    if (_noWater and ((_pathArray select 0) select 2)) then {
+      // Path contains water, but water paths are not desired. See if a land-only path exists
+      // If an alternative land-only path exists, it would be the second element in the _pathArray. If not, then the water path is returned
+      if ((count _pathArray) > 1) then {
+        // Alternative land-only path does exist
+        _path = _pathArray select 1;
+      };
+    };
   };
 };
 
-// Either at least one of the positions is not in a zone, or a path between the zones that contain the positions do not exist
+// If either at least one of the positions is not in a zone, or a path between the zones that contain the positions do not exist, then create a simple path
 if (_simplePath) then {
   // Make a straight path from start to end
-  _path = [[_start, _end], _start distanceSqr _end];
+  _path = [[_start, _end], _start distanceSqr _end, false];
 };
 
 // DEBUG
@@ -106,5 +122,5 @@ if (_simplePath) then {
 #endif
 // END DEBUG
 
-// Format: [start, pos1, pos2, ..., end]
+// Format: [path: [start, pos1, pos2, ..., end], total path cost in distance sqr, is water]
 _path
