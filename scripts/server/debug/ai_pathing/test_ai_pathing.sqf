@@ -59,6 +59,7 @@ if (assert (isServer and !isDedicated)) then {
         hint "Path chosen. Path MAY require crossing water. Displaying predefined path of best fit...";
       };
 
+      // Show the chosen end point on the map
       kyf_WG_debug_aiPath_endPoint = [MARKER_NAME_END + str _pos, _pos, "ICON", "mil_triangle", MARKER_COLOUR] call kyf_WF_make_marker;
 
       // Now show full path (path will include the nearest division centre if in a zone)

@@ -14,6 +14,7 @@ Author: kyfohatl */
 // Compile zone related functions
 kyf_WF_compareStrToNestedStr = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_compareStrToNestedStr.sqf";
 kyf_WF_findShortestPath = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_findShortestPath.sqf";
+kyf_WF_get_setup_path = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\get_setup_path.sqf";
 kyf_WF_findSymbolInStr = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_findSymbolInStr.sqf";
 kyf_WF_getSL_intersection = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_getSL_intersection.sqf";
 kyf_WF_getSLEqn = compileFinal preprocessFileLineNumbers "scripts\server\missionSetup\zones\kyf_WF_getSLEqn.sqf";

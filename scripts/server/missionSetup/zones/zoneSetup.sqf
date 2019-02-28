@@ -605,7 +605,11 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
 
             /* Find shortest path between the centre of the two divisions and place it in the paths array, in the same order as the divisions are arranged in the target zone, 
             so that using that divisions index we can find the quickest path to it from various divisions around the map.*/
-            private _path = [_centre, (_targetDiv select 2), true, _zoneIndex, _i] call kyf_WF_findShortestPath;
+            private _path = [_centre, (_targetDiv select 2), true, _zoneIndex, _i] call kyf_WF_get_setup_path;
+
+            // Now remove the starting and ending positions from the path as they are simply centres of divisions. This will free up some memory
+            
+            
             private _fullPathArray = [_path];
 
             /* For some reason, the return value of findShortestPath must be stored in a variable before using pushback, as pushback-ing the return value of this function 
@@ -616,7 +620,7 @@ for [{private _zoneIndex = 0; private _countZones = count kyf_WG_zoneDivisions; 
             if (_path select 2) then {
               // The path contains water zones
               // If possible, construct an alternate land-only path for cases where water paths are not desired
-              _path = [_centre, (_targetDiv select 2), false, _zoneIndex, _i] call kyf_WF_findShortestPath;
+              _path = [_centre, (_targetDiv select 2), false, _zoneIndex, _i] call kyf_WF_get_setup_path;
 
               // Check if a land-only path is possible
               if ((count (_path select 0)) != 2) then {

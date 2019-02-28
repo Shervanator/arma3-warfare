@@ -69,7 +69,7 @@ private _simplePath = false;
   _data pushBack (_div select 0);
 } forEach [_start, _end];
 
-// Initialize return value
+// Initialize necessary vars
 private _pathArray = [];
 private _path = [];
 
